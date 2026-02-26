@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Timeless Perspective | Trading Psychology & Position Sizing</title>
+  <meta name="description" content="Ex-petroleum exec turned futures trader. Author on position sizing and trading psychology. Free tools for serious traders." />
+  <meta property="og:title" content="The Timeless Perspective | Trading Psychology & Position Sizing" />
+  <meta property="og:description" content="Free tools and deep insights for serious traders. From a former petroleum exec who grew $10k to $207k." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@CandyCabin75" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0a0b0d;
+      --bg-secondary: #111218;
+      --bg-card: #16171e;
+      --border: #222333;
+      --border-light: #2a2b3d;
+      --text-primary: #e8e6e1;
+      --text-secondary: #9b9aac;
+      --text-muted: #5f5e70;
+      --accent: #c9a55a;
+      --accent-dim: #a6863e;
+      --accent-glow: rgba(201, 165, 90, 0.15);
+      --green: #4ecb71;
+      --red: #e55b5b;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-body); background: var(--bg-primary);
+      color: var(--text-primary); line-height: 1.6;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    ::selection { background: var(--accent); color: var(--bg-primary); }
+
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(10,11,13,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent; transition: border-color 0.3s;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-logo {
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 600;
+      color: var(--text-primary); letter-spacing: 0.02em; cursor: pointer;
+      background: none; border: none; text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none; font-size: 0.85rem;
+      font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
+      transition: color 0.2s; cursor: pointer;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: transparent; border: 1px solid var(--accent); color: var(--accent);
+      padding: 0.5rem 1.2rem; font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: all 0.3s; font-family: var(--font-body);
+    }
+    .nav-cta:hover { background: var(--accent); color: var(--bg-primary); }
+
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: center; padding: 8rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50%; right: -30%;
+      width: 80vw; height: 80vw;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 900px; margin: 0 auto; width: 100%; position: relative; z-index: 1; }
+    .hero-tag {
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .hero-tag::before { content: ''; width: 32px; height: 1px; background: var(--accent); }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 400; line-height: 1.1; margin-bottom: 1.5rem;
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero-sub {
+      font-size: 1.1rem; color: var(--text-secondary); max-width: 600px;
+      line-height: 1.7; margin-bottom: 2.5rem;
+    }
+    .hero-stats {
+      display: flex; gap: 3rem; margin-bottom: 3rem;
+      padding-top: 2rem; border-top: 1px solid var(--border);
+    }
+    .hero-stat-value { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 600; color: var(--accent); }
+    .hero-stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: var(--bg-primary); padding: 0.9rem 2rem; border: none;
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+      transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-primary:hover { background: #d4b268; transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent; color: var(--text-primary); padding: 0.9rem 2rem;
+      border: 1px solid var(--border-light); font-family: var(--font-body);
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em;
+      text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    section { padding: 6rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-tag { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem; }
+    .section-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; line-height: 1.2; margin-bottom: 1rem; }
+    .section-desc { font-size: 1rem; color: var(--text-secondary); max-width: 600px; line-height: 1.7; margin-bottom: 3rem; }
+
+    .about { background: var(--bg-secondary); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .about-text p { color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.8; }
+    .about-text p strong { color: var(--text-primary); font-weight: 600; }
+    .about-milestones { display: flex; flex-direction: column; gap: 1.5rem; }
+    .milestone { padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border); transition: border-color 0.3s; }
+    .milestone:hover { border-color: var(--accent-dim); }
+    .milestone-year { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .milestone-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .milestone-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .tool-card {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 2rem;
+      transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .tool-card:hover { border-color: var(--accent-dim); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+    .tool-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.4s;
+    }
+    .tool-card:hover::after { transform: scaleX(1); }
+    .tool-icon {
+      font-size: 1.5rem; margin-bottom: 1rem; width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-glow); border: 1px solid rgba(201,165,90,0.2);
+    }
+    .tool-status { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.6rem; display: inline-block; margin-bottom: 0.75rem; }
+    .tool-status.live { color: var(--green); border: 1px solid rgba(78,203,113,0.3); background: rgba(78,203,113,0.08); }
+    .tool-status.coming { color: var(--text-muted); border: 1px solid var(--border); }
+    .tool-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .tool-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+    .book { background: var(--bg-secondary); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .book-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; align-items: center; }
+    .book-cover {
+      aspect-ratio: 3/4; background: linear-gradient(145deg, #1a1b24 0%, #0d0e14 100%);
+      border: 1px solid var(--border); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 3rem; text-align: center; position: relative;
+    }
+    .book-cover::before { content: ''; position: absolute; inset: 12px; border: 1px solid var(--accent-dim); opacity: 0.3; }
+    .book-cover-tag { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1.5rem; }
+    .book-cover-title { font-family: var(--font-display); font-size: 2rem; font-weight: 600; line-height: 1.2; margin-bottom: 0.5rem; }
+    .book-cover-subtitle { font-family: var(--font-display); font-size: 1rem; font-style: italic; color: var(--text-secondary); }
+    .book-info h3 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 400; margin-bottom: 1.2rem; }
+    .book-info h3 em { font-style: italic; color: var(--accent); }
+    .book-info p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; }
+    .book-quote { border-left: 2px solid var(--accent); padding: 1rem 1.5rem; margin: 2rem 0; font-family: var(--font-display); font-size: 1.2rem; font-style: italic; color: var(--text-primary); line-height: 1.6; }
+
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .blog-card { background: var(--bg-card); border: 1px solid var(--border); padding: 2rem; transition: all 0.3s; }
+    .blog-card:hover { border-color: var(--accent-dim); }
+    .blog-date { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+    .blog-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.3; }
+    .blog-excerpt { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+    .blog-tag { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1rem; display: inline-block; }
+
+    .newsletter { background: var(--bg-primary); border-top: 1px solid var(--border); text-align: center; }
+    .newsletter .section-inner { max-width: 600px; }
+    .newsletter .section-desc { margin-left: auto; margin-right: auto; }
+    .newsletter-form { display: flex; gap: 0.75rem; max-width: 480px; margin: 0 auto; }
+    .newsletter-input {
+      flex: 1; padding: 0.9rem 1.2rem; background: var(--bg-card);
+      border: 1px solid var(--border); color: var(--text-primary);
+      font-family: var(--font-body); font-size: 0.9rem; outline: none; transition: border-color 0.3s;
+    }
+    .newsletter-input::placeholder { color: var(--text-muted); }
+    .newsletter-input:focus { border-color: var(--accent); }
+    .newsletter-btn {
+      padding: 0.9rem 1.8rem; background: var(--accent); color: var(--bg-primary);
+      border: none; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.3s; white-space: nowrap;
+    }
+    .newsletter-btn:hover { background: #d4b268; }
+    .newsletter-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; }
+
+    .footer { padding: 3rem 2rem; border-top: 1px solid var(--border); text-align: center; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.05em; transition: color 0.2s; cursor: pointer; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { font-size: 0.75rem; color: var(--text-muted); }
+    .footer-disclaimer { font-size: 0.7rem; color: var(--text-muted); max-width: 500px; margin: 1rem auto 0; line-height: 1.5; opacity: 0.6; }
+
+    .tool-page { padding: 7rem 2rem 4rem; }
+    .tool-page-inner { max-width: 900px; margin: 0 auto; }
+    .tool-back {
+      display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted);
+      font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 2rem;
+      cursor: pointer; background: none; border: none; font-family: var(--font-body); transition: color 0.2s;
+    }
+    .tool-back:hover { color: var(--accent); }
+    .tool-page h1 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 400; margin-bottom: 0.75rem; }
+    .tool-page-desc { font-size: 1rem; color: var(--text-secondary); max-width: 650px; line-height: 1.7; margin-bottom: 2.5rem; }
+
+    .calc-container { background: var(--bg-card); border: 1px solid var(--border); padding: 2.5rem; margin-bottom: 2rem; }
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .calc-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .calc-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--font-mono); }
+    .calc-input {
+      padding: 0.8rem 1rem; background: var(--bg-primary); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: var(--font-mono); font-size: 1rem;
+      outline: none; transition: border-color 0.3s;
+    }
+    .calc-input:focus { border-color: var(--accent); }
+    .calc-btn {
+      padding: 1rem 2rem; background: var(--accent); color: var(--bg-primary); border: none;
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: all 0.3s; margin-top: 0.5rem;
+    }
+    .calc-btn:hover { background: #d4b268; }
+
+    .results-container { background: var(--bg-card); border: 1px solid var(--border); padding: 2.5rem; animation: fadeIn 0.5s ease; }
+    .results-title { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 1.5rem; }
+    .result-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
+    .result-value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+    .result-value.warn { color: var(--red); }
+
+    .insight-box { margin-top: 2rem; padding: 1.5rem; background: var(--accent-glow); border-left: 2px solid var(--accent); }
+    .insight-box h4 { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .insight-box p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+
+    .streak-visual { margin-top: 2rem; }
+    .streak-bar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
+    .streak-bar-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); min-width: 80px; text-align: right; }
+    .streak-bar-track { flex: 1; height: 24px; background: var(--bg-primary); border: 1px solid var(--border); overflow: hidden; }
+    .streak-bar-fill { height: 100%; transition: width 0.8s ease; }
+    .streak-bar-value { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-primary); min-width: 50px; }
+
+    .fade-in { opacity: 0; transform: translateY(20px); animation: fadeIn 0.6s ease forwards; }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-stats { flex-direction: column; gap: 1.5rem; }
+      .about-grid, .book-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .calc-grid { grid-template-columns: 1fr; }
+      .newsletter-form { flex-direction: column; }
+      .tools-grid { grid-template-columns: 1fr; }
+      section { padding: 4rem 1.25rem; }
+      .hero { padding: 7rem 1.25rem 3rem; }
+      .calc-container, .results-container { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // Shorthand
+    var h = React.createElement;
+    var F = React.Fragment;
+    var useState = React.useState;
+    var useEffect = React.useEffect;
+    var useCallback = React.useCallback;
+
+    /* ── DATA ─────────────────────────────────────────────────────── */
+    var TOOLS = [
+      { id:'losing-streak', name:'Losing Streak Estimator', icon:'\u{1F4C9}', status:'live', desc:'Calculate your expected worst losing streak. Input your win rate and trade count to prepare psychologically for rough patches.' },
+      { id:'drawdown-sim', name:'Drawdown Simulator', icon:'\u26A1', status:'coming', desc:'Load your system data and simulate worst-case 20-trade sequences. Play with balance, risk %, and fixed dollar risk.' },
+      { id:'monte-carlo', name:'Monte Carlo Position Sizer', icon:'\u{1F3B2}', status:'coming', desc:'Run thousands of simulations on your system. Find the 1% and 2% extreme drawdown scenarios to size for survival.' },
+      { id:'psych-risk', name:'Psych Risk Dial', icon:'\u{1F9E0}', status:'coming', desc:'Based on your account size and pain threshold, find the position size that lets you trade without losing sleep.' },
+      { id:'breakeven', name:'Break-Even Curve Calculator', icon:'\u{1F4CA}', status:'coming', desc:'Input your win rate, see the minimum R-multiple needed to break even. Compare high vs. low win rate systems visually.' },
+      { id:'journal', name:'Trade Journal Analyzer', icon:'\u{1F4DD}', status:'coming', desc:'Upload your trade log. Flags revenge trades, rule breaks, and emotional patterns to build self-awareness.' }
+    ];
+    var BLOGS = [
+      { date:'Coming Soon', title:'Why the 1% Rule Is Holding You Back', excerpt:"Most traders treat position sizing as risk management. It's actually your single biggest lever for asymmetric returns.", tag:'Position Sizing' },
+      { date:'Coming Soon', title:'The Year I Lost Everything and Found My Edge', excerpt:'March 2025: a -52% drawdown with a 3.57% win rate. How that month became the catalyst for transformation.', tag:'Psychology' },
+      { date:'Coming Soon', title:'From Reservoir Engineering to Price Action', excerpt:'How 20 years of modeling uncertainty in petroleum engineering taught me to read markets differently.', tag:'Trading Systems' }
+    ];
+    var MILES = [
+      { year:'2000\u20132020', title:'Petroleum Engineering', desc:'20 years leading operations across 6 countries. Billion-dollar asset management at Hess & Kosmos Energy.' },
+      { year:'Feb 2020', title:'Full-Time Trading', desc:'Transitioned to futures trading. 10,000+ hours live market time across ES, NQ, Gold, CL, and more.' },
+      { year:'2024\u20132025', title:'Psychological Mastery', desc:'18+ months coaching with Michael Martin, Rande Howell, and Sara Jorge. Developed The Timeless Perspective.' },
+      { year:'2025', title:'Breakthrough Year', desc:'$10k \u2192 $207k (1,970% return). Evolved from 228 trades/month to 15 high-conviction setups.' }
+    ];
+
+    /* ── MATH ─────────────────────────────────────────────────────── */
+    function calcStreak(winRate, n) {
+      var p = 1 - winRate;
+      if (p <= 0 || p >= 1 || n < 1) return null;
+      var expected = Math.log(n * p) / Math.log(1/p);
+      function prob(k) { var pk=Math.pow(p,k); return Math.min(1, 1-Math.pow(1-pk, Math.max(1,n-k+1))); }
+      function find(t) { for(var k=1;k<=n;k++) if(prob(k)<t) return k-1; return n; }
+      return {
+        expected: Math.max(1,Math.round(expected)),
+        almostCertain: Math.max(1,find(0.95)),
+        likely: Math.max(1,find(0.50)),
+        possible: Math.max(1,find(0.10)),
+        rare: Math.max(1,find(0.02)),
+        extreme: Math.max(1,find(0.01))
+      };
+    }
+
+    /* ── SCROLL HELPER ────────────────────────────────────────────── */
+    function scrollTo(id, delay) {
+      setTimeout(function(){ var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); }, delay||100);
+    }
+
+    /* ── NAV ──────────────────────────────────────────────────────── */
+    function Nav(p) {
+      var s = useState(false), scrolled=s[0], setS=s[1];
+      useEffect(function(){ var fn=function(){setS(window.scrollY>40)}; window.addEventListener('scroll',fn); return function(){window.removeEventListener('scroll',fn)}; },[]);
+      function go(sec){ p.setPage('home'); scrollTo(sec); }
+      return h('nav',{className:'nav'+(scrolled?' scrolled':'')},
+        h('button',{className:'nav-logo',onClick:function(){p.setPage('home');}},'Timeless',h('span',null,'Perspective')),
+        h('ul',{className:'nav-links'},
+          h('li',null,h('a',{onClick:function(){go('about')}},'About')),
+          h('li',null,h('a',{onClick:function(){go('tools')}},'Tools')),
+          h('li',null,h('a',{onClick:function(){go('book')}},'Book')),
+          h('li',null,h('a',{onClick:function(){go('blog')}},'Blog'))
+        ),
+        h('button',{className:'nav-cta',onClick:function(){go('newsletter')}},'Subscribe')
+      );
+    }
+
+    /* ── HERO ─────────────────────────────────────────────────────── */
+    function Hero(p) {
+      return h('section',{className:'hero',id:'hero'},
+        h('div',{className:'hero-inner'},
+          h('div',{className:'hero-tag fade-in'},'The Timeless Perspective'),
+          h('h1',{className:'fade-in stagger-1'},'Trading is the hardest ',h('em',null,'easy thing'),' you\u2019ll ever do'),
+          h('p',{className:'hero-sub fade-in stagger-2'},'From billion-dollar petroleum assets to full-time futures trading. Sharing the psychology, position sizing, and systems behind a 1,970% return \u2014 and the painful evolution that made it possible.'),
+          h('div',{className:'hero-stats fade-in stagger-3'},
+            h('div',null,h('div',{className:'hero-stat-value'},'1,970%'),h('div',{className:'hero-stat-label'},'2025 Return')),
+            h('div',null,h('div',{className:'hero-stat-value'},'10,000+'),h('div',{className:'hero-stat-label'},'Hours Live Trading')),
+            h('div',null,h('div',{className:'hero-stat-value'},'20 yrs'),h('div',{className:'hero-stat-label'},'Engineering Leadership'))
+          ),
+          h('div',{className:'hero-actions fade-in stagger-4'},
+            h('button',{className:'btn-primary',onClick:function(){scrollTo('tools',0)}},'Explore Free Tools \u2192'),
+            h('button',{className:'btn-secondary',onClick:function(){scrollTo('book',0)}},'About the Book')
+          )
+        )
+      );
+    }
+
+    /* ── ABOUT ────────────────────────────────────────────────────── */
+    function About() {
+      return h('section',{className:'about',id:'about'},
+        h('div',{className:'section-inner'},
+          h('div',{className:'about-grid'},
+            h('div',{className:'about-text'},
+              h('div',{className:'section-tag'},'About'),
+              h('h2',{className:'section-title'},'Engineer. Trader. Author.'),
+              h('p',null,'After 20 years leading petroleum engineering operations across six countries \u2014 managing billion-dollar energy assets at Hess Corporation and Kosmos Energy \u2014 I transitioned to full-time futures trading in February 2020.'),
+              h('p',null,'Those two decades optimizing complex systems under uncertainty, where million-dollar decisions relied on incomplete data and probabilistic models, proved to be the perfect foundation for professional trading.'),
+              h('p',null,h('strong',null,'My competitive advantage isn\u2019t prediction \u2014 it\u2019s psychological mastery.'),' I\u2019ve invested 18+ months in intensive coaching with premier trading psychologists Michael Martin, Rande Howell, and Sara Jorge. This work led me to develop ',h('em',null,'The Timeless Perspective'),' \u2014 my framework for transforming achievement anxiety into effortless consistency.')
+            ),
+            h('div',{className:'about-milestones'},
+              MILES.map(function(m,i){
+                return h('div',{className:'milestone',key:i},
+                  h('div',{className:'milestone-year'},m.year),
+                  h('div',{className:'milestone-title'},m.title),
+                  h('div',{className:'milestone-desc'},m.desc)
+                );
+              })
+            )
+          )
+        )
+      );
+    }
+
+    /* ── TOOLS SECTION ────────────────────────────────────────────── */
+    function ToolsSection(p) {
+      return h('section',{id:'tools'},
+        h('div',{className:'section-inner'},
+          h('div',{className:'section-tag'},'Free Tools'),
+          h('h2',{className:'section-title'},'Built for serious traders'),
+          h('p',{className:'section-desc'},'Interactive tools designed to bridge the gap between knowing your edge and having the psychological capacity to express it through position size.'),
+          h('div',{className:'tools-grid'},
+            TOOLS.map(function(t){
+              return h('div',{key:t.id,className:'tool-card',onClick:function(){if(t.status==='live')p.setPage(t.id)}},
+                h('div',{className:'tool-icon'},t.icon),
+                h('div',{className:'tool-status '+t.status},t.status==='live'?'\u25CF Live':'\u25CB Coming Soon'),
+                h('div',{className:'tool-name'},t.name),
+                h('div',{className:'tool-desc'},t.desc)
+              );
+            })
+          )
+        )
+      );
+    }
+
+    /* ── BOOK ─────────────────────────────────────────────────────── */
+    function BookSection() {
+      return h('section',{className:'book',id:'book'},
+        h('div',{className:'section-inner'},
+          h('div',{className:'book-layout'},
+            h('div',{className:'book-cover'},
+              h('div',{className:'book-cover-tag'},'Coming 2026'),
+              h('div',{className:'book-cover-title'},'Position Sizing'),
+              h('div',{className:'book-cover-subtitle'},'& The Psychology of Scaling')
+            ),
+            h('div',{className:'book-info'},
+              h('div',{className:'section-tag'},'The Book'),
+              h('h3',null,'Traders don\u2019t think ',h('em',null,'big enough')),
+              h('p',null,'Most traders have the right setups and decent win rates, but they\u2019re leaving exponential returns on the table because they haven\u2019t done the psychological work to size positions appropriately.'),
+              h('p',null,'This book explores how to bridge the gap between knowing your edge and having the psychological capacity to express it fully through position size.'),
+              h('div',{className:'book-quote'},'\u201CYou don\u2019t get to skip the pain. You only get to choose how much.\u201D'),
+              h('button',{className:'btn-primary',onClick:function(){scrollTo('newsletter',0)}},'Get Notified at Launch \u2192')
+            )
+          )
+        )
+      );
+    }
+
+    /* ── BLOG ─────────────────────────────────────────────────────── */
+    function BlogSection() {
+      return h('section',{id:'blog'},
+        h('div',{className:'section-inner'},
+          h('div',{className:'section-tag'},'Blog'),
+          h('h2',{className:'section-title'},'Writing & Insights'),
+          h('p',{className:'section-desc'},'Deep dives on trading psychology, position sizing math, and the mental frameworks behind consistent execution.'),
+          h('div',{className:'blog-grid'},
+            BLOGS.map(function(b,i){
+              return h('div',{className:'blog-card',key:i},
+                h('div',{className:'blog-date'},b.date),
+                h('div',{className:'blog-title'},b.title),
+                h('div',{className:'blog-excerpt'},b.excerpt),
+                h('div',{className:'blog-tag'},b.tag)
+              );
+            })
+          )
+        )
+      );
+    }
+
+    /* ── NEWSLETTER ───────────────────────────────────────────────── */
+    function Newsletter() {
+      var es=useState(''), email=es[0], setE=es[1];
+      var ss=useState(false), done=ss[0], setD=ss[1];
+      return h('section',{className:'newsletter',id:'newsletter'},
+        h('div',{className:'section-inner'},
+          h('div',{className:'section-tag'},'Newsletter'),
+          h('h2',{className:'section-title'},'Stay in the loop'),
+          h('p',{className:'section-desc'},'Get new tools, book updates, and trading psychology insights delivered to your inbox. No spam, no fluff \u2014 just signal.'),
+          !done
+            ? h(F,null,
+                h('div',{className:'newsletter-form'},
+                  h('input',{className:'newsletter-input',type:'email',placeholder:'your@email.com',value:email,onChange:function(ev){setE(ev.target.value)}}),
+                  h('button',{className:'newsletter-btn',onClick:function(){if(email.includes('@'))setD(true)}},'Subscribe')
+                ),
+                h('p',{className:'newsletter-note'},'Join traders who think differently about risk.')
+              )
+            : h('p',{style:{color:'var(--green)',fontFamily:'var(--font-mono)',fontSize:'0.9rem'}},'\u2713 You\u2019re in. Watch your inbox.')
+        )
+      );
+    }
+
+    /* ── FOOTER ───────────────────────────────────────────────────── */
+    function Footer(p) {
+      function go(sec){ p.setPage('home'); scrollTo(sec); }
+      return h('footer',{className:'footer'},
+        h('div',{className:'footer-links'},
+          h('a',{onClick:function(){p.setPage('home')}},'Home'),
+          h('a',{href:'https://x.com/CandyCabin75',target:'_blank',rel:'noopener'},'X / Twitter'),
+          h('a',{onClick:function(){go('tools')}},'Tools'),
+          h('a',{onClick:function(){go('book')}},'Book'),
+          h('a',{onClick:function(){go('newsletter')}},'Newsletter')
+        ),
+        h('div',{className:'footer-copy'},'\u00A9 2026 The Timeless Perspective. All rights reserved.'),
+        h('div',{className:'footer-disclaimer'},'Trading involves substantial risk of loss and is not suitable for all investors. Past performance does not guarantee future results.')
+      );
+    }
+
+    /* ── LOSING STREAK TOOL ───────────────────────────────────────── */
+    function LosingStreakTool(p) {
+      var ws=useState('50'), wr=ws[0], setWr=ws[1];
+      var ts=useState('10'), tpw=ts[0], setTpw=ts[1];
+      var ks=useState('4'), wks=ks[0], setWks=ks[1];
+      var rs=useState(null), res=rs[0], setRes=rs[1];
+
+      function calc() {
+        var w=parseFloat(wr)/100, t=parseInt(tpw), k=parseInt(wks);
+        if(isNaN(w)||isNaN(t)||isNaN(k)||w<=0||w>=1||t<1||k<1) return;
+        var n=t*k, r=calcStreak(w,n);
+        if(r) setRes(Object.assign({},r,{total:n,wr:w}));
+      }
+
+      var bars = res ? [
+        {label:'>95%',val:res.almostCertain,color:'var(--green)'},
+        {label:'>50%',val:res.likely,color:'var(--accent)'},
+        {label:'>10%',val:res.possible,color:'#d4803a'},
+        {label:'2%',val:res.rare,color:'#e07040'},
+        {label:'1%',val:res.extreme,color:'var(--red)'}
+      ] : [];
+      var max = res ? res.extreme : 1;
+
+      var insight = '';
+      if(res) {
+        var pct = (res.wr*100).toFixed(0);
+        if(res.likely>=5) insight='With a '+pct+'% win rate over '+res.total+' trades, you should expect '+res.likely+'+ consecutive losses \u2014 and there\u2019s a real chance of hitting '+res.possible+'+. If your sizing can\u2019t survive '+res.rare+' losses in a row without breaking your psychology, you\u2019re sized too aggressively. The goal isn\u2019t to avoid the streak \u2014 it\u2019s to size so the streak doesn\u2019t matter.';
+        else if(res.likely>=3) insight='Even with a solid '+pct+'% win rate, '+res.likely+'\u2013'+res.possible+' consecutive losses are well within normal range. Most traders abandon winning systems during these perfectly normal rough patches. Size so that even the rare '+res.rare+'-loss streak only draws down 10\u201315% of your account.';
+        else insight='Your high win rate protects you from long streaks, but '+res.possible+'+ consecutive losses can still happen. The danger isn\u2019t the streak itself \u2014 it\u2019s the false confidence your win rate creates. When the unlikely happens, sized-up traders get destroyed because they never believed it could.';
+      }
+
+      return h('section',{className:'tool-page'},
+        h('div',{className:'tool-page-inner'},
+          h('button',{className:'tool-back',onClick:function(){p.setPage('home');scrollTo('tools');}},'\u2190 Back to Tools'),
+          h('div',{className:'section-tag'},'Free Tool'),
+          h('h1',null,'Losing Streak Estimator'),
+          h('p',{className:'tool-page-desc'},
+            'Every system produces losing streaks. The question isn\u2019t ',h('em',null,'if'),' \u2014 it\u2019s ',h('em',null,'how bad'),
+            '. Enter your system parameters to see what you should psychologically prepare for. The traders who survive their worst streak are the ones who expected it.'
+          ),
+          h('div',{className:'calc-container'},
+            h('div',{className:'calc-grid'},
+              h('div',{className:'calc-field'},
+                h('label',{className:'calc-label'},'Win Rate (%)'),
+                h('input',{className:'calc-input',type:'number',min:'1',max:'99',value:wr,onChange:function(e){setWr(e.target.value)}})
+              ),
+              h('div',{className:'calc-field'},
+                h('label',{className:'calc-label'},'Trades Per Week'),
+                h('input',{className:'calc-input',type:'number',min:'1',max:'200',value:tpw,onChange:function(e){setTpw(e.target.value)}})
+              ),
+              h('div',{className:'calc-field'},
+                h('label',{className:'calc-label'},'Rough Stretch (Weeks)'),
+                h('input',{className:'calc-input',type:'number',min:'1',max:'52',value:wks,onChange:function(e){setWks(e.target.value)}})
+              ),
+              h('div',{className:'calc-field',style:{justifyContent:'flex-end'}},
+                h('button',{className:'calc-btn',onClick:calc},'Calculate Worst Streak \u2192')
+              )
+            )
+          ),
+          res && h('div',{className:'results-container'},
+            h('div',{className:'results-title'},'Over '+res.total+' trades at '+(res.wr*100).toFixed(0)+'% win rate'),
+            h('div',{className:'result-row'},h('span',{className:'result-label'},'Almost Certain (>95% chance)'),h('span',{className:'result-value'},res.almostCertain+' losses in a row')),
+            h('div',{className:'result-row'},h('span',{className:'result-label'},'Likely (>50% chance)'),h('span',{className:'result-value'},res.likely+' losses in a row')),
+            h('div',{className:'result-row'},h('span',{className:'result-label'},'Possible (>10% chance)'),h('span',{className:'result-value warn'},res.possible+' losses in a row')),
+            h('div',{className:'result-row'},h('span',{className:'result-label'},'Rare \u2014 2% occurrence'),h('span',{className:'result-value warn'},res.rare+' losses in a row')),
+            h('div',{className:'result-row'},h('span',{className:'result-label'},'Extreme \u2014 1% occurrence'),h('span',{className:'result-value warn'},res.extreme+' losses in a row')),
+            h('div',{className:'streak-visual'},
+              bars.map(function(b,i){
+                return h('div',{className:'streak-bar-row',key:i},
+                  h('span',{className:'streak-bar-label'},b.label),
+                  h('div',{className:'streak-bar-track'},
+                    h('div',{className:'streak-bar-fill',style:{width:(b.val/max*100)+'%',background:b.color}})
+                  ),
+                  h('span',{className:'streak-bar-value'},b.val)
+                );
+              })
+            ),
+            h('div',{className:'insight-box'},
+              h('h4',null,'Psychological Insight'),
+              h('p',null,insight)
+            )
+          )
+        )
+      );
+    }
+
+    /* ── APP ──────────────────────────────────────────────────────── */
+    function App() {
+      var ps=useState('home'), page=ps[0], setPage=ps[1];
+      var nav = useCallback(function(pg){ setPage(pg); window.scrollTo(0,0); },[]);
+      return h(F,null,
+        h(Nav,{currentPage:page,setPage:nav}),
+        page==='home' && h(F,null,h(Hero,{setPage:nav}),h(About),h(ToolsSection,{setPage:nav}),h(BookSection),h(BlogSection),h(Newsletter)),
+        page==='losing-streak' && h(LosingStreakTool,{setPage:nav}),
+        h(Footer,{setPage:nav})
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+  </script>
+</body>
+</html>
