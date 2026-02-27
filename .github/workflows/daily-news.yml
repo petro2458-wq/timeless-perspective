@@ -1,0 +1,39 @@
+name: Generate Daily Trading Calendar
+
+on:
+  schedule:
+    # 4:00 AM ET = 09:00 UTC (during EST) / 08:00 UTC (during EDT)
+    # 10:00 AM ET = 15:00 UTC (during EST) / 14:00 UTC (during EDT)
+    # Using EST times — adjust if you want EDT precision
+    - cron: '0 9 * * 1-5'   # 4 AM ET, Mon-Fri
+    - cron: '0 15 * * 1-5'  # 10 AM ET, Mon-Fri
+  workflow_dispatch: # Manual trigger button in GitHub Actions UI
+
+jobs:
+  generate-calendar:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @anthropic-ai/sdk
+
+      - name: Generate Daily Calendar
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-daily-news.js
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add daily-news.html
+          git diff --staged --quiet || git commit -m "🗞️ Daily news update — $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
