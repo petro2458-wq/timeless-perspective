@@ -63,6 +63,46 @@
       transition: color 0.2s; cursor: pointer;
     }
     .nav-links a:hover { color: var(--accent); }
+    .nav-news-wrapper { position: relative; display: inline-block; }
+    .nav-news {
+      color: #ff6b6b; text-decoration: none; font-size: 0.85rem;
+      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.3s; position: relative;
+      padding: 0.2rem 0; display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .nav-news::before {
+      content: ''; width: 6px; height: 6px; background: #ff6b6b;
+      border-radius: 50%; display: inline-block;
+      animation: newsPulse 2s ease-in-out infinite;
+    }
+    @keyframes newsPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+    .nav-news:hover { color: #ff9a9a; }
+    .nav-news-tooltip {
+      position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+      background: #1a1b24; border: 1px solid var(--accent-dim); border-radius: 8px;
+      padding: 0.75rem 1rem; width: 260px; opacity: 0; visibility: hidden;
+      transition: all 0.25s ease; pointer-events: none; z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .nav-news-tooltip::before {
+      content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
+      width: 10px; height: 10px; background: #1a1b24; border-left: 1px solid var(--accent-dim);
+      border-top: 1px solid var(--accent-dim);
+    }
+    .nav-news-wrapper:hover .nav-news-tooltip { opacity: 1; visibility: visible; }
+    .nav-news-tooltip p {
+      font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;
+      font-weight: 400; letter-spacing: 0; text-transform: none; margin: 0;
+    }
+    .nav-news-tooltip .tooltip-items {
+      font-size: 0.65rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6;
+    }
+    .nav-news-tooltip .tooltip-items span { display: block; }
+    .nav-news-tooltip .tooltip-items span::before { content: '▸ '; color: var(--accent); }
+
     .nav-cta {
       background: transparent; border: 1px solid var(--accent); color: var(--accent);
       padding: 0.5rem 1.2rem; font-size: 0.8rem; font-weight: 600;
@@ -70,6 +110,14 @@
       transition: all 0.3s; font-family: var(--font-body);
     }
     .nav-cta:hover { background: var(--accent); color: var(--bg-primary); }
+
+    .daily-news-page { padding: 5.5rem 1rem 2rem; background: var(--bg-primary); min-height: 100vh; }
+    .daily-news-container { max-width: 1020px; margin: 0 auto; }
+    .daily-news-meta {
+      text-align: center; margin-bottom: 1rem; font-family: var(--font-mono);
+      font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em;
+    }
+    .daily-news-content { border-radius: 12px; overflow: hidden; }
 
     .hero {
       min-height: auto; display: flex; flex-direction: column;
@@ -314,6 +362,8 @@
       section { padding: 2rem 1.25rem; }
       .hero { padding: 6rem 1.25rem 2rem; }
       .calc-container, .results-container { padding: 1.5rem; }
+      .daily-news-page { padding: 4.5rem 0.5rem 1rem; }
+      .nav-news-tooltip { display: none; }
     }
   </style>
 </head>
@@ -400,6 +450,20 @@
             The Timeless <span>Perspective</span>
           </button>
           <div className="nav-links">
+            <div className="nav-news-wrapper">
+              <a className="nav-news" onClick={() => setPage('daily-news')}>Daily News</a>
+              <div className="nav-news-tooltip">
+                <p style={{fontWeight:600, color:'#e8e6e1', marginBottom:'0.3rem'}}>Daily News</p>
+                <div className="tooltip-items">
+                  <span>Key Insights</span>
+                  <span>Red/Orange Folder News & Results</span>
+                  <span>US Gov't News</span>
+                  <span>Key Earnings Flow</span>
+                  <span>Daily Calendar for Day Traders</span>
+                </div>
+                <p style={{marginTop:'0.5rem', fontSize:'0.6rem', color:'#5f5e70'}}>Auto-updated 4 AM & 10 AM ET</p>
+              </div>
+            </div>
             <a onClick={() => setPage('home')}>Home</a>
             <a onClick={() => setPage('tools')}>Tools</a>
             <a onClick={() => setPage('blog')}>Blog</a>
@@ -507,7 +571,7 @@
       );
     }
 
-    function BookSection() {
+    function BookSection({ setPage }) {
       return (
         <section className="book">
           <div className="section-inner">
@@ -524,7 +588,9 @@
                 <p className="book-quote">
                   “You don’t blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology.”
                 </p>
-                <p>Join the waitlist for early chapters and tools.</p>
+                <div className="hero-actions" style={{marginTop:'1.5rem'}}>
+                  <button className="btn-primary" onClick={() => setPage('book')}>Join the Waitlist →</button>
+                </div>
               </div>
             </div>
           </div>
@@ -581,6 +647,57 @@
       );
     }
 
+    function DailyNews() {
+      const [content, setContent] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [lastUpdated, setLastUpdated] = useState('');
+
+      useEffect(() => {
+        fetch('daily-news.html?t=' + Date.now())
+          .then(res => {
+            if (!res.ok) throw new Error('Not found');
+            return res.text();
+          })
+          .then(html => {
+            // Extract generation timestamp from comment if present
+            const match = html.match(/generated\s+(\d{4}-\d{2}-\d{2}T[\d:.]+Z)/);
+            if (match) {
+              const d = new Date(match[1]);
+              setLastUpdated(d.toLocaleString('en-US', { 
+                timeZone: 'America/New_York', 
+                month: 'short', day: 'numeric', 
+                hour: 'numeric', minute: '2-digit', hour12: true 
+              }) + ' ET');
+            }
+            setContent(html);
+            setLoading(false);
+          })
+          .catch(() => {
+            setContent('<div style="text-align:center;padding:60px 20px;color:#9e9e9e;"><div style="font-size:48px;margin-bottom:16px;">📡</div><h2 style="color:#e0e0e0;font-size:20px;">Calendar Unavailable</h2><p style="font-size:14px;margin-top:8px;">The daily news will be generated at the next scheduled run.</p></div>');
+            setLoading(false);
+          });
+      }, []);
+
+      return (
+        <div className="daily-news-page">
+          <div className="daily-news-container">
+            <div className="daily-news-meta">
+              {lastUpdated && <>LAST UPDATED: {lastUpdated} &nbsp;•&nbsp;</>}
+              AUTO-REFRESHES AT 4:00 AM & 10:00 AM ET
+            </div>
+            {loading ? (
+              <div style={{textAlign:'center', padding:'80px 20px', color:'#9e9e9e'}}>
+                <div style={{fontSize:'32px', marginBottom:'12px', animation:'newsPulse 1.5s ease-in-out infinite'}}>📡</div>
+                <p>Loading daily news...</p>
+              </div>
+            ) : (
+              <div className="daily-news-content" dangerouslySetInnerHTML={{__html: content}} />
+            )}
+          </div>
+        </div>
+      );
+    }
+
     function Newsletter() {
       return (
         <section className="newsletter">
@@ -602,6 +719,7 @@
       return (
         <footer className="footer">
           <div className="footer-links">
+            <a onClick={() => setPage('daily-news')} style={{color:'#ff6b6b', fontWeight:600}}>Daily News</a>
             <a onClick={() => setPage('home')}>Home</a>
             <a onClick={() => setPage('tools')}>Tools</a>
             <a onClick={() => setPage('blog')}>Blog</a>
@@ -624,12 +742,14 @@
         <>
           <Nav currentPage={page} setPage={setPage} />
 
+          {page === 'daily-news' && <DailyNews />}
+
           {page === 'home' && (
             <>
               <Hero setPage={setPage} />
               <About />
               <ToolsSection setPage={setPage} />
-              <BookSection />
+              <BookSection setPage={setPage} />
               <BlogSection setPage={setPage} />
               <ReadingSection />
               <Newsletter />
@@ -680,24 +800,29 @@
           )}
 
           {page === 'book' && (
-            <section className="tool-page">
-              <div className="tool-page-inner" style={{maxWidth:'700px'}}>
+            <section style={{padding:'6rem 2rem 4rem'}}>
+              <div className="section-inner">
                 <button className="tool-back" onClick={() => setPage('home')}>← Back to Home</button>
-                <div style={{textAlign:'center', marginBottom:'3rem'}}>
-                  <div className="section-tag">COMING 2026</div>
-                  <h1 style={{fontFamily:'var(--font-display)', fontSize:'clamp(2rem,5vw,3.5rem)', fontWeight:400, marginBottom:'1rem'}}>Position Sizing</h1>
-                  <p style={{fontFamily:'var(--font-display)', fontStyle:'italic', color:'var(--text-secondary)', fontSize:'1.2rem'}}>The Most Underutilized Edge in Trading</p>
+                <div className="book-layout" style={{marginTop:'2rem'}}>
+                  <div className="book-cover">
+                    <div className="book-cover-tag">COMING 2026</div>
+                    <h2 className="book-cover-title">Position Sizing</h2>
+                    <p className="book-cover-subtitle">The Most Underutilized Edge in Trading</p>
+                  </div>
+                  <div className="book-info">
+                    <h3>Most traders have an <em>edge</em>.<br/>They just aren't <em>sized</em> for it.</h3>
+                    <p>After 10,000+ hours, multiple elite psychology coaches, and turning $10K into $207K in 2025 through psychology-first sizing — I'm writing the book I wish existed when I started.</p>
+                    <p className="book-quote">
+                      "You don't blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology."
+                    </p>
+                    <p>Join the waitlist for early chapters, tools, and launch updates.</p>
+                    <div className="newsletter-form" style={{marginTop:'1.5rem', maxWidth:'420px'}}>
+                      <input className="newsletter-input" placeholder="your@email.com" type="email" />
+                      <button className="newsletter-btn">Join Waitlist</button>
+                    </div>
+                    <p className="newsletter-note">No spam. Early access only.</p>
+                  </div>
                 </div>
-                <div className="book-quote" style={{marginBottom:'2rem'}}>
-                  "You don't blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology."
-                </div>
-                <p style={{color:'var(--text-secondary)', lineHeight:1.8, marginBottom:'1rem'}}>After 10,000+ hours, multiple elite psychology coaches, and turning $10K into $207K in 2025 through psychology-first sizing — I'm writing the book I wish existed when I started.</p>
-                <p style={{color:'var(--text-secondary)', lineHeight:1.8, marginBottom:'2rem'}}>Most traders have an edge. They just aren't sized for it.</p>
-                <div className="newsletter-form" style={{maxWidth:'480px'}}>
-                  <input className="newsletter-input" placeholder="your@email.com" type="email" />
-                  <button className="newsletter-btn">Join Waitlist</button>
-                </div>
-                <p className="newsletter-note">Early chapters and tools delivered first.</p>
               </div>
             </section>
           )}
