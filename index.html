@@ -63,7 +63,7 @@
       transition: color 0.2s; cursor: pointer;
     }
     .nav-links a:hover { color: var(--accent); }
-    .nav-news-wrapper { position: relative; display: inline-block; }
+    .nav-news-wrapper { position: relative; display: inline-block; margin-right: 0.75rem; padding-right: 1.75rem; border-right: 1px solid var(--border-light); }
     .nav-news {
       color: #ff6b6b; text-decoration: none; font-size: 0.85rem;
       font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
@@ -453,13 +453,12 @@
             <div className="nav-news-wrapper">
               <a className="nav-news" onClick={() => setPage('daily-news')}>Daily News</a>
               <div className="nav-news-tooltip">
-                <p style={{fontWeight:600, color:'#e8e6e1', marginBottom:'0.3rem'}}>Daily News</p>
+                <p style={{fontWeight:600, color:'#e8e6e1', marginBottom:'0.3rem'}}>Daily Calendar for Day Traders</p>
                 <div className="tooltip-items">
                   <span>Key Insights</span>
                   <span>Red/Orange Folder News & Results</span>
                   <span>US Gov't News</span>
                   <span>Key Earnings Flow</span>
-                  <span>Daily Calendar for Day Traders</span>
                 </div>
                 <p style={{marginTop:'0.5rem', fontSize:'0.6rem', color:'#5f5e70'}}>Auto-updated 4 AM & 10 AM ET</p>
               </div>
