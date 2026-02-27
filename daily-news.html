@@ -1,4 +1,4 @@
-<!-- Daily News generated 2026-02-27T16:35:11.315Z -->
+<!-- Daily News generated 2026-02-27T16:43:19.534Z -->
 <!-- Run: 11 AM ET | Model: claude-sonnet-4-20250514 -->
 <style>
     .dn-container {
@@ -80,13 +80,7 @@
     .dn-container .up { color: #69f0ae; }
     .dn-container .down { color: #ff5252; }
     .dn-container .neutral { color: #ffb74d; }
-    .dn-container .premarket-card { background-color: #1e2a3d; border: 1px solid #2a4a7a; border-radius: 7px; padding: 12px 14px; }
-    .dn-container .premarket-card h3 { margin: 0 0 10px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
-    .dn-container .pm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .dn-container .pm-item { background-color: #232e3d; border-radius: 5px; padding: 7px 9px; font-size: 12px; }
-    .dn-container .pm-label { color: #9e9e9e; font-size: 11px; display: block; margin-bottom: 2px; }
-    .dn-container .pm-value { font-weight: 700; font-size: 14px; }
-    .dn-container .pm-change { font-size: 11px; margin-left: 4px; }
+
     .dn-container .time-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; }
     .dn-container .time-header { display: flex; align-items: center; margin-bottom: 9px; gap: 10px; }
     .dn-container .time-label { font-size: 15px; font-weight: 700; color: #ffffff; }
@@ -120,7 +114,6 @@
     @media (max-width: 768px) {
         .dn-container .main-content { flex-direction: column; }
         .dn-container .left-column { width: 100%; }
-        .dn-container .pm-grid { grid-template-columns: repeat(2, 1fr); }
         .dn-container .nw-grid { grid-template-columns: repeat(2, 1fr); }
         .dn-container .data-grid { grid-template-columns: 1fr; }
     }
@@ -129,103 +122,88 @@
 <div class="dn-container">
     <div class="header">
         <h1>USD Economic Calendar</h1>
-        <p>Friday, 2/27 • PCE inflation data, Chicago PMI beats 57.7</p>
+        <p>Friday, 2/27 &bull; PPI data highlights economic calendar • AI infrastructure stocks under pressure</p>
     </div>
     <div class="alerts-section">
-        <div class="alert-box alert-red"><strong>🚨 CRITICAL DATA RELEASE:</strong> Personal Income & Spending (Jan) at 8:30 AM includes Fed's preferred PCE inflation gauge</div>
-        <div class="alert-box alert-green"><strong>✅ CHICAGO PMI BEATS:</strong> February reading hits 57.7, well above forecast of 52.8, signaling robust regional expansion</div>
-        <div class="alert-box alert-orange"><strong>⚠️ MARKET VOLATILITY:</strong> VIX back above 20 handle at 21.12 amid tech selloff concerns</div>
-        <div class="alert-blue"><strong>Context Note:</strong> December PCE rose 2.9% YoY (up from 2.8%) • S&P 500 flat YTD, energy sectors outperforming tech • Futures showing cautious recovery from volatility</div>
+        <div class="alert-box alert-red"><strong>🔴 PPI MISS ALERT:</strong> Producer Price Index forecast 0.3%, previous 0.5% — key inflation signal for Fed</div>
+        <div class="alert-box alert-orange"><strong>⚠️ AI SECTOR DRAG:</strong> CoreWeave earnings miss (-$0.56 vs -$0.50 est) pressures AI infrastructure names</div>
+        <div class="alert-box alert-green"><strong>✅ SMUCKER BEATS:</strong> J.M. Smucker popped 7% on Q3 beat: $2.38 EPS vs $2.27 est</div>
+        <div class="alert-box alert-blue"><strong>Market Context:</strong> S&P closed +0.8% at 6,946.13 • VIX fell -8.3% to 17.93 • Atlanta Fed GDPNow at 3.1% for Q1 2026</div>
     </div>
     <div class="week-strip">
-        <div class="week-day"><span class="day-label">MON 2/24</span><span class="day-note">141 Earnings</span></div>
-        <div class="week-day"><span class="day-label">TUE 2/25</span><span class="day-note">220 Earnings</span></div>
-        <div class="week-day"><span class="day-label">WED 2/26</span><span class="day-note">202 Earnings</span></div>
-        <div class="week-day"><span class="day-label">THU 2/27</span><span class="day-note">65 Earnings</span></div>
-        <div class="week-day today"><span class="day-label">FRI 2/28</span><span class="day-note">PCE Release</span></div>
+        <div class="week-day"><span class="day-label">MON 2/24</span><span class="day-note">Trump SOTU</span></div>
+        <div class="week-day"><span class="day-label">TUE 2/25</span><span class="day-note">GDP Data</span></div>
+        <div class="week-day"><span class="day-label">WED 2/26</span><span class="day-note">NVDA Earnings</span></div>
+        <div class="week-day"><span class="day-label">THU 2/27</span><span class="day-note">PCE Release</span></div>
+        <div class="week-day today"><span class="day-label">FRI 2/28</span><span class="day-note">PPI + Fed</span></div>
     </div>
     <div class="earnings-strip">
         <span class="strip-label">RESULTS:</span>
-        <span class="earnings-tag tag-beat">SJM +7% (EPS beat)</span>
-        <span class="earnings-tag tag-beat">MARA +16% (AI datacenter deal)</span>
-        <span class="earnings-tag tag-beat">NFLX +7% (Warner deal exit)</span>
-        <span class="earnings-tag tag-beat">CELH +2% (BofA upgrade)</span>
-        <span class="earnings-tag tag-mixed">NVDA +1% (guidance mixed)</span>
-        <span class="earnings-tag tag-miss">XYZ -4% (guidance miss)</span>
+        <span class="earnings-tag tag-beat">SJM +7.0% (Q3 beat)</span>
+        <span class="earnings-tag tag-miss">CRWV -2.8% (EPS miss)</span>
+        <span class="earnings-tag tag-mixed">NVDA flat (beat but muted)</span>
+        <span class="earnings-tag tag-upcoming">DELL AH (AI server demand)</span>
+        <span class="earnings-tag tag-upcoming">65 earnings today</span>
     </div>
     <div class="main-content">
         <div class="left-column">
             <div class="side-box">
                 <h3>📊 Pre-Mkt Movers</h3>
-                <div class="side-item"><span class="ticker">MARA</span> <span class="beat-text">+16.0%</span><br><span style="font-size:11px;color:#9e9e9e;">AI datacenter deal<br>with Starwood Capital</span></div>
-                <div class="side-item"><span class="ticker">SJM</span> <span class="beat-text">+7.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Q3 EPS $2.38 vs $2.27<br>Revenue beat $2.34B</span></div>
-                <div class="side-item"><span class="ticker">NFLX</span> <span class="beat-text">+7.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Exits Warner Bros<br>takeover bid</span></div>
-                <div class="side-item"><span class="ticker">CELH</span> <span class="beat-text">+2.0%</span><br><span style="font-size:11px;color:#9e9e9e;">BofA upgrade to Buy<br>+17% shelf space gains</span></div>
-                <div class="side-item"><span class="ticker">XYZ</span> <span class="miss-text">-4.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Guidance disappointment<br>despite earnings beat</span></div>
-                <div class="side-item"><span class="ticker">NVDA</span> <span class="mixed-text">+1.0%</span><br><span style="font-size:11px;color:#9e9e9e;">EPS $1.62 vs $1.53<br>muted reaction</span></div>
+                <div class="side-item"><span class="ticker">NBIS</span> <span class="miss-text">-3.2%</span><br><span style="font-size:11px;color:#9e9e9e;">AI infrastructure weakness<br>CoreWeave contagion effect</span></div>
+                <div class="side-item"><span class="ticker">CRWV</span> <span class="miss-text">-0.4%</span><br><span style="font-size:11px;color:#9e9e9e;">Mixed Q4 earnings results<br>$1.66B operating expenses</span></div>
+                <div class="side-item"><span class="ticker">DELL</span> <span class="beat-text">+0.8%</span><br><span style="font-size:11px;color:#9e9e9e;">AI server demand focus<br>Earnings after close tonight</span></div>
+                <div class="side-item"><span class="ticker">SJM</span> <span class="beat-text">+7.8%</span><br><span style="font-size:11px;color:#9e9e9e;">Strong Q3 earnings beat<br>Revenue $2.34B vs $2.32B est</span></div>
             </div>
             <div class="side-box">
                 <h3>📅 Key Events</h3>
-                <div class="side-item">8:30 AM - Personal Income/Spending</div>
-                <div class="side-item">9:45 AM - Chicago PMI (Done)</div>
-                <div class="side-item">Weekend - Fed speakers quiet</div>
-                <div class="side-item">Next Week - ISM Manufacturing</div>
+                <div class="side-item">8:30 AM: PPI (Feb) - Critical inflation data</div>
+                <div class="side-item">11:30 AM: Atlanta Fed GDPNow update</div>
+                <div class="side-item">1:00 PM: Baker Hughes rig count</div>
+                <div class="side-item">3:30 PM: CFTC positioning data</div>
             </div>
         </div>
         <div class="data-box">
-            <div class="recap-card"><h3>📉 Thursday's Close Recap</h3>
+            <div class="recap-card"><h3>📉 Thursday Close Recap</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px 20px;">
-                    <div class="recap-row"><strong>S&P 500:</strong> <span class="down">-0.87% → 6,885</span></div>
-                    <div class="recap-row"><strong>Nasdaq:</strong> <span class="down">-1.52% → 22,800</span></div>
-                    <div class="recap-row"><strong>Dow Jones:</strong> <span class="down">-0.27% → 49,350</span></div>
-                    <div class="recap-row"><strong>VIX:</strong> <span class="up">+15% → 21.12</span></div>
-                    <div class="recap-row"><strong>10Y Yield:</strong> <span class="down">3.98%</span></div>
-                    <div class="recap-row"><strong>Oil (WTI):</strong> <span class="neutral">$79.73</span></div>
+                    <div class="recap-row"><strong>S&P 500:</strong> <span class="up">+0.8% → 6,946.13</span></div>
+                    <div class="recap-row"><strong>Nasdaq:</strong> <span class="up">+1.3% → 23,152.08</span></div>
+                    <div class="recap-row"><strong>Dow Jones:</strong> <span class="neutral">+0.03% → 49,499.20</span></div>
+                    <div class="recap-row"><strong>VIX:</strong> <span class="down">-8.3% → 17.93</span></div>
+                    <div class="recap-row"><strong>Tech (XLK):</strong> <span class="up">+1.8%</span></div>
+                    <div class="recap-row"><strong>Finance (XLF):</strong> <span class="up">+1.7%</span></div>
                 </div>
-                <div class="section-note">Sell-off concentrated in semiconductor and AI-related names, reflecting profit-taking after extended rally. Nvidia's pullback weighed on tech sentiment.</div>
-            </div>
-            <div class="premarket-card"><h3>📊 Pre-Market Snapshot</h3>
-                <div class="pm-grid">
-                    <div class="pm-item"><span class="pm-label">ES (S&P)</span><span class="pm-value up">6,893</span><span class="pm-change down">-0.5%</span></div>
-                    <div class="pm-item"><span class="pm-label">NQ (Nasdaq)</span><span class="pm-value up">22,689</span><span class="pm-change down">-0.4%</span></div>
-                    <div class="pm-item"><span class="pm-label">YM (Dow)</span><span class="pm-value up">49,486</span><span class="pm-change down">-0.6%</span></div>
-                    <div class="pm-item"><span class="pm-label">RTY (Russell)</span><span class="pm-value up">2,677</span><span class="pm-change up">+0.5%</span></div>
-                    <div class="pm-item"><span class="pm-label">Gold</span><span class="pm-value neutral">$2,734</span><span class="pm-change down">-0.4%</span></div>
-                    <div class="pm-item"><span class="pm-label">Oil (WTI)</span><span class="pm-value neutral">$79.43</span><span class="pm-change down">-0.4%</span></div>
-                </div>
+                <div class="section-note">"Nvidia revenue hit $68.13 billion, well ahead of expectations of $66.21 billion. EPS of $1.62 beat by eight cents"</div>
             </div>
             <div class="time-card">
                 <div class="time-header"><span class="time-label">8:30 AM ET</span><span class="impact-badge badge-critical">CRITICAL</span></div>
                 <div class="data-grid">
-                    <div class="data-row"><span class="data-name">Personal Income MoM</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">0.3%</span><span class="val-label">P:</span><span class="val-prev">0.3%</span></span></div>
-                    <div class="data-row"><span class="data-name">Personal Spending MoM</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">0.5%</span><span class="val-label">P:</span><span class="val-prev">0.4%</span></span></div>
-                    <div class="data-row"><span class="data-name">PCE Price Index YoY</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">2.9%</span><span class="val-label">P:</span><span class="val-prev">2.9%</span></span></div>
-                    <div class="data-row"><span class="data-name">Core PCE YoY</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">3.0%</span><span class="val-label">P:</span><span class="val-prev">3.0%</span></span></div>
+                    <div class="data-row"><span class="data-name">Producer Price Index</span><span class="data-vals"><span class="val-label">A:</span><span class="val-forecast">Pending</span><span class="val-label">F:</span><span class="val-forecast">0.3%</span><span class="val-label">P:</span><span class="val-prev">0.5%</span></span></div>
+                    <div class="data-row"><span class="data-name">Core PPI</span><span class="data-vals"><span class="val-label">A:</span><span class="val-forecast">Pending</span><span class="val-label">F:</span><span class="val-forecast">0.3%</span><span class="val-label">P:</span><span class="val-prev">0.4%</span></span></div>
                 </div>
-                <div class="section-note">PCE price index is Fed's preferred inflation gauge, closely watched for monetary policy decisions</div>
+                <div class="section-note">PPI "serves as a leading indicator of consumer price inflation" and will influence Fed policy expectations</div>
             </div>
             <div class="time-card">
-                <div class="time-header"><span class="time-label">9:45 AM ET</span><span class="impact-badge badge-actual">RELEASED</span></div>
+                <div class="time-header"><span class="time-label">11:30 AM ET</span><span class="impact-badge badge-high">HIGH</span></div>
                 <div class="data-grid">
-                    <div class="data-row"><span class="data-name">Chicago PMI</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">57.7</span><span class="val-label">F:</span><span class="val-forecast">52.8</span><span class="val-label">P:</span><span class="val-prev">54.0</span></span></div>
+                    <div class="data-row"><span class="data-name">Atlanta Fed GDPNow</span><span class="data-vals"><span class="val-label">A:</span><span class="val-forecast">Pending</span><span class="val-label">F:</span><span class="val-forecast">3.1%</span><span class="val-label">P:</span><span class="val-prev">3.1%</span></span></div>
                 </div>
-                <div class="section-note">Surge follows 25 consecutive months of decline, with employment at highest since Dec 2024 and new orders at levels not seen since March 2022</div>
+                <div class="section-note">Latest GDPNow estimate 3.1% for Q1 2026, updated February 24</div>
             </div>
             <div class="fed-card"><h3>🏛️ Fed Rate Path</h3>
-                <div class="recap-row"><strong>Current Rate:</strong> 5.25-5.50%</div>
-                <div class="recap-row"><strong>Next Meeting:</strong> March 19-20</div>
-                <div class="recap-row"><strong>Rate Cuts Expected:</strong> Markets pushing back rate-cut expectations further into 2026</div>
+                <div class="recap-row"><strong>Current Rate:</strong> 4.00-4.25% (after Dec cuts)</div>
+                <div class="recap-row"><strong>Chair Powell:</strong> Term expires May 2026, Trump to announce successor</div>
+                <div class="recap-row"><strong>Next Meeting:</strong> FOMC vote week of Jan 28</div>
             </div>
-            <div class="next-week-bar"><h3>📅 Next Week — March 3-7</h3>
+            <div class="next-week-bar"><h3>📅 Next Week — Mar 3-7</h3>
                 <div class="nw-grid">
-                    <div class="nw-day"><span class="nw-day-label">MON 3/3</span><span class="nw-event">Construction Spending</span></div>
-                    <div class="nw-day"><span class="nw-day-label">TUE 3/4</span><span class="nw-event hot">ISM Manufacturing PMI</span></div>
+                    <div class="nw-day"><span class="nw-day-label">MON 3/3</span><span class="nw-event">ISM Manufacturing</span></div>
+                    <div class="nw-day"><span class="nw-day-label">TUE 3/4</span><span class="nw-event">JOLTS Job Openings</span></div>
                     <div class="nw-day"><span class="nw-day-label">WED 3/5</span><span class="nw-event">ADP Employment</span></div>
-                    <div class="nw-day"><span class="nw-day-label">THU 3/6</span><span class="nw-event">ISM Services PMI</span></div>
+                    <div class="nw-day"><span class="nw-day-label">THU 3/6</span><span class="nw-event">Initial Claims</span></div>
                     <div class="nw-day"><span class="nw-day-label">FRI 3/7</span><span class="nw-event hot">Jobs Report</span></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="dn-footer">USD Economic Calendar • Friday, February 27, 2026 • For informational purposes only — not investment advice</div>
+    <div class="dn-footer">USD Economic Calendar &bull; Friday, February 28, 2026 &bull; For informational purposes only — not investment advice</div>
 </div>
