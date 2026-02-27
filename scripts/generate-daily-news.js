@@ -100,13 +100,7 @@ const CSS_TEMPLATE = `
     .dn-container .up { color: #69f0ae; }
     .dn-container .down { color: #ff5252; }
     .dn-container .neutral { color: #ffb74d; }
-    .dn-container .premarket-card { background-color: #1e2a3d; border: 1px solid #2a4a7a; border-radius: 7px; padding: 12px 14px; }
-    .dn-container .premarket-card h3 { margin: 0 0 10px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
-    .dn-container .pm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .dn-container .pm-item { background-color: #232e3d; border-radius: 5px; padding: 7px 9px; font-size: 12px; }
-    .dn-container .pm-label { color: #9e9e9e; font-size: 11px; display: block; margin-bottom: 2px; }
-    .dn-container .pm-value { font-weight: 700; font-size: 14px; }
-    .dn-container .pm-change { font-size: 11px; margin-left: 4px; }
+
     .dn-container .time-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; }
     .dn-container .time-header { display: flex; align-items: center; margin-bottom: 9px; gap: 10px; }
     .dn-container .time-label { font-size: 15px; font-weight: 700; color: #ffffff; }
@@ -140,7 +134,6 @@ const CSS_TEMPLATE = `
     @media (max-width: 768px) {
         .dn-container .main-content { flex-direction: column; }
         .dn-container .left-column { width: 100%; }
-        .dn-container .pm-grid { grid-template-columns: repeat(2, 1fr); }
         .dn-container .nw-grid { grid-template-columns: repeat(2, 1fr); }
         .dn-container .data-grid { grid-template-columns: 1fr; }
     }
@@ -187,11 +180,6 @@ const HTML_TEMPLATE_EXAMPLE = `
                 </div>
                 <div class="section-note">[analysis quote or context]</div>
             </div>
-            <div class="premarket-card"><h3>📊 Pre-Market Snapshot</h3>
-                <div class="pm-grid">
-                    <div class="pm-item"><span class="pm-label">ES (S&P)</span><span class="pm-value">X,XXX</span><span class="pm-change down">-X.X%</span></div>
-                </div>
-            </div>
             <div class="time-card">
                 <div class="time-header"><span class="time-label">8:30 AM ET</span><span class="impact-badge badge-critical">CRITICAL</span></div>
                 <div class="data-grid">
@@ -231,9 +219,8 @@ Search for:
 3. Key overnight news affecting markets (Fed speakers, geopolitical, policy)
 4. US government news (executive orders, legislation, regulatory actions)
 5. Major earnings reporting today and this week
-6. Futures pre-market levels (ES, NQ, RTY, YM, Gold, Oil)
-7. Any red/orange folder high-impact news events
-8. Previous day's close (S&P, Nasdaq, Dow, VIX, 10Y yield, oil)
+6. Any red/orange folder high-impact news events
+7. Previous day's close (S&P, Nasdaq, Dow, VIX, 10Y yield, oil)
 
 YOU MUST USE THIS EXACT CSS AND HTML STRUCTURE. Here is the CSS (include this exactly as-is at the top of your output):
 
@@ -253,7 +240,6 @@ CRITICAL RULES:
 - Data rows show A: (actual), F: (forecast), P: (previous) — use val-actual for beats, val-actual-miss for misses
 - Include 5-10 pre-market movers in the left sidebar
 - Include the previous day's close recap with major index levels
-- Include pre-market futures grid (ES, NQ, RTY, YM, Gold, Oil)
 - Include Fed Rate Path card
 - Include Next Week preview with 5 weekdays
 - Every ticker, percentage, and data point must be REAL from your web searches
