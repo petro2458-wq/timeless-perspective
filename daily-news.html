@@ -1,271 +1,231 @@
-<!-- Daily News generated 2026-02-27T16:18:31.196Z -->
+<!-- Daily News generated 2026-02-27T16:35:11.315Z -->
 <!-- Run: 11 AM ET | Model: claude-sonnet-4-20250514 -->
-<div style="max-width: 980px; margin: 0 auto; background: #232323; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; border-radius: 8px; overflow: hidden;">
-
 <style>
-.trading-calendar {
-  --red: #ff5252;
-  --red-bg: #3d1a1a;
-  --green: #69f0ae;
-  --green-bg: #1a3d1a;
-  --orange: #ffb74d;
-  --orange-bg: #3d2a00;
-  --blue: #90caf9;
-  --blue-bg: #1a2a3d;
-  --gray: #616161;
-}
-.hot-alert { background: var(--red-bg); border-left: 4px solid var(--red); }
-.beat { background: var(--green-bg); color: var(--green); }
-.miss { background: var(--red-bg); color: var(--red); }
-.caution { background: var(--orange-bg); color: var(--orange); }
-.info { background: var(--blue-bg); color: var(--blue); }
-.critical-badge { background: #c62828; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
-.high-badge { background: #e65100; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
-.medium-badge { background: #f57f17; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
+    .dn-container {
+        max-width: 980px;
+        margin: 0 auto;
+        background-color: #232323;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        color: #e0e0e0;
+        font-size: 14px;
+    }
+    .dn-container .header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 18px 24px;
+        text-align: center;
+    }
+    .dn-container .header h1 { margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; }
+    .dn-container .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.92; color: #ffffff; }
+    .dn-container .alerts-section {
+        padding: 14px 18px 10px;
+        background-color: #2a2a2a;
+        border-bottom: 1px solid #3a3a3a;
+    }
+    .dn-container .alert-box {
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+    .dn-container .alert-red { background-color: #3d1a1a; border: 2px solid #c62828; color: #ffcdd2; }
+    .dn-container .alert-red strong { color: #ff5252; font-size: 14px; }
+    .dn-container .alert-green { background-color: #1a3d1a; border: 1px solid #388e3c; color: #c8e6c9; }
+    .dn-container .alert-green strong { color: #69f0ae; }
+    .dn-container .alert-orange { background-color: #3d2a00; border: 1px solid #f57c00; color: #ffe0b2; }
+    .dn-container .alert-orange strong { color: #ffb74d; }
+    .dn-container .alert-blue { background-color: #1a2a3d; border-radius: 6px; padding: 9px 14px; font-size: 13px; color: #90caf9; line-height: 1.45; }
+    .dn-container .week-strip {
+        display: flex;
+        background-color: #2e2e2e;
+        border-bottom: 1px solid #3a3a3a;
+        overflow: hidden;
+    }
+    .dn-container .week-day {
+        flex: 1; text-align: center; padding: 8px 4px;
+        font-size: 11px; border-right: 1px solid #3a3a3a; color: #9e9e9e;
+    }
+    .dn-container .week-day:last-child { border-right: none; }
+    .dn-container .week-day.today { background-color: #1e3c72; color: #ffffff; font-weight: 700; }
+    .dn-container .week-day .day-label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 2px; }
+    .dn-container .week-day .day-note { font-size: 10px; color: #bdbdbd; }
+    .dn-container .week-day.today .day-note { color: #90caf9; }
+    .dn-container .earnings-strip {
+        display: flex; background-color: #252525; border-bottom: 1px solid #3a3a3a;
+        padding: 7px 14px; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 12px;
+    }
+    .dn-container .strip-label { color: #9e9e9e; font-weight: 600; font-size: 11px; white-space: nowrap; }
+    .dn-container .earnings-tag { padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .dn-container .tag-beat { background-color: #1b5e20; color: #a5d6a7; }
+    .dn-container .tag-miss { background-color: #b71c1c; color: #ffcdd2; }
+    .dn-container .tag-mixed { background-color: #4a3000; color: #ffe082; }
+    .dn-container .tag-upcoming { background-color: #1a2a3d; color: #90caf9; }
+    .dn-container .main-content { display: flex; padding: 14px; gap: 14px; }
+    .dn-container .left-column { display: flex; flex-direction: column; gap: 14px; width: 170px; flex-shrink: 0; }
+    .dn-container .side-box { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 11px; }
+    .dn-container .side-box h3 { margin: 0 0 9px 0; font-size: 13px; color: #90caf9; font-weight: 700; border-bottom: 1px solid #3a3a3a; padding-bottom: 5px; }
+    .dn-container .side-item { margin-bottom: 5px; font-size: 12px; line-height: 1.4; color: #e0e0e0; }
+    .dn-container .ticker { font-weight: 700; color: #64b5f6; }
+    .dn-container .beat-text { color: #69f0ae; }
+    .dn-container .miss-text { color: #ff5252; }
+    .dn-container .mixed-text { color: #ffb74d; }
+    .dn-container .data-box { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .dn-container .recap-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; font-size: 13px; }
+    .dn-container .recap-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
+    .dn-container .recap-row { margin-bottom: 5px; line-height: 1.4; color: #e0e0e0; }
+    .dn-container .up { color: #69f0ae; }
+    .dn-container .down { color: #ff5252; }
+    .dn-container .neutral { color: #ffb74d; }
+    .dn-container .premarket-card { background-color: #1e2a3d; border: 1px solid #2a4a7a; border-radius: 7px; padding: 12px 14px; }
+    .dn-container .premarket-card h3 { margin: 0 0 10px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
+    .dn-container .pm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .dn-container .pm-item { background-color: #232e3d; border-radius: 5px; padding: 7px 9px; font-size: 12px; }
+    .dn-container .pm-label { color: #9e9e9e; font-size: 11px; display: block; margin-bottom: 2px; }
+    .dn-container .pm-value { font-weight: 700; font-size: 14px; }
+    .dn-container .pm-change { font-size: 11px; margin-left: 4px; }
+    .dn-container .time-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; }
+    .dn-container .time-header { display: flex; align-items: center; margin-bottom: 9px; gap: 10px; }
+    .dn-container .time-label { font-size: 15px; font-weight: 700; color: #ffffff; }
+    .dn-container .impact-badge { padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .dn-container .badge-critical { background-color: #c62828; color: #ffffff; }
+    .dn-container .badge-high { background-color: #e65100; color: #ffffff; }
+    .dn-container .badge-medium { background-color: #f57f17; color: #000000; }
+    .dn-container .badge-low { background-color: #424242; color: #bdbdbd; }
+    .dn-container .badge-actual { background-color: #1b5e20; color: #a5d6a7; }
+    .dn-container .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px 16px; }
+    .dn-container .data-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #333; font-size: 13px; }
+    .dn-container .data-row:last-child { border-bottom: none; }
+    .dn-container .data-name { color: #e0e0e0; font-weight: 500; }
+    .dn-container .data-vals { display: flex; gap: 10px; font-size: 12px; }
+    .dn-container .val-actual { color: #69f0ae; font-weight: 700; }
+    .dn-container .val-actual-miss { color: #ff5252; font-weight: 700; }
+    .dn-container .val-forecast { color: #64b5f6; }
+    .dn-container .val-prev { color: #9e9e9e; }
+    .dn-container .val-label { font-size: 10px; color: #757575; margin-right: 2px; }
+    .dn-container .section-note { margin-top: 8px; font-size: 11px; color: #9e9e9e; line-height: 1.4; border-top: 1px solid #333; padding-top: 6px; }
+    .dn-container .next-week-bar { background-color: #1a2a1a; border: 1px solid #2e5b2e; border-radius: 7px; padding: 10px 14px; font-size: 12px; color: #c8e6c9; }
+    .dn-container .next-week-bar h3 { margin: 0 0 7px 0; font-size: 13px; color: #81c784; font-weight: 700; }
+    .dn-container .nw-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .dn-container .nw-day { background-color: #1e3320; border-radius: 5px; padding: 6px 8px; font-size: 11px; }
+    .dn-container .nw-day-label { font-weight: 700; color: #a5d6a7; display: block; margin-bottom: 3px; font-size: 12px; }
+    .dn-container .nw-event { color: #c8e6c9; line-height: 1.3; }
+    .dn-container .nw-event.hot { color: #ff5252; font-weight: 700; }
+    .dn-container .fed-card { background-color: #2a2200; border: 1px solid #5a4800; border-radius: 7px; padding: 11px 14px; font-size: 13px; }
+    .dn-container .fed-card h3 { margin: 0 0 8px 0; font-size: 13px; color: #ffd54f; font-weight: 700; }
+    .dn-container .dn-footer { background-color: #1e1e1e; padding: 10px 18px; text-align: center; font-size: 11px; color: #616161; border-top: 1px solid #2a2a2a; }
+    @media (max-width: 768px) {
+        .dn-container .main-content { flex-direction: column; }
+        .dn-container .left-column { width: 100%; }
+        .dn-container .pm-grid { grid-template-columns: repeat(2, 1fr); }
+        .dn-container .nw-grid { grid-template-columns: repeat(2, 1fr); }
+        .dn-container .data-grid { grid-template-columns: 1fr; }
+    }
 </style>
 
-<!-- Header -->
-<div style="background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 20px; text-align: center;">
-  <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700;">TRADING CALENDAR</h1>
-  <div style="font-size: 1.1rem; margin: 8px 0;">Friday, February 27, 2026</div>
-  <div style="font-size: 0.9rem; opacity: 0.9;">11:00 AM ET • Markets Open</div>
-</div>
-
-<!-- TOP ALERTS -->
-<div class="hot-alert" style="padding: 12px; margin: 8px;">
-  <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">🚨 TOP ALERTS</div>
-  <div style="font-size: 0.85rem; line-height: 1.4;">
-    🔴 **HOT PPI**: Core PPI 0.8% vs 0.3% expected | Headline 0.5% vs 0.3% forecast - Dow -728pts (-1.47%), S&P -0.8%, Nasdaq -0.92%<br>
-    🔴 **FLUTTER -12%**: Q4 earnings/revenue miss, FY guidance disappointing vs $19.28B expected<br>
-    🟠 **AI SELLOFF**: CoreWeave missed EPS (-$0.56 vs -$0.50 est), Nebius -3.55% in sympathy
-  </div>
-</div>
-
-<!-- Week Strip -->
-<div style="display: flex; gap: 4px; padding: 8px; background: #2a2a2a;">
-  <div style="flex: 1; text-align: center; padding: 8px; background: #333; border-radius: 4px; font-size: 0.75rem;">MON<br>24</div>
-  <div style="flex: 1; text-align: center; padding: 8px; background: #333; border-radius: 4px; font-size: 0.75rem;">TUE<br>25</div>
-  <div style="flex: 1; text-align: center; padding: 8px; background: #333; border-radius: 4px; font-size: 0.75rem;">WED<br>26</div>
-  <div style="flex: 1; text-align: center; padding: 8px; background: #333; border-radius: 4px; font-size: 0.75rem;">THU<br>27</div>
-  <div style="flex: 1; text-align: center; padding: 8px; background: #1e3c72; border-radius: 4px; font-size: 0.75rem; color: white; font-weight: 700;">FRI<br>28</div>
-</div>
-
-<!-- Main Layout -->
-<div style="display: flex; gap: 12px; padding: 12px;">
-
-<!-- Left Sidebar -->
-<div style="width: 280px;">
-  
-  <!-- Pre-market Movers -->
-  <div style="background: #2a2a2a; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 700;">PRE-MARKET MOVERS</h3>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #404040;">
-      <div>**MARA** +16%</div>
-      <div style="font-size: 0.75rem; color: #ccc;">AI data centers deal</div>
+<div class="dn-container">
+    <div class="header">
+        <h1>USD Economic Calendar</h1>
+        <p>Friday, 2/27 • PCE inflation data, Chicago PMI beats 57.7</p>
     </div>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #404040;">
-      <div>**DELL** +11%</div>
-      <div style="font-size: 0.75rem; color: #ccc;">AI server revenue 2x</div>
+    <div class="alerts-section">
+        <div class="alert-box alert-red"><strong>🚨 CRITICAL DATA RELEASE:</strong> Personal Income & Spending (Jan) at 8:30 AM includes Fed's preferred PCE inflation gauge</div>
+        <div class="alert-box alert-green"><strong>✅ CHICAGO PMI BEATS:</strong> February reading hits 57.7, well above forecast of 52.8, signaling robust regional expansion</div>
+        <div class="alert-box alert-orange"><strong>⚠️ MARKET VOLATILITY:</strong> VIX back above 20 handle at 21.12 amid tech selloff concerns</div>
+        <div class="alert-blue"><strong>Context Note:</strong> December PCE rose 2.9% YoY (up from 2.8%) • S&P 500 flat YTD, energy sectors outperforming tech • Futures showing cautious recovery from volatility</div>
     </div>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #404040;">
-      <div>**NFLX** +$8</div>
-      <div style="font-size: 0.75rem; color: #ccc;">Q4 beat, WBD bid</div>
+    <div class="week-strip">
+        <div class="week-day"><span class="day-label">MON 2/24</span><span class="day-note">141 Earnings</span></div>
+        <div class="week-day"><span class="day-label">TUE 2/25</span><span class="day-note">220 Earnings</span></div>
+        <div class="week-day"><span class="day-label">WED 2/26</span><span class="day-note">202 Earnings</span></div>
+        <div class="week-day"><span class="day-label">THU 2/27</span><span class="day-note">65 Earnings</span></div>
+        <div class="week-day today"><span class="day-label">FRI 2/28</span><span class="day-note">PCE Release</span></div>
     </div>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #404040; color: var(--red);">
-      <div>**FLTR** -12%</div>
-      <div style="font-size: 0.75rem; color: #ccc;">Earnings/guidance miss</div>
+    <div class="earnings-strip">
+        <span class="strip-label">RESULTS:</span>
+        <span class="earnings-tag tag-beat">SJM +7% (EPS beat)</span>
+        <span class="earnings-tag tag-beat">MARA +16% (AI datacenter deal)</span>
+        <span class="earnings-tag tag-beat">NFLX +7% (Warner deal exit)</span>
+        <span class="earnings-tag tag-beat">CELH +2% (BofA upgrade)</span>
+        <span class="earnings-tag tag-mixed">NVDA +1% (guidance mixed)</span>
+        <span class="earnings-tag tag-miss">XYZ -4% (guidance miss)</span>
     </div>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; color: var(--red);">
-      <div>**NBIS** -3.55%</div>
-      <div style="font-size: 0.75rem; color: #ccc;">AI sector selloff</div>
-    </div>
-  </div>
-
-  <!-- Key Events -->
-  <div style="background: #2a2a2a; border-radius: 8px; padding: 12px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 700;">KEY EVENTS</h3>
-    
-    <div style="margin-bottom: 8px;">
-      <div style="font-size: 0.8rem; font-weight: 600;">🔴 PPI Data Release</div>
-      <div style="font-size: 0.75rem; color: #ccc; line-height: 1.3;">Core +0.8% MoM (vs 0.3% est), +3.6% YoY</div>
-    </div>
-    
-    <div style="margin-bottom: 8px;">
-      <div style="font-size: 0.8rem; font-weight: 600;">📊 Market Impact</div>
-      <div style="font-size: 0.75rem; color: #ccc; line-height: 1.3;">Hot PPI reinforced bets Fed won't cut rates soon</div>
-    </div>
-    
-    <div style="margin-bottom: 8px;">
-      <div style="font-size: 0.8rem; font-weight: 600;">🏛️ Fed Speakers</div>
-      <div style="font-size: 0.75rem; color: #ccc; line-height: 1.3;">Fed Vice Chair Bowman spoke - no new policy signals</div>
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <div style="font-size: 0.8rem; font-weight: 600;">💰 Commodities</div>
-      <div style="font-size: 0.75rem; color: #ccc; line-height: 1.3;">Gold +$48.81 to $5,226 | Bitcoin -$1,205 to $66,285</div>
-    </div>
-  </div>
-</div>
-
-<!-- Main Content Area -->
-<div style="flex: 1;">
-  
-  <!-- Economic Data Releases -->
-  <div style="background: #2a2a2a; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-    <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700;">ECONOMIC DATA RELEASES</h3>
-    
-    <!-- 8:30 AM Release -->
-    <div class="miss" style="padding: 12px; border-radius: 6px; margin-bottom: 12px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <div style="font-weight: 700; font-size: 0.9rem;">8:30 AM ET - Producer Price Index (PPI)</div>
-        <span class="critical-badge">CRITICAL</span>
-      </div>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; font-size: 0.8rem;">
-        <div>
-          <div style="font-weight: 600;">Headline MoM</div>
-          <div>Actual: +0.5%</div>
-          <div>Forecast: +0.3%</div>
-          <div>Previous: +0.4%</div>
+    <div class="main-content">
+        <div class="left-column">
+            <div class="side-box">
+                <h3>📊 Pre-Mkt Movers</h3>
+                <div class="side-item"><span class="ticker">MARA</span> <span class="beat-text">+16.0%</span><br><span style="font-size:11px;color:#9e9e9e;">AI datacenter deal<br>with Starwood Capital</span></div>
+                <div class="side-item"><span class="ticker">SJM</span> <span class="beat-text">+7.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Q3 EPS $2.38 vs $2.27<br>Revenue beat $2.34B</span></div>
+                <div class="side-item"><span class="ticker">NFLX</span> <span class="beat-text">+7.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Exits Warner Bros<br>takeover bid</span></div>
+                <div class="side-item"><span class="ticker">CELH</span> <span class="beat-text">+2.0%</span><br><span style="font-size:11px;color:#9e9e9e;">BofA upgrade to Buy<br>+17% shelf space gains</span></div>
+                <div class="side-item"><span class="ticker">XYZ</span> <span class="miss-text">-4.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Guidance disappointment<br>despite earnings beat</span></div>
+                <div class="side-item"><span class="ticker">NVDA</span> <span class="mixed-text">+1.0%</span><br><span style="font-size:11px;color:#9e9e9e;">EPS $1.62 vs $1.53<br>muted reaction</span></div>
+            </div>
+            <div class="side-box">
+                <h3>📅 Key Events</h3>
+                <div class="side-item">8:30 AM - Personal Income/Spending</div>
+                <div class="side-item">9:45 AM - Chicago PMI (Done)</div>
+                <div class="side-item">Weekend - Fed speakers quiet</div>
+                <div class="side-item">Next Week - ISM Manufacturing</div>
+            </div>
         </div>
-        <div>
-          <div style="font-weight: 600;">Core MoM</div>
-          <div>Actual: +0.8%</div>
-          <div>Forecast: +0.3%</div>
-          <div>Previous: +0.6%</div>
+        <div class="data-box">
+            <div class="recap-card"><h3>📉 Thursday's Close Recap</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px 20px;">
+                    <div class="recap-row"><strong>S&P 500:</strong> <span class="down">-0.87% → 6,885</span></div>
+                    <div class="recap-row"><strong>Nasdaq:</strong> <span class="down">-1.52% → 22,800</span></div>
+                    <div class="recap-row"><strong>Dow Jones:</strong> <span class="down">-0.27% → 49,350</span></div>
+                    <div class="recap-row"><strong>VIX:</strong> <span class="up">+15% → 21.12</span></div>
+                    <div class="recap-row"><strong>10Y Yield:</strong> <span class="down">3.98%</span></div>
+                    <div class="recap-row"><strong>Oil (WTI):</strong> <span class="neutral">$79.73</span></div>
+                </div>
+                <div class="section-note">Sell-off concentrated in semiconductor and AI-related names, reflecting profit-taking after extended rally. Nvidia's pullback weighed on tech sentiment.</div>
+            </div>
+            <div class="premarket-card"><h3>📊 Pre-Market Snapshot</h3>
+                <div class="pm-grid">
+                    <div class="pm-item"><span class="pm-label">ES (S&P)</span><span class="pm-value up">6,893</span><span class="pm-change down">-0.5%</span></div>
+                    <div class="pm-item"><span class="pm-label">NQ (Nasdaq)</span><span class="pm-value up">22,689</span><span class="pm-change down">-0.4%</span></div>
+                    <div class="pm-item"><span class="pm-label">YM (Dow)</span><span class="pm-value up">49,486</span><span class="pm-change down">-0.6%</span></div>
+                    <div class="pm-item"><span class="pm-label">RTY (Russell)</span><span class="pm-value up">2,677</span><span class="pm-change up">+0.5%</span></div>
+                    <div class="pm-item"><span class="pm-label">Gold</span><span class="pm-value neutral">$2,734</span><span class="pm-change down">-0.4%</span></div>
+                    <div class="pm-item"><span class="pm-label">Oil (WTI)</span><span class="pm-value neutral">$79.43</span><span class="pm-change down">-0.4%</span></div>
+                </div>
+            </div>
+            <div class="time-card">
+                <div class="time-header"><span class="time-label">8:30 AM ET</span><span class="impact-badge badge-critical">CRITICAL</span></div>
+                <div class="data-grid">
+                    <div class="data-row"><span class="data-name">Personal Income MoM</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">0.3%</span><span class="val-label">P:</span><span class="val-prev">0.3%</span></span></div>
+                    <div class="data-row"><span class="data-name">Personal Spending MoM</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">0.5%</span><span class="val-label">P:</span><span class="val-prev">0.4%</span></span></div>
+                    <div class="data-row"><span class="data-name">PCE Price Index YoY</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">2.9%</span><span class="val-label">P:</span><span class="val-prev">2.9%</span></span></div>
+                    <div class="data-row"><span class="data-name">Core PCE YoY</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">Pending</span><span class="val-label">F:</span><span class="val-forecast">3.0%</span><span class="val-label">P:</span><span class="val-prev">3.0%</span></span></div>
+                </div>
+                <div class="section-note">PCE price index is Fed's preferred inflation gauge, closely watched for monetary policy decisions</div>
+            </div>
+            <div class="time-card">
+                <div class="time-header"><span class="time-label">9:45 AM ET</span><span class="impact-badge badge-actual">RELEASED</span></div>
+                <div class="data-grid">
+                    <div class="data-row"><span class="data-name">Chicago PMI</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">57.7</span><span class="val-label">F:</span><span class="val-forecast">52.8</span><span class="val-label">P:</span><span class="val-prev">54.0</span></span></div>
+                </div>
+                <div class="section-note">Surge follows 25 consecutive months of decline, with employment at highest since Dec 2024 and new orders at levels not seen since March 2022</div>
+            </div>
+            <div class="fed-card"><h3>🏛️ Fed Rate Path</h3>
+                <div class="recap-row"><strong>Current Rate:</strong> 5.25-5.50%</div>
+                <div class="recap-row"><strong>Next Meeting:</strong> March 19-20</div>
+                <div class="recap-row"><strong>Rate Cuts Expected:</strong> Markets pushing back rate-cut expectations further into 2026</div>
+            </div>
+            <div class="next-week-bar"><h3>📅 Next Week — March 3-7</h3>
+                <div class="nw-grid">
+                    <div class="nw-day"><span class="nw-day-label">MON 3/3</span><span class="nw-event">Construction Spending</span></div>
+                    <div class="nw-day"><span class="nw-day-label">TUE 3/4</span><span class="nw-event hot">ISM Manufacturing PMI</span></div>
+                    <div class="nw-day"><span class="nw-day-label">WED 3/5</span><span class="nw-event">ADP Employment</span></div>
+                    <div class="nw-day"><span class="nw-day-label">THU 3/6</span><span class="nw-event">ISM Services PMI</span></div>
+                    <div class="nw-day"><span class="nw-day-label">FRI 3/7</span><span class="nw-event hot">Jobs Report</span></div>
+                </div>
+            </div>
         </div>
-        <div>
-          <div style="font-weight: 600;">Headline YoY</div>
-          <div>Actual: +2.9%</div>
-          <div>Forecast: +2.6%</div>
-          <div>Previous: +3.0%</div>
-        </div>
-        <div>
-          <div style="font-weight: 600;">Core YoY</div>
-          <div>Actual: +3.6%</div>
-          <div>Forecast: +3.0%</div>
-          <div>Previous: +3.3%</div>
-        </div>
-      </div>
-      
-      <div style="margin-top: 8px; font-size: 0.75rem; line-height: 1.4;">
-        Services prices drove increase (+0.8% MoM, highest since July). 20%+ from professional/commercial equipment wholesaling
-      </div>
     </div>
-
-    <!-- Upcoming Releases -->
-    <div style="background: #333; padding: 10px; border-radius: 6px;">
-      <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 6px;">TODAY'S REMAINING RELEASES:</div>
-      <div style="font-size: 0.8rem; line-height: 1.4;">
-        • Chicago PMI (est. 52.5 vs 54.0 prior) - Later AM<br>
-        • Construction Spending - 10:00 AM ET<br>
-        • KC Fed Services Activity - 11:00 AM ET
-      </div>
-    </div>
-  </div>
-
-  <!-- Futures Grid -->
-  <div style="background: #2a2a2a; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">PRE-MARKET FUTURES</h3>
-    
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-      <div style="text-align: center; padding: 8px; background: var(--red-bg); border-radius: 4px;">
-        <div style="font-weight: 700; font-size: 0.8rem;">S&P 500</div>
-        <div style="color: var(--red); font-size: 0.9rem;">6,874.60</div>
-        <div style="font-size: 0.75rem; color: var(--red);">-34.26 (-0.50%)</div>
-      </div>
-      
-      <div style="text-align: center; padding: 8px; background: var(--red-bg); border-radius: 4px;">
-        <div style="font-weight: 700; font-size: 0.8rem;">Nasdaq</div>
-        <div style="color: var(--red); font-size: 0.9rem;">22,713.96</div>
-        <div style="font-size: 0.75rem; color: var(--red);">-164.43 (-0.72%)</div>
-      </div>
-      
-      <div style="text-align: center; padding: 8px; background: var(--red-bg); border-radius: 4px;">
-        <div style="font-weight: 700; font-size: 0.8rem;">Dow Jones</div>
-        <div style="color: var(--red); font-size: 0.9rem;">48,992.91</div>
-        <div style="font-size: 0.75rem; color: var(--red);">-506.29 (-1.02%)</div>
-      </div>
-      
-      <div style="text-align: center; padding: 8px; background: var(--red-bg); border-radius: 4px;">
-        <div style="font-weight: 700; font-size: 0.8rem;">Russell 2000</div>
-        <div style="color: var(--red); font-size: 0.9rem;">2,631.15</div>
-        <div style="font-size: 0.75rem; color: var(--red);">-46.14 (-1.72%)</div>
-      </div>
-      
-      <div style="text-align: center; padding: 8px; background: var(--green-bg); border-radius: 4px;">
-        <div style="font-weight: 700; font-size: 0.8rem;">Gold</div>
-        <div style="color: var(--green); font-size: 0.9rem;">$5,260.40</div>
-        <div style="font-size: 0.75rem; color: var(--green);">+66.20 (+1.27%)</div>
-      </div>
-      
-      <div style="text-align: center; padding: 8px; background: var(--red-bg); border-radius: 4px;">
-        <div style="font-weight: 700; font-size: 0.8rem;">Bitcoin</div>
-        <div style="color: var(--red); font-size: 0.9rem;">$65,920.50</div>
-        <div style="font-size: 0.75rem; color: var(--red);">-1,217.16 (-1.81%)</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Fed/Macro Summary -->
-  <div style="background: #2a2a2a; border-radius: 8px; padding: 16px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">FED & MACRO STATUS</h3>
-    
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 0.85rem;">
-      <div>
-        <div style="font-weight: 600; margin-bottom: 4px;">Current Fed Funds Rate</div>
-        <div>3.50% - 3.75%</div>
-        
-        <div style="font-weight: 600; margin: 12px 0 4px 0;">Next FOMC Meeting</div>
-        <div>March 17-18, 2026</div>
-      </div>
-      
-      <div>
-        <div style="font-weight: 600; margin-bottom: 4px;">Fed Chair Status</div>
-        <div>Kevin Warsh nominated as next Fed Chair</div>
-        
-        <div style="font-weight: 600; margin: 12px 0 4px 0;">Market Sentiment</div>
-        <div>Rate cut next month chances virtually nil</div>
-      </div>
-    </div>
-    
-    <div style="margin-top: 12px; padding: 8px; background: var(--orange-bg); border-radius: 4px; font-size: 0.8rem;">
-      <div style="font-weight: 600; color: var(--orange);">Inflation Watch:</div>
-      PCE inflation estimated ~2.8% YoY, core ~3.0% YoY. Above Fed's 2% goal, but tariff effects seen as temporary
-    </div>
-  </div>
-</div>
-
-</div>
-
-<!-- Next Week Preview -->
-<div style="background: #2a2a2a; margin: 8px; padding: 12px; border-radius: 8px;">
-  <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">NEXT WEEK PREVIEW</div>
-  <div style="font-size: 0.8rem; line-height: 1.4; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-    <div>
-      <div style="font-weight: 600;">Mon, Mar 2:</div>
-      Construction Spending, ISM Manufacturing, MongoDB (MDB) earnings
-    </div>
-    <div>
-      <div style="font-weight: 600;">Tue, Mar 3:</div>
-      Target (TGT), Best Buy (BBY), CrowdStrike (CRWD) earnings
-    </div>
-    <div>
-      <div style="font-weight: 600;">Wed, Mar 4:</div>
-      ADP Employment, ISM Services, Fed Beige Book, Broadcom (AVGO)
-    </div>
-  </div>
-</div>
-
-<!-- Footer -->
-<div style="background: #1a1a1a; padding: 12px; text-align: center; font-size: 0.75rem; color: #888;">
-  <div style="margin-bottom: 4px;">Trading Calendar • Real-time market data as of 11:00 AM ET</div>
-  <div>⚠️ This information is for educational purposes only. Past performance does not guarantee future results. Always consult with a qualified financial advisor before making investment decisions.</div>
-</div>
-
+    <div class="dn-footer">USD Economic Calendar • Friday, February 27, 2026 • For informational purposes only — not investment advice</div>
 </div>
