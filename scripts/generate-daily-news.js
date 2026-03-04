@@ -213,14 +213,20 @@ async function generateCalendar() {
 
 Generate a comprehensive daily trading calendar. Use web search to find CURRENT, REAL data for today.
 
-Search for:
-1. Today's US economic calendar / data releases (times, forecasts, previous, actuals if released)
-2. Pre-market / after-hours earnings movers (specific tickers, % moves, key numbers)  
+STEP 1 — ECONOMIC CALENDAR (search this FIRST, before anything else):
+Search forexfactory.com/calendar to get today's COMPLETE scheduled release list for ALL of today's USD events.
+If ForexFactory is unavailable, search investing.com/economic-calendar as a backup.
+Capture EVERY red folder (high impact) and orange folder (medium impact) USD event scheduled for today — regardless of what time they occur.
+This means ALL of the following slots must be checked: pre-market, 8:30 AM, 9:45 AM, 10:00 AM, 10:30 AM, 12:00 PM, 2:00 PM, 3:00 PM, and any other time a red or orange event appears.
+Do NOT stop after finding 8:30 AM releases. A release like ISM Services PMI at 10:00 AM is just as important as any 8:30 AM release and must be included.
+For each red/orange event record: exact ET time, event name, impact level, forecast, previous, and actual if already released.
+
+STEP 2 — ADDITIONAL DATA (search after completing Step 1):
+2. Pre-market / after-hours earnings movers (specific tickers, % moves, key numbers)
 3. Key overnight news affecting markets (Fed speakers, geopolitical, policy)
 4. US government news (executive orders, legislation, regulatory actions)
 5. Major earnings reporting today and this week
-6. Any red/orange folder high-impact news events
-7. Previous day's close (S&P, Nasdaq, Dow, VIX, 10Y yield, oil)
+6. Previous day's close (S&P, Nasdaq, Dow, VIX, 10Y yield, oil)
 
 YOU MUST USE THIS EXACT CSS AND HTML STRUCTURE. Here is the CSS (include this exactly as-is at the top of your output):
 
@@ -236,8 +242,10 @@ CRITICAL RULES:
 - All alert boxes use: alert-red (critical/hot/miss), alert-green (beats), alert-orange (caution/mixed), alert-blue (info/context)
 - Earnings tags use: tag-beat (green), tag-miss (red), tag-mixed (orange), tag-upcoming (blue)
 - Price moves use: up (green), down (red), neutral (orange)
-- Time cards use impact badges: badge-critical, badge-high, badge-medium, badge-low, badge-actual (for released data)
+- Time cards use impact badges: badge-critical (red folder), badge-high (orange folder), badge-medium (yellow folder), badge-low (gray), badge-actual (for released data)
 - Data rows show A: (actual), F: (forecast), P: (previous) — use val-actual for beats, val-actual-miss for misses
+- CREATE A SEPARATE time-card FOR EVERY DISTINCT RELEASE TIME — do not bundle 8:30 AM and 10:00 AM events into the same card
+- Include ALL red and orange folder events from ForexFactory regardless of time slot — missing a 10:00 AM release like ISM Services PMI is not acceptable
 - Include 5-10 pre-market movers in the left sidebar
 - Include the previous day's close recap with major index levels
 - Include Fed Rate Path card
@@ -248,7 +256,8 @@ CRITICAL RULES:
 
 If today is Saturday or Sunday, generate a "Weekend Preview" with upcoming week data.
 
-If it's the 4 AM run, focus on pre-market setup. If it's the 10 AM run, include released data actuals.
+4 AM run: Show ALL red and orange folder events scheduled for today with forecast and previous values. Mark actuals as "Pending" for anything not yet released. This is the full-day preview — do not omit later-in-day events just because they haven't happened yet.
+10 AM run: Same complete event list, but fill in any actuals that have been released since 4 AM. Mark still-upcoming events as "Pending".
 
 Output ONLY the HTML starting with <style> and ending with </div>. No markdown, no code fences, no explanation.`
       }
