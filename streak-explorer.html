@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streak Risk Explorer — The Timeless Perspective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0b0d;
+    --bg-secondary: #111218;
+    --bg-card: #16171e;
+    --border: #222333;
+    --border-light: #2a2b3d;
+    --text-primary: #e8e6e1;
+    --text-secondary: #9b9aac;
+    --text-muted: #5f5e70;
+    --accent: #c9a55a;
+    --accent-dim: #a6863e;
+    --accent-glow: rgba(201, 165, 90, 0.15);
+    --green: #4ecb71;
+    --red: #e55b5b;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'DM Sans', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--bg-primary); }
+
+  /* NAV */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(10,11,13,0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-display); font-size: 1.2rem; font-weight: 600;
+    color: var(--text-primary); text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-tag {
+    font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted);
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 7rem 2rem 3rem;
+    position: relative; overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -40%; right: -20%;
+    width: 70vw; height: 70vw;
+    background: radial-gradient(ellipse, rgba(201,165,90,0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+  .section-tag {
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent);
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .section-tag::before { content: ''; width: 28px; height: 1px; background: var(--accent); }
+  h1 {
+    font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 400; line-height: 1.1; margin-bottom: 1rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-size: 1rem; color: var(--text-secondary); max-width: 620px; line-height: 1.75;
+  }
+
+  /* TOOL SECTION */
+  .tool-section { padding: 2.5rem 2rem 5rem; }
+  .tool-inner { max-width: 1200px; margin: 0 auto; }
+  .tool-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 960px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  /* CARD BASE */
+  .card { background: var(--bg-card); border: 1px solid var(--border); }
+  .card-pad { padding: 1.75rem; }
+  .card-label {
+    font-family: var(--font-mono); font-size: 0.65rem;
+    color: var(--text-muted); letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 1.25rem;
+  }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .chart-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent); transform: scaleX(1);
+  }
+  .chart-header {
+    padding: 1.5rem 1.75rem 1rem;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+  .chart-title {
+    font-family: var(--font-display); font-size: 1.25rem; font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  .chart-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+  .legend-row {
+    display: flex; gap: 1.5rem; padding: 0 1.75rem 1rem; flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.6rem;
+    color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .legend-line { width: 20px; height: 2px; }
+  .chart-wrap { padding: 0 1.75rem 1.25rem; position: relative; }
+  canvas#mainChart { width: 100%; display: block; cursor: crosshair; }
+  .axis-x-title {
+    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-muted);
+    text-align: center; margin-top: 4px; padding-left: 52px;
+  }
+  .axis-y-title {
+    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-muted);
+    position: absolute; top: 50%; left: 0;
+    transform: translateX(-40%) translateY(-50%) rotate(-90deg);
+    transform-origin: center center; white-space: nowrap; pointer-events: none;
+  }
+  .chart-hint {
+    font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);
+    text-align: center; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.75rem;
+  }
+  .chart-hint .locked-msg { color: var(--accent); }
+
+  /* RIGHT PANEL */
+  .right-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* PARAM INPUTS */
+  .param-row { margin-bottom: 1.25rem; }
+  .param-row:last-of-type { margin-bottom: 0; }
+  .param-meta {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;
+  }
+  .param-name { font-size: 0.85rem; color: var(--text-secondary); }
+  .param-input {
+    font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); font-weight: 500;
+    background: transparent; border: 1px solid var(--border);
+    padding: 0.15rem 0.4rem; width: 5.5rem; text-align: right;
+    outline: none; transition: border-color 0.2s;
+  }
+  .param-input:focus { border-color: var(--accent); }
+
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 1px;
+    background: var(--border-light); outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px;
+    background: var(--accent); cursor: pointer; transition: transform 0.15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.4); }
+
+  .derived-row {
+    display: flex; align-items: baseline; gap: 0.75rem;
+    margin-top: 0.75rem; padding: 0.6rem 0.75rem;
+    background: rgba(201,165,90,0.04); border: 1px solid rgba(201,165,90,0.1);
+  }
+  .derived-label { font-size: 0.8rem; color: var(--text-secondary); }
+  .derived-val { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); font-weight: 500; }
+  .derived-status { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 500; margin-left: auto; }
+  .derived-status.above { color: var(--green); }
+  .derived-status.below { color: var(--red); }
+  .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+  /* PROBE CARD */
+  .probe-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .probe-accent {
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .probe-empty {
+    font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted);
+    letter-spacing: 0.1em; text-align: center; line-height: 2;
+    text-transform: uppercase; padding: 0.5rem 0 0.25rem;
+  }
+  .probe-headline {
+    font-family: var(--font-display); font-size: 1.5rem; font-weight: 600;
+    line-height: 1.2; margin-bottom: 1.25rem;
+  }
+  .probe-headline span { color: var(--accent); }
+  .locked-badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-family: var(--font-mono); font-size: 0.55rem; color: var(--accent);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--accent-glow); border: 1px solid rgba(201,165,90,0.2);
+    padding: 0.2rem 0.6rem; margin-left: 0.75rem; vertical-align: middle;
+  }
+  .metric-section-head {
+    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 0.85rem 0 0.35rem; border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+  }
+  .metric-section-head:first-of-type { border-top: none; margin-top: 0; }
+  .metric {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+  }
+  .metric:last-of-type { border-bottom: none; }
+  .metric-label { font-size: 0.8rem; color: var(--text-secondary); }
+  .metric-sub { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); display: block; margin-top: 0.15rem; }
+  .metric-val { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 500; text-align: right; }
+  .metric-val.good { color: var(--green); }
+  .metric-val.warn { color: var(--accent); }
+  .metric-val.bad  { color: var(--red); }
+  .metric-val.ok   { color: var(--text-primary); }
+
+  .prob-section { margin-top: 1rem; }
+  .prob-row { margin-bottom: 0.75rem; }
+  .prob-row:last-child { margin-bottom: 0; }
+  .prob-meta {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); margin-bottom: 0.3rem;
+  }
+  .prob-track { height: 2px; background: var(--border-light); }
+  .prob-fill { height: 100%; transition: width 0.5s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .prob-fill.hot  { background: var(--red); }
+  .prob-fill.mild { background: var(--accent); }
+
+  /* NARRATIVE */
+  .narrative-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 2px solid var(--accent); display: none;
+  }
+  .narrative-card.show { display: block; }
+  .narrative-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.75; }
+  .narrative-text strong { color: var(--text-primary); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="#">The Timeless <span>Perspective</span></a>
+  <div class="nav-tag">Tool 02 — Streak Risk Explorer</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="section-tag">Risk Analysis</div>
+    <h1>The Cost of <em>Your Edge</em></h1>
+    <p class="hero-sub">Every profitable system has a losing streak baked into its mathematics. This tool maps those streaks across the full expectancy landscape — so you understand the price of your edge before you pay it in real money.</p>
+  </div>
+</div>
+
+<section class="tool-section">
+  <div class="tool-inner">
+    <div class="tool-grid">
+
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Win Rate vs. Avg R — Breakeven Curve</div>
+              <div class="chart-sub">Click to lock a system. Hover to preview others.</div>
+            </div>
+
+          </div>
+          <div class="legend-row">
+            <div class="legend-item">
+              <div class="legend-line" style="background:var(--accent)"></div>Breakeven curve
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="mainChart" height="460"></canvas>
+            <div class="axis-x-title">Win Rate</div>
+            <div class="axis-y-title">Avg Winner (R)</div>
+            <div class="chart-hint" id="chartHint">Click anywhere on the chart to lock a system — hover to preview</div>
+          </div>
+        </div>
+
+        <!-- NARRATIVE -->
+        <div class="narrative-card card-pad" id="narrative" style="margin-top:1.5rem">
+          <div class="card-label">What This Means</div>
+          <div class="narrative-text" id="narrativeText"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+
+        <!-- SYSTEM PARAMETERS -->
+        <div class="card card-pad">
+          <div class="card-label">System Parameters</div>
+
+          <div class="param-row">
+            <div class="param-meta">
+              <span class="param-name">Win Rate</span>
+              <input type="text" class="param-input" id="wrInput" value="45%">
+            </div>
+            <input type="range" id="wrSlider" min="10" max="90" step="1" value="45">
+          </div>
+
+          <div class="param-row">
+            <div class="param-meta">
+              <span class="param-name">Avg R Profit</span>
+              <input type="text" class="param-input" id="rInput" value="2.5R">
+            </div>
+            <input type="range" id="rSlider" min="0.2" max="6" step="0.1" value="2.5">
+          </div>
+
+          <div class="derived-row" id="beRow">
+            <span class="derived-label">Breakeven R</span>
+            <span class="derived-val" id="beVal">—</span>
+            <span class="derived-status" id="beStatus"></span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="param-row">
+            <div class="param-meta">
+              <span class="param-name">Trades per month</span>
+              <input type="text" class="param-input" id="freqInput" value="20">
+            </div>
+            <input type="range" id="freq" min="5" max="120" step="5" value="20">
+          </div>
+
+          <div class="param-row">
+            <div class="param-meta">
+              <span class="param-name">Risk per trade</span>
+              <input type="text" class="param-input" id="riskInput" value="2.0%">
+            </div>
+            <input type="range" id="risk" min="0.5" max="10" step="0.25" value="2">
+          </div>
+        </div>
+
+        <!-- PROBE -->
+        <div class="probe-card card-pad" id="probeCard">
+          <div class="probe-accent"></div>
+          <div class="card-label">System Probe</div>
+          <div class="probe-empty" id="probeEmpty">Click or hover over the chart<br>to probe any system</div>
+          <div id="probeBody" style="display:none">
+            <div class="probe-headline" id="probeHead"></div>
+
+            <div class="metric-section-head">Expectancy</div>
+            <div class="metric">
+              <div class="metric-label">Per trade <span class="metric-sub">avg R gained each trade</span></div>
+              <div class="metric-val" id="mExp"></div>
+            </div>
+
+            <div class="metric-section-head">Losing Streaks</div>
+            <div class="metric">
+              <div class="metric-label">
+                P95 streak
+                <span class="metric-sub">routine — nearly every month</span>
+              </div>
+              <div class="metric-val" id="mS95"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">
+                P50 streak
+                <span class="metric-sub">typical worst streak per month</span>
+              </div>
+              <div class="metric-val" id="mS50"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">
+                P5 streak
+                <span class="metric-sub">plan for this — happens a few times per year</span>
+              </div>
+              <div class="metric-val" id="mS5"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">
+                P2 streak
+                <span class="metric-sub">stress test — roughly once every 4 years</span>
+              </div>
+              <div class="metric-val" id="mS2"></div>
+            </div>
+
+            <div class="metric-section-head">Cost &amp; Recovery — P5 (Plan For This)</div>
+            <div class="metric">
+              <div class="metric-label">Drawdown <span class="metric-sub" id="riskLblP5">at 2.0% risk</span></div>
+              <div class="metric-val" id="mDDP5"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Dollar loss per $100k <span class="metric-sub">at P5 drawdown</span></div>
+              <div class="metric-val" id="mDollarP5"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Recovery trades <span class="metric-sub">to recover P5 drawdown</span></div>
+              <div class="metric-val" id="mRecP5"></div>
+            </div>
+
+            <div class="metric-section-head">Cost &amp; Recovery — P2 (Stress Test)</div>
+            <div class="metric">
+              <div class="metric-label">Drawdown <span class="metric-sub" id="riskLblP2">at 2.0% risk</span></div>
+              <div class="metric-val" id="mDDP2"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Dollar loss per $100k <span class="metric-sub">at P2 drawdown</span></div>
+              <div class="metric-val" id="mDollarP2"></div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Recovery trades <span class="metric-sub">to recover P2 drawdown</span></div>
+              <div class="metric-val" id="mRecP2"></div>
+            </div>
+
+            <div class="metric-section-head">This Month — Streak Probability</div>
+            <div class="prob-section">
+              <div class="prob-row">
+                <div class="prob-meta"><span id="probLabelP5"></span><span id="probValP5"></span></div>
+                <div class="prob-track"><div class="prob-fill" id="probBarP5" style="width:0%"></div></div>
+              </div>
+              <div class="prob-row">
+                <div class="prob-meta"><span id="probLabelP2"></span><span id="probValP2"></span></div>
+                <div class="prob-track"><div class="prob-fill" id="probBarP2" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /right-panel -->
+    </div><!-- /tool-grid -->
+  </div>
+</section>
+
+<script>
+// ─── MATH ─────────────────────────────────────────────────────
+const WR0=0.10, WR1=0.90, R0=0, R1=6;
+
+function beR(wr){ return wr<=0?Infinity:(1-wr)/wr; }
+function xpct(wr,r){ return wr*r-(1-wr); }
+
+function streakFast(lp, n, pct) {
+  if(lp<=0) return 0;
+  if(lp>=1) return n;
+  let lo=1, hi=Math.min(n,40);
+  for(let iter=0;iter<20;iter++){
+    const mid=(lo+hi)/2;
+    const p=1-Math.pow(1-Math.pow(lp,mid), n*(1-lp)+1);
+    if(p>pct) lo=mid; else hi=mid;
+  }
+  return Math.round(lo);
+}
+
+function pStreakExact(lp,k,n){
+  if(k<=0)return 1; if(k>n)return 0;
+  let p=new Array(k).fill(0); p[0]=1; let abs=0;
+  for(let t=0;t<n;t++){
+    const nx=new Array(k).fill(0);
+    for(let s=0;s<k;s++){
+      if(!p[s])continue;
+      nx[0]+=p[s]*(1-lp);
+      const ns=s+1;
+      if(ns>=k) abs+=p[s]*lp; else nx[ns]+=p[s]*lp;
+    }
+    p=nx;
+  }
+  return Math.min(1,abs);
+}
+
+function streakExact(lp,n,pct){
+  for(let k=1;k<=Math.min(n,35);k++){
+    if(pStreakExact(lp,k,n)<pct) return k-1;
+  }
+  return Math.min(n,35);
+}
+
+function ddFromStreak(s,rPct){
+  return (1-Math.pow(1-rPct/100, s))*100;
+}
+
+function recTrades(dd,wr,r,rPct){
+  const e=xpct(wr,r); if(e<=0) return Infinity;
+  return Math.ceil((dd/100)/(e*rPct/100));
+}
+
+function fmtDollar(v){
+  return '$'+Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
+
+// ─── STATE ────────────────────────────────────────────────────
+let locked=false;
+let lockedWR=-1, lockedR=-1;
+let hoverWR=-1, hoverR=-1;
+
+// ─── CANVAS ───────────────────────────────────────────────────
+const cv=document.getElementById('mainChart');
+const cx=cv.getContext('2d');
+const M={top:16,right:16,bottom:28,left:48};
+let overlay='streak';
+let cachedHeatmap=null;
+let rafPending=false;
+
+function D(){ const W=cv.width,H=cv.height; return{W,H,pW:W-M.left-M.right,pH:H-M.top-M.bottom}; }
+function w2x(wr,d){return M.left+(wr-WR0)/(WR1-WR0)*d.pW;}
+function r2y(r,d) {return M.top+(1-(r-R0)/(R1-R0))*d.pH;}
+function x2w(x,d) {return WR0+(x-M.left)/d.pW*(WR1-WR0);}
+function y2r(y,d) {return R0+(1-(y-M.top)/d.pH)*(R1-R0);}
+
+// ─── HEATMAP ──────────────────────────────────────────────────
+const GW=80, GH=60;
+
+function buildHeatmap(d){
+  const freq=parseInt(document.getElementById('freq').value);
+  const rPct=parseFloat(document.getElementById('risk').value);
+  const grid=new Float32Array(GW*GH);
+  let maxV=0;
+
+  for(let gx=0;gx<GW;gx++){
+    const wr=WR0+gx/(GW-1)*(WR1-WR0), lp=1-wr;
+    for(let gy=0;gy<GH;gy++){
+      const r=R0+(1-gy/(GH-1))*(R1-R0);
+      let v=0;
+      if(overlay==='streak') v=streakFast(lp,freq,0.95);
+      else if(overlay==='drawdown') v=ddFromStreak(streakFast(lp,freq,0.95),rPct);
+      else if(overlay==='recovery'){
+        const dd=ddFromStreak(streakFast(lp,freq,0.95),rPct);
+        const e=xpct(wr,r);
+        v=e>0?Math.min(150,(dd/100)/(e*rPct/100)):150;
+      } else v=Math.max(0,xpct(wr,r))*15;
+      grid[gy*GW+gx]=v;
+      if(v>maxV) maxV=v;
+    }
+  }
+
+  const iW=d.pW, iH=d.pH;
+  const img=cx.createImageData(iW,iH);
+  const px=img.data;
+
+  for(let ix=0;ix<iW;ix++){
+    const wr=WR0+ix/iW*(WR1-WR0), prof_beR=beR(wr);
+    const gxf=(ix/iW)*(GW-1), gx0=Math.min(Math.floor(gxf),GW-2), gx1=gx0+1, gxt=gxf-gx0;
+    for(let iy=0;iy<iH;iy++){
+      const r=R0+(1-iy/iH)*(R1-R0);
+      const i=(iy*iW+ix)*4, prof=r>prof_beR;
+      const gyf=(iy/iH)*(GH-1), gy0=Math.min(Math.floor(gyf),GH-2), gy1=gy0+1, gyt=gyf-gy0;
+      const v=(grid[gy0*GW+gx0]*(1-gxt)+grid[gy0*GW+gx1]*gxt)*(1-gyt)+(grid[gy1*GW+gx0]*(1-gxt)+grid[gy1*GW+gx1]*gxt)*gyt;
+      const t=maxV>0?v/maxV:0;
+      if(!prof){ px[i]=14; px[i+1]=10; px[i+2]=10; px[i+3]=230; }
+      else { px[i]=Math.round(16+t*64); px[i+1]=Math.round(17+t*45); px[i+2]=Math.round(22-t*10); px[i+3]=235; }
+    }
+  }
+  return img;
+}
+
+function drawStatic(){
+  const d=D();
+  cx.clearRect(0,0,d.W,d.H);
+  cx.fillStyle='#16171e'; cx.fillRect(0,0,d.W,d.H);
+  cachedHeatmap=buildHeatmap(d);
+  cx.putImageData(cachedHeatmap,M.left,M.top);
+  drawAxesAndCurve(d);
+}
+
+function drawAxesAndCurve(d){
+  cx.strokeStyle='rgba(55,57,85,0.75)'; cx.lineWidth=1;
+  [0.2,0.3,0.4,0.5,0.6,0.7,0.8].forEach(wr=>{
+    const x=w2x(wr,d);
+    cx.beginPath(); cx.moveTo(x,M.top); cx.lineTo(x,M.top+d.pH); cx.stroke();
+  });
+  [1,2,3,4,5].forEach(r=>{
+    const y=r2y(r,d);
+    cx.beginPath(); cx.moveTo(M.left,y); cx.lineTo(M.left+d.pW,y); cx.stroke();
+  });
+
+  cx.beginPath(); cx.strokeStyle='#c9a55a'; cx.lineWidth=2;
+  cx.shadowColor='rgba(201,165,90,0.4)'; cx.shadowBlur=7;
+  let first=true;
+  for(let wr=WR0;wr<=WR1;wr+=0.003){
+    const br=beR(wr);
+    if(br>R1||br<R0){first=true;continue;}
+    const x=w2x(wr,d),y=r2y(br,d);
+    first?cx.moveTo(x,y):cx.lineTo(x,y); first=false;
+  }
+  cx.stroke(); cx.shadowBlur=0;
+
+  cx.fillStyle='rgba(201,165,90,0.75)'; cx.font='500 9px "JetBrains Mono"'; cx.textAlign='left';
+  const lw=0.68, lr=beR(lw);
+  if(lr<R1-0.4) cx.fillText('BREAKEVEN',w2x(lw,d)+6,r2y(lr,d)-7);
+
+  cx.strokeStyle='rgba(100,102,135,0.9)'; cx.lineWidth=1.5;
+  cx.beginPath(); cx.moveTo(M.left,M.top); cx.lineTo(M.left,M.top+d.pH); cx.lineTo(M.left+d.pW,M.top+d.pH); cx.stroke();
+
+  cx.strokeStyle='rgba(80,82,110,0.45)'; cx.lineWidth=1;
+  cx.fillStyle='rgba(155,154,172,0.75)';
+  cx.font='12px "DM Sans", sans-serif';
+
+  [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9].forEach(wr=>{
+    const x=w2x(wr,d);
+    cx.beginPath(); cx.moveTo(x,M.top+d.pH); cx.lineTo(x,M.top+d.pH+3); cx.stroke();
+    cx.textAlign='center'; cx.textBaseline='top';
+    cx.fillText((wr*100).toFixed(0)+'%', x, M.top+d.pH+5);
+  });
+  [1,2,3,4,5,6].forEach(r=>{
+    const y=r2y(r,d);
+    cx.beginPath(); cx.moveTo(M.left,y); cx.lineTo(M.left-3,y); cx.stroke();
+    cx.textAlign='right'; cx.textBaseline='middle';
+    cx.fillText(r+'R', M.left-6, y);
+  });
+  cx.textAlign='right'; cx.textBaseline='middle';
+  cx.fillText('0R', M.left-6, r2y(0,d));
+}
+
+function drawOverlay(){
+  if(!cachedHeatmap) return;
+  const d=D();
+  cx.putImageData(cachedHeatmap,M.left,M.top);
+  drawAxesAndCurve(d);
+
+  // Locked point — larger ring + dot
+  if(locked && lockedWR>=WR0 && lockedWR<=WR1 && lockedR>=R0 && lockedR<=R1){
+    const lx=w2x(lockedWR,d), ly=r2y(lockedR,d);
+    cx.strokeStyle='rgba(201,165,90,0.5)'; cx.lineWidth=2;
+    cx.beginPath(); cx.arc(lx,ly,8,0,Math.PI*2); cx.stroke();
+    cx.fillStyle='#c9a55a'; cx.shadowColor='rgba(201,165,90,0.8)'; cx.shadowBlur=12;
+    cx.beginPath(); cx.arc(lx,ly,4,0,Math.PI*2); cx.fill(); cx.shadowBlur=0;
+  }
+
+  // Hover crosshair + dot
+  if(hoverWR>=WR0 && hoverWR<=WR1 && hoverR>=R0 && hoverR<=R1){
+    const hx=w2x(hoverWR,d), hy=r2y(hoverR,d);
+    cx.strokeStyle='rgba(201,165,90,0.15)'; cx.lineWidth=1; cx.setLineDash([3,5]);
+    cx.beginPath(); cx.moveTo(M.left,hy); cx.lineTo(M.left+d.pW,hy); cx.stroke();
+    cx.beginPath(); cx.moveTo(hx,M.top); cx.lineTo(hx,M.top+d.pH); cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle='#e8e6e1'; cx.shadowColor='rgba(201,165,90,0.7)'; cx.shadowBlur=10;
+    cx.beginPath(); cx.arc(hx,hy,3,0,Math.PI*2); cx.fill(); cx.shadowBlur=0;
+  }
+}
+
+// ─── PROBE ────────────────────────────────────────────────────
+function updateProbe(wr,r){
+  const freq=parseInt(document.getElementById('freq').value);
+  const rPct=parseFloat(document.getElementById('risk').value);
+  const lp=1-wr;
+  const e=xpct(wr,r);
+
+  const s95=streakExact(lp,freq,0.95);
+  const s50=streakExact(lp,freq,0.50);
+  const s5 =streakExact(lp,freq,0.05);
+  const s2 =streakExact(lp,freq,0.02);
+
+  const ddP5=ddFromStreak(s5,rPct);
+  const dollarP5=(ddP5/100)*100000;
+  const recP5=recTrades(ddP5,wr,r,rPct);
+
+  const ddP2=ddFromStreak(s2,rPct);
+  const dollarP2=(ddP2/100)*100000;
+  const recP2=recTrades(ddP2,wr,r,rPct);
+
+  document.getElementById('probeEmpty').style.display='none';
+  document.getElementById('probeBody').style.display='block';
+
+  let headHTML=`<span>${(wr*100).toFixed(0)}%</span> win — <span>${r.toFixed(1)}R</span> avg`;
+  if(locked && Math.abs(wr-lockedWR)<0.005 && Math.abs(r-lockedR)<0.05){
+    headHTML+='<span class="locked-badge">locked</span>';
+  }
+  document.getElementById('probeHead').innerHTML=headHTML;
+
+  sv('mExp',(e>=0?'+':'')+e.toFixed(3)+'R', e>0?'good':e<0?'bad':'warn');
+
+  // Streak rows
+  sv('mS95',s95+' losses', 'ok');
+  sv('mS50',s50+' losses', s50>=6?'bad':s50>=4?'warn':'good');
+  sv('mS5', s5+' losses',  s5>=8?'bad':s5>=5?'warn':'ok');
+  sv('mS2', s2+' losses',  s2>=10?'bad':s2>=6?'warn':'ok');
+
+  // P5 cost
+  document.getElementById('riskLblP5').textContent=`at ${rPct.toFixed(1)}% risk`;
+  sv('mDDP5', ddP5.toFixed(1)+'%', ddP5>=15?'bad':ddP5>=8?'warn':'good');
+  sv('mDollarP5',fmtDollar(dollarP5), ddP5>=15?'bad':ddP5>=8?'warn':'good');
+  sv('mRecP5',recP5>=999?'∞':recP5+' trades', recP5>=50?'bad':recP5>=25?'warn':'good');
+
+  // P2 cost
+  document.getElementById('riskLblP2').textContent=`at ${rPct.toFixed(1)}% risk`;
+  sv('mDDP2', ddP2.toFixed(1)+'%', ddP2>=20?'bad':ddP2>=12?'warn':'good');
+  sv('mDollarP2',fmtDollar(dollarP2), ddP2>=20?'bad':ddP2>=12?'warn':'good');
+  sv('mRecP2',recP2>=999?'∞':recP2+' trades', recP2>=60?'bad':recP2>=30?'warn':'good');
+
+  // Probability bars
+  const probP5=pStreakExact(lp,s5,freq);
+  const probP2=pStreakExact(lp,s2,freq);
+  document.getElementById('probLabelP5').textContent=`Prob of ≥${s5} losses in a row this month`;
+  document.getElementById('probLabelP2').textContent=`Prob of ≥${s2} losses in a row this month`;
+  document.getElementById('probValP5').textContent=Math.min(100,probP5*100).toFixed(0)+'%';
+  document.getElementById('probValP2').textContent=Math.min(100,probP2*100).toFixed(0)+'%';
+  setBar('probBarP5',Math.min(100,probP5*100));
+  setBar('probBarP2',Math.min(100,probP2*100));
+
+  buildNarrative(wr,r,e,s5,s2,s50,s95,ddP5,dollarP5,recP5,ddP2,dollarP2,recP2,freq,rPct);
+}
+
+function sv(id,val,cls){
+  const el=document.getElementById(id);
+  el.textContent=val; el.className='metric-val '+(cls||'');
+}
+function setBar(id,pct){
+  const el=document.getElementById(id);
+  el.style.width=pct+'%';
+  el.className='prob-fill '+(pct>50?'hot':'mild');
+}
+
+// ─── NARRATIVE ────────────────────────────────────────────────
+function buildNarrative(wr,r,e,s5,s2,s50,s95,ddP5,dollarP5,recP5,ddP2,dollarP2,recP2,freq,rPct){
+  document.getElementById('narrative').classList.add('show');
+  const prof=r>beR(wr);
+  const monthsP5=(recP5/freq).toFixed(1);
+  const monthsP2=(recP2/freq).toFixed(1);
+  let html;
+
+  if(!prof){
+    html=`At <strong>${(wr*100).toFixed(0)}% win rate</strong> you need at least <strong>${beR(wr).toFixed(2)}R</strong> per winner to break even. You're at <strong>${r.toFixed(1)}R</strong>. The losing streaks aren't bad luck — they're the math working exactly as designed. Position sizing cannot fix negative expectancy.`;
+  } else {
+    html=`<strong>P5 — your planning number.</strong> P5 means that 5% of your trading months will produce a losing streak <em>at least</em> this long. 5% may seem rare — but it's not. And if you just experienced a P5 month, that doesn't mean you won't get another one soon after. Streaks don't care about your recent history. This is a really good planning case for position sizing your system.<br><br>`;
+
+    html+=`At your selected risk of <strong>${rPct.toFixed(1)}% per trade</strong>, a P5 losing streak of <strong>${s5} consecutive losses</strong> draws your account down by <strong>${ddP5.toFixed(1)}%</strong> — that's <strong>${fmtDollar(dollarP5)} for every $100,000</strong> of account equity.`;
+
+    if(recP5<999){
+      html+=` With your system's expectancy of <strong>+${e.toFixed(3)}R per trade</strong>, recovery takes roughly <strong>${recP5} trades (${monthsP5} months)</strong>.`;
+    }
+
+    html+=`<br><br>`;
+
+    html+=`<strong>P2 — your stress test.</strong> The P2 streak happens roughly once every 4 years of active trading. It's rare enough to feel like the system is broken — but it's not. It's just the math doing what it always does over long enough timeframes.<br><br>`;
+
+    html+=`A P2 streak of <strong>${s2} consecutive losses</strong> at <strong>${rPct.toFixed(1)}% risk</strong> means a <strong>${ddP2.toFixed(1)}% drawdown</strong> — <strong>${fmtDollar(dollarP2)} per $100,000</strong>.`;
+
+    if(recP2<999){
+      html+=` Recovery requires roughly <strong>${recP2} trades (${monthsP2} months)</strong>.`;
+    }
+
+    html+=` If this number makes you uncomfortable, your position size is too large for this system. The traders who survive their P2 streak are the ones who sized for it before it arrived.`;
+  }
+  document.getElementById('narrativeText').innerHTML=html;
+}
+
+// ─── INPUT SYNC ───────────────────────────────────────────────
+const wrSlider=document.getElementById('wrSlider');
+const rSlider=document.getElementById('rSlider');
+const freqSlider=document.getElementById('freq');
+const riskSlider=document.getElementById('risk');
+const wrInput=document.getElementById('wrInput');
+const rInput=document.getElementById('rInput');
+const freqInput=document.getElementById('freqInput');
+const riskInput=document.getElementById('riskInput');
+
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+
+function syncFromSliders(){
+  const wr=parseFloat(wrSlider.value)/100;
+  const r=parseFloat(rSlider.value);
+  wrInput.value=wrSlider.value+'%';
+  rInput.value=parseFloat(rSlider.value).toFixed(1)+'R';
+  freqInput.value=freqSlider.value;
+  riskInput.value=parseFloat(riskSlider.value).toFixed(1)+'%';
+  updateDerived(wr,r);
+  lockPoint(wr,r);
+}
+
+function updateDerived(wr,r){
+  const be=beR(wr);
+  document.getElementById('beVal').textContent=be<99?be.toFixed(2)+'R':'—';
+  const st=document.getElementById('beStatus');
+  if(be<99){
+    if(r>be){ st.textContent='▲ ABOVE'; st.className='derived-status above'; }
+    else if(r<be){ st.textContent='▼ BELOW'; st.className='derived-status below'; }
+    else { st.textContent='= EVEN'; st.className='derived-status'; }
+  } else { st.textContent=''; st.className='derived-status'; }
+}
+
+function lockPoint(wr,r){
+  locked=true;
+  lockedWR=wr; lockedR=r;
+  drawOverlay();
+  updateProbe(wr,r);
+  updateHint();
+}
+
+// Slider listeners
+wrSlider.addEventListener('input', function(){ syncFromSliders(); cachedHeatmap=null; drawStatic(); lockPoint(parseFloat(wrSlider.value)/100, parseFloat(rSlider.value)); });
+rSlider.addEventListener('input', function(){ syncFromSliders(); cachedHeatmap=null; drawStatic(); lockPoint(parseFloat(wrSlider.value)/100, parseFloat(rSlider.value)); });
+freqSlider.addEventListener('input', function(){ freqInput.value=freqSlider.value; refresh(); });
+riskSlider.addEventListener('input', function(){ riskInput.value=parseFloat(riskSlider.value).toFixed(1)+'%'; refresh(); });
+
+// Text input listeners
+function parseNum(str){ return parseFloat(str.replace(/[^0-9.\-]/g,'')); }
+
+wrInput.addEventListener('change', function(){
+  const v=clamp(parseNum(this.value),10,90);
+  if(isNaN(v)) return;
+  wrSlider.value=v; syncFromSliders(); refresh();
+});
+rInput.addEventListener('change', function(){
+  const v=clamp(parseNum(this.value),0.2,6);
+  if(isNaN(v)) return;
+  rSlider.value=v; syncFromSliders(); refresh();
+});
+freqInput.addEventListener('change', function(){
+  const v=clamp(Math.round(parseNum(this.value)/5)*5,5,120);
+  if(isNaN(v)) return;
+  freqSlider.value=v; freqInput.value=v; refresh();
+});
+riskInput.addEventListener('change', function(){
+  const v=clamp(parseNum(this.value),0.5,10);
+  if(isNaN(v)) return;
+  riskSlider.value=v; riskInput.value=v.toFixed(1)+'%'; refresh();
+});
+
+[wrInput,rInput,freqInput,riskInput].forEach(el=>{
+  el.addEventListener('focus', function(){ this.select(); });
+  el.addEventListener('keydown', function(e){ if(e.key==='Enter') this.blur(); });
+});
+
+// ─── CHART HINT ───────────────────────────────────────────────
+function updateHint(){
+  const hint=document.getElementById('chartHint');
+  if(locked) hint.innerHTML='<span class="locked-msg">📌 Locked</span> — hover to preview, click to change';
+  else hint.textContent='Click anywhere on the chart to lock a system — hover to preview';
+}
+
+// ─── CHART EVENTS ─────────────────────────────────────────────
+function mpos(e){
+  const rc=cv.getBoundingClientRect();
+  return{x:(e.clientX-rc.left)*cv.width/rc.width, y:(e.clientY-rc.top)*cv.height/rc.height};
+}
+
+// Hover: preview only
+cv.addEventListener('mousemove', e=>{
+  const p=mpos(e),d=D();
+  const wr=x2w(p.x,d), r=y2r(p.y,d);
+  if(wr<WR0||wr>WR1||r<R0||r>R1) return;
+  hoverWR=wr; hoverR=r;
+  if(!rafPending){
+    rafPending=true;
+    requestAnimationFrame(()=>{
+      rafPending=false;
+      drawOverlay();
+      updateProbe(hoverWR,hoverR);
+    });
+  }
+});
+
+// Mouse leave: revert to locked
+cv.addEventListener('mouseleave', ()=>{
+  hoverWR=-1; hoverR=-1;
+  drawOverlay();
+  if(locked) updateProbe(lockedWR,lockedR);
+});
+
+// Click: lock + update inputs
+cv.addEventListener('click', e=>{
+  const p=mpos(e),d=D();
+  const wr=x2w(p.x,d), r=y2r(p.y,d);
+  if(wr<WR0||wr>WR1||r<R0||r>R1) return;
+
+  const wrc=clamp(wr,0.10,0.90);
+  const rc=clamp(r,0.2,6.0);
+
+  wrSlider.value=Math.round(wrc*100);
+  rSlider.value=Math.round(rc*10)/10;
+  wrInput.value=Math.round(wrc*100)+'%';
+  rInput.value=(Math.round(rc*10)/10).toFixed(1)+'R';
+  updateDerived(wrc,rc);
+
+  hoverWR=wrc; hoverR=rc;
+  lockPoint(wrc,rc);
+});
+
+function refresh(){
+  cachedHeatmap=null;
+  drawStatic();
+  if(locked){ drawOverlay(); updateProbe(lockedWR,lockedR); }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+function resize(){
+  cv.width=cv.offsetWidth; cv.height=460;
+  cachedHeatmap=null;
+  drawStatic();
+  if(locked) drawOverlay();
+}
+window.addEventListener('resize',resize);
+resize();
+syncFromSliders();
+refresh();
+</script>
+</body>
+</html>
