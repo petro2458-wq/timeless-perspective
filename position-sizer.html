@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prop Firm Position Sizer | The Timeless Perspective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0a0b0d;
+      --bg-secondary: #111218;
+      --bg-card: #16171e;
+      --border: #222333;
+      --border-light: #2a2b3d;
+      --text-primary: #e8e6e1;
+      --text-secondary: #9b9aac;
+      --text-muted: #5f5e70;
+      --accent: #c9a55a;
+      --accent-dim: #a6863e;
+      --accent-glow: rgba(201,165,90,0.12);
+      --accent-glow-strong: rgba(201,165,90,0.22);
+      --green: #4ecb71;
+      --green-dim: rgba(78,203,113,0.12);
+      --yellow: #f0c040;
+      --yellow-dim: rgba(240,192,64,0.12);
+      --red: #e55b5b;
+      --red-dim: rgba(229,91,91,0.12);
+      --blue: #5b8fe5;
+      --blue-dim: rgba(91,143,229,0.12);
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+    /* NAV */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(10,11,13,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--text-primary); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-back:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero { padding: 5.5rem 2rem 1.5rem; max-width: 1440px; margin: 0 auto; text-align: center; }
+    .hero-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-dim); padding: 0.28rem 0.75rem; margin-bottom: 1rem; }
+    .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 3.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.7rem; }
+    .hero h1 em { color: var(--accent); font-style: italic; }
+    .hero p { font-size: 0.95rem; color: var(--text-secondary); max-width: 580px; margin: 0 auto 1.2rem; line-height: 1.7; }
+
+    /* LAYOUT */
+    .tool-wrapper { max-width: 1440px; margin: 0 auto; padding: 0 1.5rem 4rem; display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; align-items: start; }
+
+    /* INPUT PANEL */
+    .input-panel { position: sticky; top: 5rem; display: flex; flex-direction: column; gap: 0.9rem; }
+    .panel-section { background: var(--bg-card); border: 1px solid var(--border); padding: 1.15rem; position: relative; overflow: hidden; }
+    .panel-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+    .sec-title { font-family: var(--font-mono); font-size: 0.63rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+    .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* INPUTS */
+    .ig { margin-bottom: 0.85rem; }
+    .ig:last-child { margin-bottom: 0; }
+    .il { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.32rem; }
+    .ib { width: 14px; height: 14px; border-radius: 50%; background: var(--border-light); border: none; cursor: pointer; font-size: 0.58rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: var(--font-mono); flex-shrink: 0; position: relative; }
+    .ib:hover { background: var(--accent); color: var(--bg-primary); }
+    .tw { position: relative; display: inline-block; }
+    .tt { display: none; position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 8px); background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 0.55rem 0.75rem; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5; width: 210px; z-index: 300; pointer-events: none; }
+    .tw:hover .tt { display: block; }
+
+    input[type="number"], select { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-mono); font-size: 0.83rem; padding: 0.48rem 0.65rem; outline: none; transition: border-color 0.2s; -moz-appearance: textfield; appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus, select:focus { border-color: var(--accent); }
+    select { cursor: pointer; }
+    select option { background: var(--bg-secondary); }
+    .ir { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+
+    /* TOGGLE */
+    .tg { display: flex; margin-bottom: 0.85rem; }
+    .tb { flex: 1; padding: 0.42rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-align: center; }
+    .tb:not(:last-child) { border-right: none; }
+    .tb.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+    /* SLIDER */
+    .sw { position: relative; padding-bottom: 1.1rem; }
+    input[type="range"] { width: 100%; -webkit-appearance: none; appearance: none; height: 3px; background: var(--border-light); outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg-primary); box-shadow: 0 0 6px var(--accent-glow-strong); }
+    .sl { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); margin-top: 0.28rem; }
+
+    /* FEEDBACK */
+    .fb { border-left: 2px solid var(--accent); padding: 0.45rem 0.65rem; font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.45rem; line-height: 1.5; display: none; }
+    .fb.show { display: block; }
+    .fb.warn { background: var(--red-dim); border-color: var(--red); }
+    .fb.info { background: var(--blue-dim); border-color: var(--blue); }
+    .fb.ok { background: var(--accent-glow); border-color: var(--accent); }
+
+    /* PHASE PILLS */
+    .phase-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .phase-btn { padding: 0.55rem; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-family: var(--font-body); font-size: 0.76rem; font-weight: 500; transition: all 0.2s; }
+    .phase-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+    /* DIVIDER */
+    .dv { height: 1px; background: var(--border); margin: 0.7rem 0; }
+
+    /* ── RESULTS ── */
+    .results-panel { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    /* PROBABILITY SELECTOR */
+    .prob-selector-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.15rem; position: relative; overflow: hidden; }
+    .prob-selector-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+
+
+    /* RISK RESULT BANNER */
+    .risk-result-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    .rrb-cell { background: var(--bg-secondary); border: 1px solid var(--border); padding: 0.75rem 0.9rem; }
+    .rrb-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.2rem; }
+    .rrb-value { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 600; }
+    .rrb-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .rrb-cell.cons .rrb-label { color: var(--green); }
+    .rrb-cell.cons .rrb-value { color: var(--green); }
+    .rrb-cell.mod .rrb-label { color: var(--yellow); }
+    .rrb-cell.mod .rrb-value { color: var(--yellow); }
+    .rrb-cell.agg .rrb-label { color: var(--red); }
+    .rrb-cell.agg .rrb-value { color: var(--red); }
+
+    .regen-btn { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.3rem 0.75rem; border: 1px solid var(--accent-dim); background: transparent; color: var(--accent); cursor: pointer; transition: all 0.2s; }
+    .regen-btn:hover { background: var(--accent-glow); }
+
+    .seq-strip-wrap { margin-bottom: 0.6rem; }
+    .seq-row-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center; }
+    .seq-row-label .seq-badge { font-size: 0.58rem; padding: 0.1rem 0.4rem; border: 1px solid; }
+    .seq-row-label.p90-label { color: var(--green); }
+    .seq-row-label.p90-label .seq-badge { border-color: var(--green); }
+    .seq-row-label.p50-label { color: var(--yellow); }
+    .seq-row-label.p50-label .seq-badge { border-color: var(--yellow); }
+    .seq-row-label.p10-label { color: var(--red); }
+    .seq-row-label.p10-label .seq-badge { border-color: var(--red); }
+
+    .seq-boxes { display: flex; gap: 2px; flex-wrap: nowrap; overflow: hidden; margin-bottom: 0.3rem; }
+    .seq-box { flex: 1; min-width: 0; height: 22px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.55rem; font-weight: 600; transition: opacity 0.15s; cursor: default; border: 1px solid transparent; }
+    .seq-box.W { background: rgba(78,203,113,0.25); border-color: rgba(78,203,113,0.4); color: var(--green); }
+    .seq-box.L { background: rgba(229,91,91,0.25); border-color: rgba(229,91,91,0.4); color: var(--red); }
+    .seq-box.B { background: rgba(95,94,112,0.2); border-color: rgba(95,94,112,0.3); color: var(--text-muted); }
+
+    /* R curve canvas */
+    .r-canvas-wrap { position: relative; height: 50px; margin-bottom: 1rem; }
+    canvas.r-curve { display: block; width: 100%; height: 50px; }
+
+    /* AGGRESSION CARDS */
+    .agg-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.2rem; position: relative; overflow: hidden; transition: border-color 0.3s; }
+    .agg-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .agg-card.cons::before { background: var(--green); }
+    .agg-card.mod::before { background: var(--yellow); }
+    .agg-card.agg::before { background: var(--red); }
+    .agg-card.cons { border-color: rgba(78,203,113,0.2); }
+    .agg-card.mod { border-color: rgba(240,192,64,0.2); }
+    .agg-card.agg { border-color: rgba(229,91,91,0.2); }
+    .agg-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.9rem; }
+    .agg-name { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.2rem; }
+    .agg-card.cons .agg-name { color: var(--green); }
+    .agg-card.mod .agg-name { color: var(--yellow); }
+    .agg-card.agg .agg-name { color: var(--red); }
+
+
+    /* P10/P50/P90 rows inside aggression card */
+
+
+    .agg-narrative { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.55; border-top: 1px solid var(--border); padding-top: 0.7rem; }
+    .agg-narrative strong { color: var(--text-primary); }
+
+    /* SCENARIO 3-CASE */
+    .sc-title { font-family: var(--font-mono); font-size: 0.63rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+    .sc-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .cases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+    .case-col { background: var(--bg-secondary); border: 1px solid var(--border); padding: 0.8rem; }
+    .case-col-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .case-col.pess .case-col-label { color: var(--red); }
+    .case-col.exp .case-col-label { color: var(--accent); }
+    .case-col.opt .case-col-label { color: var(--green); }
+    .cm { margin-bottom: 0.38rem; }
+    .cml { font-size: 0.62rem; color: var(--text-muted); }
+    .cmv { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-primary); font-weight: 600; }
+
+    /* EQUITY CHART */
+    .chart-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.15rem; position: relative; overflow: hidden; }
+    .chart-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+    .chart-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
+    .chart-title { font-family: var(--font-mono); font-size: 0.63rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+    .chart-legend { display: flex; gap: 1.2rem; margin-top: 0.7rem; flex-wrap: wrap; }
+    .cl { display: flex; align-items: center; gap: 0.35rem; font-size: 0.67rem; color: var(--text-muted); }
+    .cl-line { width: 18px; height: 2px; }
+
+    /* FLAGS */
+    .flags-wrap { display: flex; flex-direction: column; gap: 0.45rem; }
+    .flag { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.55rem 0.75rem; font-size: 0.73rem; color: var(--text-secondary); border: 1px solid; line-height: 1.5; }
+    .flag.warn { border-color: rgba(229,91,91,0.3); background: var(--red-dim); }
+    .flag.info { border-color: rgba(91,143,229,0.3); background: var(--blue-dim); }
+    .flag.good { border-color: rgba(78,203,113,0.3); background: var(--green-dim); }
+    .flag-i { flex-shrink: 0; }
+
+    /* LOCK BAR */
+    .lock-bar-card { background: var(--bg-secondary); border: 1px solid var(--border); padding: 0.8rem 1rem; display: flex; gap: 1rem; align-items: center; }
+    .lb-wrap { flex: 1; }
+    .lb-labels { font-size: 0.67rem; color: var(--text-muted); margin-bottom: 0.28rem; display: flex; justify-content: space-between; }
+    .lb-track { height: 5px; background: var(--border-light); }
+    .lb-fill { height: 100%; background: var(--accent); transition: width 0.5s; max-width: 100%; }
+    .lb-note { font-size: 0.63rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .lb-stat { text-align: right; flex-shrink: 0; }
+    .lb-stat-v { font-family: var(--font-mono); font-size: 0.95rem; color: var(--accent); font-weight: 600; }
+    .lb-stat-l { font-size: 0.62rem; color: var(--text-muted); }
+
+    /* CONSISTENCY NOTE */
+    .cr-note { background: var(--yellow-dim); border: 1px solid rgba(240,192,64,0.3); padding: 0.7rem 0.9rem; font-size: 0.75rem; color: var(--text-secondary); display: none; gap: 0.5rem; align-items: flex-start; }
+    .cr-note.show { display: flex; }
+
+    /* CALC SPINNER */
+    .spin-wrap { display: none; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); padding: 0.4rem 0; }
+    .spin-wrap.show { display: flex; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: blink 1.2s ease-in-out infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,100%{opacity:0.15} 50%{opacity:1} }
+
+    /* SEQUENCE BOXES */
+    .seq-box-outer { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+    .sb-header { padding: 1.1rem 1.2rem 0.8rem; border-bottom: 1px solid var(--border); }
+    .sb-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; gap: 1rem; }
+    .sb-pct-label { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.25rem; }
+    .sb-pass-label { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 600; }
+    .sb-wlb { font-family: var(--font-mono); font-size: 0.75rem; display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0; }
+    .sb-stats-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .sb-stat { }
+    .sb-stat-l { font-size: 0.62rem; color: var(--text-muted); }
+    .sb-stat-v { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 600; color: var(--text-primary); margin-top: 0.05rem; }
+    .sb-seq-row { display: flex; gap: 2px; padding: 0.7rem 1.2rem; background: var(--bg-secondary); flex-wrap: nowrap; overflow: hidden; }
+    .sb-box { flex: 1; min-width: 0; height: 24px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.55rem; font-weight: 700; border: 1px solid transparent; cursor: default; }
+    .sb-box.W { background: rgba(78,203,113,0.2); border-color: rgba(78,203,113,0.35); color: var(--green); }
+    .sb-box.L { background: rgba(229,91,91,0.2); border-color: rgba(229,91,91,0.35); color: var(--red); }
+    .sb-box.B { background: rgba(95,94,112,0.15); border-color: rgba(95,94,112,0.25); color: var(--text-muted); }
+    .sb-box.sb-passed { outline: 2px solid var(--green); outline-offset: 1px; }
+    .sb-box.sb-blown { outline: 2px solid var(--red); outline-offset: 1px; }
+    .sb-chart { display: block; width: 100%; padding: 0 1.2rem; box-sizing: border-box; }
+    .sb-legend { display: flex; gap: 1rem; padding: 0.5rem 1.2rem 0.9rem; flex-wrap: wrap; }
+
+    /* REGEN BTN */
+    .regen-btn { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.3rem 0.75rem; border: 1px solid var(--accent-dim); background: transparent; color: var(--accent); cursor: pointer; transition: all 0.2s; }
+    .regen-btn:hover { background: var(--accent-glow); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) { .tool-wrapper { grid-template-columns: 1fr; } .input-panel { position: static; } .risk-result-banner { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .hero h1 { font-size: 2rem; } .tool-wrapper { padding: 0 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">The <span>Timeless</span> Perspective</a>
+  <a class="nav-back" href="index.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Free Tool · Beta</div>
+  <h1>Prop Firm <em>Position Sizer</em></h1>
+  <p>Enter your firm's rules and your system's edge. See how position sizing drives your probability of passing — across favorable, typical, and unfavorable conditions simultaneously.</p>
+</div>
+
+<div class="tool-wrapper">
+
+  <!-- ═══ INPUT PANEL ═══ -->
+  <div class="input-panel">
+
+    <!-- PHASE -->
+    <div class="panel-section">
+      <div class="sec-title">Phase</div>
+      <div class="phase-row">
+        <button class="phase-btn active" onclick="setPhase('evaluation',this)">Evaluation</button>
+        <button class="phase-btn" onclick="setPhase('funded',this)">Funded / Payout</button>
+      </div>
+      <div class="fb show info" id="phase-fb">Evaluation: pass the challenge before your drawdown hits zero.</div>
+    </div>
+
+    <!-- ACCOUNT RULES -->
+    <div class="panel-section">
+      <div class="sec-title">Account Rules</div>
+
+      <div class="ig">
+        <div class="il">Starting Drawdown
+          <div class="tw"><button class="ib">?</button><div class="tt">The total simulated funds before account failure. On a $50K account with $2,500 drawdown, this is $2,500. The account label is irrelevant — only this number matters for sizing.</div></div>
+        </div>
+        <input type="number" id="i-dd" value="2500" min="100" max="50000" step="100" oninput="onInput()">
+      </div>
+
+      <div class="ig">
+        <div class="il"><span id="target-lbl">Profit Target (to pass)</span>
+          <div class="tw"><button class="ib">?</button><div class="tt">How much profit you need to pass the evaluation or trigger a payout. This is your finish line.</div></div>
+        </div>
+        <input type="number" id="i-target" value="3000" min="100" max="100000" step="100" oninput="onInput()">
+      </div>
+
+      <div class="ig">
+        <div class="il">Drawdown Type
+          <div class="tw"><button class="ib">?</button><div class="tt">EOD: floor updates once daily — most forgiving. Intraday: updates tick-by-tick on unrealized peaks — most punishing. Static: floor never moves.</div></div>
+        </div>
+        <select id="i-ddtype" onchange="onInput()">
+          <option value="eod">EOD Trailing (End of Day)</option>
+          <option value="intraday">Intraday Trailing (Real-Time)</option>
+          <option value="static">Static (Fixed Floor)</option>
+        </select>
+      </div>
+
+      <div id="intraday-wrap" style="display:none;">
+        <div class="dv"></div>
+        <div class="ig" style="margin-top:0.7rem;">
+          <div class="il">Losing Trade Trailing DD Impact (R)
+            <div class="tw"><button class="ib">?</button><div class="tt">With intraday trailing drawdown, winners have no extra floor impact — the floor moves by exactly your closed profit. Losers DO impact the floor because price often moves in your favor before failing. Example: a trade goes +0.5R in your favor before reversing to a -1R loss. That is a 1.5R trailing drawdown impact. The next 2R winner completely erases this. Set this to your average favorable excursion on losing trades.</div></div>
+          </div>
+          <select id="i-exit" onchange="onInput()">
+            <option value="none">0R — Losses go straight against you</option>
+            <option value="tight">0.25R — Small favorable move before fail</option>
+            <option value="moderate" selected>0.5R — Typical: half-R in your favor before fail</option>
+            <option value="loose">1.0R — Full R in your favor before fail</option>
+          </select>
+        </div>
+        <div class="fb show info" id="exit-fb"></div>
+      </div>
+
+      <div class="dv"></div>
+
+      <div class="ig">
+        <div class="il">Daily Loss Limit
+          <div class="tw"><button class="ib">?</button><div class="tt">A per-day loss cap that stops trading for the day — but does NOT end the challenge. Account survives, resets next morning. Used by Tradeify Growth, Topstep, and others.</div></div>
+        </div>
+        <div class="tg">
+          <button class="tb" id="dll-off-btn" onclick="setDLL(false)">Off</button>
+          <button class="tb active" id="dll-on-btn" onclick="setDLL(true)">On</button>
+        </div>
+        <div id="dll-wrap">
+          <input type="number" id="i-dll" value="500" min="50" max="20000" step="50" oninput="onInput()" placeholder="Daily loss limit $">
+        </div>
+      </div>
+
+      <div class="ig">
+        <div class="il">Consistency Rule
+          <div class="tw"><button class="ib">?</button><div class="tt">Your best single day must be ≤ this % of total profit at payout. A huge early win forces continued trading until that day is diluted below the threshold. Enter the % your firm uses (e.g. 35 for Tradeify, 50 for Topstep, 30 for Apex).</div></div>
+        </div>
+        <div class="tg">
+          <button class="tb active" id="cr-off-btn" onclick="setCR(false)">Off</button>
+          <button class="tb" id="cr-on-btn" onclick="setCR(true)">On</button>
+        </div>
+        <div id="cr-wrap" style="display:none; margin-top:0.4rem;">
+          <div class="il" style="margin-bottom:0.28rem;">Max best-day %
+            <div class="tw"><button class="ib">?</button><div class="tt">Enter your firm's consistency rule %. Tradeify = 35. Topstep = 50. Apex = 30. Your best single day profit must stay below this % of total profits to qualify for payout.</div></div>
+          </div>
+          <input type="number" id="i-crpct" value="35" min="10" max="80" step="5" oninput="onInput()">
+          <div class="fb show ok" id="cr-example-fb" style="margin-top:0.4rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div class="panel-section">
+      <div class="sec-title">Your System</div>
+
+      <div class="ir">
+        <div class="ig">
+          <div class="il">Win Rate %
+            <div class="tw"><button class="ib">?</button><div class="tt">% of trades that close as winners. Calculate from your last 50+ trades. Most traders overestimate this.</div></div>
+          </div>
+          <input type="number" id="i-wr" value="65" min="1" max="99" step="1" oninput="onInput()">
+        </div>
+        <div class="ig">
+          <div class="il">Breakeven %
+            <div class="tw"><button class="ib">?</button><div class="tt">Scratch trades — close flat or near zero. Loss rate = 100% − Win% − Breakeven%.</div></div>
+          </div>
+          <input type="number" id="i-be" value="0" min="0" max="50" step="1" oninput="onInput()">
+        </div>
+      </div>
+
+      <div class="ig">
+        <div class="il">R-Multiple (avg win / avg loss)
+          <div class="tw"><button class="ib">?</button><div class="tt">If you risk $200 and your avg win = $400, R = 2.0. Your average loss is always 1R by definition. R is your unit of measure.</div></div>
+        </div>
+        <div class="sw" style="position:relative;">
+          <div id="r-bubble" style="position:absolute;top:26px;transform:translateX(-50%);background:var(--accent);color:var(--bg-primary);font-family:var(--font-mono);font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;">1.0R</div>
+          <input type="range" id="i-r" min="0.5" max="5" step="0.1" value="1.0" oninput="rDisp();onInput()">
+          <div class="sl"><span>0.5R</span><span>5.0R</span></div>
+        </div>
+      </div>
+
+      <div class="ig">
+        <div class="il">Trades Per Day
+          <div class="tw"><button class="ib">?</button><div class="tt">Average trades you take per session. Affects challenge duration and how DLL interacts with your sizing.</div></div>
+        </div>
+        <input type="number" id="i-tpd" value="1.5" min="0.5" max="20" step="0.5" oninput="onInput()">
+      </div>
+
+      <div class="fb" id="sys-fb"></div>
+    </div>
+
+    <!-- SIZING -->
+    <div class="panel-section">
+      <div class="sec-title">Sizing Method</div>
+      <div class="tg" style="margin-bottom:0.85rem;">
+        <button class="tb active" id="pct-btn" onclick="setSizing('pct')">% of Drawdown</button>
+        <button class="tb" id="fix-btn" onclick="setSizing('fixed')">Fixed Dollar</button>
+      </div>
+      <div id="pct-wrap">
+        <div class="il" style="margin-bottom:0.28rem;">Risk % per Trade
+          <div class="tw"><button class="ib">?</button><div class="tt">Applied to CURRENT available drawdown (balance minus floor). As your buffer grows post-lock, so does your risk. As it shrinks, risk scales down automatically. The probabilities above find the optimal % for each outcome level.</div></div>
+        </div>
+        <div class="sw">
+          <div style="position:relative;">
+            <div id="pct-bubble" style="position:absolute;top:26px;transform:translateX(-50%);background:var(--accent);color:var(--bg-primary);font-family:var(--font-mono);font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;">10%</div>
+            <input type="range" id="i-pct" min="1" max="30" step="0.5" value="10" oninput="pctDisp();onInput()">
+            <div class="sl"><span>1%</span><span>30%</span></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-secondary);margin-top:0.3rem;">
+          Starting risk: <span id="start-risk" style="color:var(--accent);">$250</span>/trade
+        </div>
+      </div>
+      <div id="fix-wrap" style="display:none;">
+        <div class="il" style="margin-bottom:0.28rem;">Fixed Dollar Risk
+          <div class="tw"><button class="ib">?</button><div class="tt">Same dollar amount every trade. Simpler. Does not compound — risk never changes unless you manually adjust.</div></div>
+        </div>
+        <input type="number" id="i-fix" value="250" min="10" max="10000" step="10" oninput="onInput()">
+      </div>
+    </div>
+
+  </div><!-- /input-panel -->
+
+  <!-- ═══ RESULTS PANEL ═══ -->
+  <div class="results-panel">
+
+    <div class="spin-wrap" id="spin"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Running 5,000 simulations...</span></div>
+
+    <!-- FLAGS -->
+    <div class="flags-wrap" id="flags"></div>
+
+    <!-- LOCK BAR -->
+    <div id="lock-card" class="lock-bar-card">
+      <div class="lb-wrap">
+        <div class="lb-labels"><span>Floor Lock Progress</span><span id="lb-pct">—</span></div>
+        <div class="lb-track"><div class="lb-fill" id="lb-fill" style="width:0%"></div></div>
+        <div class="lb-note">Profit to lock floor: <span id="lb-needed" style="color:var(--text-secondary);">—</span> &nbsp;·&nbsp; After lock: available drawdown grows with profits</div>
+      </div>
+      <div class="lb-stat">
+        <div class="lb-stat-v" id="lb-day">—</div>
+        <div class="lb-stat-l">median day<br>floor locks</div>
+      </div>
+    </div>
+
+    <!-- CONSISTENCY NOTE -->
+    <div class="cr-note" id="cr-note">
+      <span style="color:var(--yellow);font-size:1rem;flex-shrink:0;">⚡</span>
+      <div><strong style="color:var(--yellow);">Consistency Rule Active.</strong> A large winning day forces continued trading until that day ≤ <span id="cr-pct-note">35</span>% of total profits.</div>
+    </div>
+
+    <!-- THREE SCENARIO BOXES -->
+    <div class="seq-box-outer" id="box-p90"></div>
+    <div class="seq-box-outer" id="box-p50"></div>
+    <div class="seq-box-outer" id="box-p10"></div>
+
+    <!-- REGEN BUTTON -->
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="regen-btn" onclick="regenAll()">↻ Roll New Sequences</button>
+    </div>
+
+  </div><!-- /results-panel -->
+</div><!-- /tool-wrapper -->
+
+<script>
+// ═══ STATE ═══════════════════════════════════════════════════════════════════
+const S = {
+  phase:'evaluation', dd:2500, target:3000, ddType:'eod', exit:'moderate',
+  dllOn:true, dllAmt:500, crOn:false, crPct:35,
+  wr:0.65, be:0.00, r:1.0, tpd:1.5,
+  sizing:'pct', riskPct:0.10, fixedAmt:250,
+  probLevel:50
+};
+
+let sequences = null;
+let debTimer = null;
+
+// ═══ HELPERS ═════════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const fmt = v => v!=null&&!isNaN(v) ? '$'+Math.round(v).toLocaleString() : '—';
+const fmtR = v => v!=null&&!isNaN(v) ? (v>=0?'+':'')+v.toFixed(2)+'R' : '—';
+const pct = (arr,p) => arr.length ? arr[Math.floor(arr.length*p)] : null;
+
+function rDisp(){
+  const input = $('i-r');
+  const bubble = $('r-bubble');
+  const val = parseFloat(input.value);
+  bubble.textContent = val.toFixed(1)+'R';
+  const pct = (val - parseFloat(input.min)) / (parseFloat(input.max) - parseFloat(input.min));
+  const thumbW = 13;
+  const offset = pct * (input.offsetWidth - thumbW) + thumbW/2;
+  bubble.style.left = offset + 'px';
+}
+function pctDisp(){
+  const input = $('i-pct');
+  const bubble = $('pct-bubble');
+  const v = parseFloat(input.value);
+  if(bubble){
+    bubble.textContent = v+'%';
+    const pct = (v - parseFloat(input.min)) / (parseFloat(input.max) - parseFloat(input.min));
+    const thumbW = 13;
+    const offset = pct * (input.offsetWidth - thumbW) + thumbW/2;
+    bubble.style.left = offset + 'px';
+  }
+  $('start-risk').textContent = '$'+Math.round(S.dd * v/100);
+}
+
+// ═══ UI HANDLERS ════════════════════════════════════════════════════════════
+function setPhase(p,btn){
+  S.phase=p;
+  document.querySelectorAll('.phase-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $('target-lbl').textContent = p==='evaluation' ? 'Profit Target (to pass)' : 'Payout Target';
+  $('phase-fb').textContent = p==='evaluation'
+    ? 'Evaluation: pass before your drawdown hits zero.'
+    : 'Funded: reach your payout target while protecting your floor.';
+  onInput();
+}
+function setDLL(on){
+  S.dllOn=on;
+  $('dll-off-btn').classList.toggle('active',!on);
+  $('dll-on-btn').classList.toggle('active',on);
+  $('dll-wrap').style.display = on?'block':'none';
+  onInput();
+}
+function setCR(on){
+  S.crOn=on;
+  $('cr-off-btn').classList.toggle('active',!on);
+  $('cr-on-btn').classList.toggle('active',on);
+  $('cr-wrap').style.display = on?'block':'none';
+  updateCRExample();
+  onInput();
+}
+function setSizing(m){
+  S.sizing=m;
+  $('pct-btn').classList.toggle('active',m==='pct');
+  $('fix-btn').classList.toggle('active',m==='fixed');
+  $('pct-wrap').style.display = m==='pct'?'block':'none';
+  $('fix-wrap').style.display = m==='fixed'?'block':'none';
+  onInput();
+}
+
+
+
+function updateCRExample(){
+  if(!S.crOn) return;
+  const crPct = parseFloat($('i-crpct').value)||35;
+  const minTotal = 1000 / (crPct/100); // example: $1000 best day
+  $('cr-example-fb').textContent = `Example: if your best day = $1,000, you need ≥ $${Math.round(minTotal).toLocaleString()} total profit before payout is valid.`;
+}
+
+function onInput(){
+  S.dd = parseFloat($('i-dd').value)||2500;
+  S.target = parseFloat($('i-target').value)||3000;
+  S.ddType = $('i-ddtype').value;
+  S.exit = $('i-exit').value;
+  S.dllAmt = parseFloat($('i-dll').value)||500;
+  S.crPct = parseFloat($('i-crpct').value)||35;
+  S.wr = (parseFloat($('i-wr').value)||0) / 100;
+  S.be = (parseFloat($('i-be').value)||0) / 100;
+  S.r = parseFloat($('i-r').value)||2.0;
+  S.tpd = parseFloat($('i-tpd').value)||1.5;
+  S.riskPct = parseFloat($('i-pct').value)/100||0.08;
+  S.fixedAmt = parseFloat($('i-fix').value)||200;
+
+  $('intraday-wrap').style.display = S.ddType==='intraday'?'block':'none';
+  $('lock-card').style.display = S.ddType==='static'?'none':'flex';
+
+  const lossExcursionR = {none:0, tight:0.25, moderate:0.5, loose:1.0}[S.exit]||0.5;
+  const styleText = {
+    none:'0R excursion: losses go straight against you. Floor only moves on winning trades.',
+    tight:'0.25R excursion: price moves a quarter-R in your favor before the loss. Net DD impact per loss = 1.25R.',
+    moderate:'0.5R excursion: price moves half an R in your favor before failing. Net DD impact per loss = 1.5R.',
+    loose:'1.0R excursion: price moves a full R in your favor before the loss. Net DD impact per loss = 2.0R.'
+  };
+  $('exit-fb').textContent = S.ddType==='intraday' ? styleText[S.exit]||'' : '';
+
+  pctDisp();
+  updateCRExample();
+  updateSysFeedback();
+  updateCRNote();
+
+  clearTimeout(debTimer);
+  debTimer = setTimeout(regenAll, 500);
+}
+
+function updateSysFeedback(){
+  const lr = Math.max(0, 1-S.wr-S.be);
+  const exp = (S.wr * S.r) - lr;
+  const fb = $('sys-fb');
+  if(lr<0){ fb.className='fb show warn'; fb.textContent='Win% + Breakeven% > 100%. Adjust rates.'; return; }
+  if(exp<=0){ fb.className='fb show warn'; fb.textContent=`Negative expectancy (${exp.toFixed(2)}R/trade). Long-term losing system. Passing requires luck.`; return; }
+  const streak = Math.ceil(Math.log(0.05)/Math.log(1-lr));
+  fb.className='fb show info';
+  fb.textContent=`Expectancy: +${exp.toFixed(2)}R/trade. At ${(lr*100).toFixed(0)}% loss rate, expect ${streak}-loss streaks in a normal challenge.`;
+}
+
+function updateCRNote(){
+  const note = $('cr-note');
+  if(!note) return;
+  if(S.crOn){
+    note.classList.add('show');
+    const pctEl = $('cr-pct-note');
+    if(pctEl) pctEl.textContent = S.crPct;
+  } else {
+    note.classList.remove('show');
+  }
+}
+
+// ═══ SEQUENCE GENERATOR ═════════════════════════════════════════════════════
+const N_SEQ = 50;
+const N_POOL = 2000;
+
+function genOneSeq(){
+  const lr = Math.max(0, 1-S.wr-S.be);
+  const seq = [];
+  for(let i=0;i<N_SEQ;i++){
+    const rnd = Math.random();
+    if(rnd<S.wr) seq.push('W');
+    else if(rnd<S.wr+S.be) seq.push('B');
+    else seq.push('L');
+  }
+  return seq;
+}
+
+function seqCumR(seq){
+  const lr = Math.max(0, 1-S.wr-S.be);
+  let cum = 0;
+  return seq.map(s => {
+    if(s==='W') cum += S.r;
+    else if(s==='L') cum -= 1;
+    return cum;
+  });
+}
+
+function genPercentileSeq(targetPct){
+  // Generate pool, sort by final cumulative R, pick the one at targetPct
+  const pool = [];
+  for(let i=0;i<N_POOL;i++){
+    const seq = genOneSeq();
+    const cumR = seqCumR(seq);
+    pool.push({seq, cumR, final: cumR[cumR.length-1]});
+  }
+  pool.sort((a,b)=>a.final-b.final);
+  const idx = Math.floor((targetPct/100) * pool.length);
+  return pool[Math.max(0,Math.min(pool.length-1,idx))];
+}
+
+
+
+
+
+
+
+// ═══ SIMULATION ENGINE ═══════════════════════════════════════════════════════
+const N_SIMS = 5000;
+const MAX_DAYS = 120;
+
+function getLossExcursionR(){ if(S.ddType!=='intraday') return 0; return {none:0,tight:0.25,moderate:0.5,loose:1.0}[S.exit]||0.5; }
+
+// ═══ SEQUENCE ENGINE ═════════════════════════════════════════════════════════
+
+function genOneSeq(){
+  const seq = [];
+  for(let i=0;i<N_SEQ;i++){
+    const rnd = Math.random();
+    if(rnd < S.wr) seq.push('W');
+    else if(rnd < S.wr + S.be) seq.push('B');
+    else seq.push('L');
+  }
+  return seq;
+}
+
+function seqFinalR(seq){
+  let cum = 0;
+  seq.forEach(s => { if(s==='W') cum += S.r; else if(s==='L') cum -= 1; });
+  return cum;
+}
+
+function seqCumRArr(seq){
+  let cum = 0;
+  return seq.map(s => { if(s==='W') cum += S.r; else if(s==='L') cum -= 1; return cum; });
+}
+
+function genPercentileSeq(targetPct){
+  const pool = [];
+  for(let i=0;i<N_POOL;i++){
+    const seq = genOneSeq();
+    pool.push({seq, final: seqFinalR(seq)});
+  }
+  pool.sort((a,b) => a.final - b.final);
+  const idx = Math.floor((targetPct/100) * (pool.length-1));
+  const chosen = pool[Math.max(0,Math.min(pool.length-1,idx))];
+  return { seq: chosen.seq, cumR: seqCumRArr(chosen.seq), final: chosen.final };
+}
+
+// ═══ ACCOUNT SIMULATOR (run through a specific sequence) ═════════════════════
+function runSequenceThroughAccount(seq, riskPct){
+  const lockThresh = S.dd + 100; // profit needed to lock floor
+  const lossExcR = getLossExcursionR(); // R favorable excursion on losing trades before fail
+
+  let bal = S.dd;       // working in drawdown space: start=dd, floor=0
+  let floor = 0;
+  let locked = false;
+  let lockTrade = null;
+  let bestDayProfit = 0;
+  let totalProfit = 0;
+  let minAvail = S.dd;
+  let maxDrawdown = 0;  // max loss from start
+  let dayProfit = 0;
+  let dailyLoss = 0;
+  let dayAccum = 0;     // fractional day accumulator: increments 1/tpd per trade
+  let day = 1;
+  let crBlocked = false;
+  let crBlockedCount = 0;
+
+  const tradeLog = []; // {trade, bal, floor, avail, result, outcome, day}
+
+  for(let t=0;t<seq.length;t++){
+    // Day boundary — triggers when accumulator crosses a whole day
+    if(dayAccum >= 1){
+      dayAccum -= 1;
+      // EOD floor update
+      if(!locked && S.ddType==='eod'){
+        const nf = bal - S.dd;
+        if(nf > floor) floor = nf;
+      }
+      // Check lock
+      if(!locked && S.ddType!=='static'){
+        const profit = bal - S.dd;
+        if(profit >= lockThresh){ locked=true; lockTrade=t; }
+      }
+      // Best day tracking
+      if(dayProfit > bestDayProfit) bestDayProfit = dayProfit;
+      day++; dayProfit=0; dailyLoss=0;
+    }
+
+    const avail = bal - floor;
+    if(avail <= 0) break;
+
+    let risk = S.sizing==='pct' ? avail*riskPct : Math.min(S.fixedAmt, avail*0.99);
+    risk = Math.max(risk, 1);
+
+    const outcome = seq[t];
+    let result = 0;
+    if(outcome==='W'){
+      result = risk * S.r;
+      if(!locked && S.ddType==='intraday'){
+        // Winners: floor moves by exactly closed profit (no extra intraday peak)
+        const nf = (bal + result) - S.dd;
+        if(nf > floor) floor = nf;
+      }
+    } else if(outcome==='L'){
+      result = -risk;
+      dailyLoss += result;
+      if(!locked && S.ddType==='intraday' && lossExcR > 0){
+        // Losing trade: price moved lossExcR in our favor before reversing to full loss
+        // Floor moves up by that favorable excursion, then loss hits
+        const excursionDollars = risk * lossExcR;
+        const nf = (bal + excursionDollars) - S.dd;
+        if(nf > floor) floor = nf;
+      }
+    }
+    // B = 0
+
+    bal += result;
+    dayProfit += result;
+    dayAccum += 1 / S.tpd;   // each trade consumes 1/tpd of a day
+    totalProfit = bal - S.dd;
+
+    const avail2 = bal - floor;
+    if(avail2 < minAvail) minAvail = avail2;
+    const drawFromStart = S.dd - avail2;
+    if(drawFromStart > maxDrawdown) maxDrawdown = drawFromStart;
+
+    tradeLog.push({
+      trade: t+1, day, bal, floor, avail: avail2,
+      result, outcome, profit: totalProfit,
+      locked, lockTrade, bestDayProfit
+    });
+
+    // Blown up?
+    if(bal <= floor){
+      return { passed:false, failTrade:t+1, failDay:day, tradeLog, maxDrawdown, lockTrade, bestDayProfit, totalProfit, minAvail:0 };
+    }
+
+    // DLL
+    if(S.dllOn && Math.abs(dailyLoss) >= S.dllAmt){
+      if(!locked && S.ddType==='eod'){ const nf=bal-S.dd; if(nf>floor) floor=nf; }
+      if(dayProfit > bestDayProfit) bestDayProfit = dayProfit;
+      day++; dayProfit=0; dailyLoss=0; dayAccum=0;
+    }
+
+    // Check target (with consistency rule)
+    let effTarget = S.target;
+    if(S.crOn && bestDayProfit > 0){
+      const minForCR = bestDayProfit / (S.crPct/100);
+      if(minForCR > S.target){ effTarget = minForCR; crBlocked = totalProfit >= S.target && totalProfit < effTarget; if(crBlocked) crBlockedCount++; }
+    }
+    if(totalProfit >= effTarget){
+      return { passed:true, passTrade:t+1, passDay:day, tradeLog, maxDrawdown, lockTrade, bestDayProfit, totalProfit, minAvail, crBlockedCount };
+    }
+  }
+
+  // Sequence exhausted without pass or fail
+  return { passed:false, exhausted:true, tradeLog, maxDrawdown, lockTrade, bestDayProfit, totalProfit, minAvail };
+}
+
+// ═══ MONTE CARLO (for overall pass rate context) ══════════════════════════════
+function monteCarloPassRate(riskPct, n=2000){
+  let passes = 0;
+  for(let i=0;i<n;i++){
+    const seq = genOneSeq();
+    // extend sequence if needed (up to 200 trades for longer challenges)
+    const longSeq = [];
+    while(longSeq.length < 200) longSeq.push(...genOneSeq());
+    const res = runSequenceThroughAccount(longSeq, riskPct);
+    if(res.passed) passes++;
+  }
+  return passes/n;
+}
+
+// ═══ RENDER SEQUENCE BOX ═════════════════════════════════════════════════════
+function renderBox(containerId, seqData, simResult, percentileLabel, color, bandColor){
+  const el = $(containerId);
+  if(!el) return;
+
+  const riskPct = S.sizing==='pct' ? S.riskPct : null;
+  const startRisk = S.sizing==='pct' ? Math.round(S.dd * S.riskPct) : S.fixedAmt;
+
+  // Pass/fail header color
+  const passColor = simResult.passed ? color : simResult.exhausted ? 'var(--green)' : 'var(--red)';
+  const passLabel = simResult.passed
+    ? `✓ Passed — Trade ${simResult.passTrade}, Day ${simResult.passDay}`
+    : simResult.exhausted
+      ? `— Evaluation Ongoing`
+      : `✗ Failed — Trade ${simResult.failTrade}, Day ${simResult.failDay}`;
+
+  const pctColors = {p90:'var(--green)',p50:'var(--yellow)',p10:'var(--red)'};
+  const pctKey = containerId.replace('box-','');
+  const headerColor = pctColors[pctKey]||'var(--accent)';
+
+  // Build stats
+  const stats = [
+    { l:'Result', v: passLabel, color: passColor, wide: true },
+  ];
+  if(simResult.passed){
+    stats.push({ l:'Profit at pass', v: '$'+Math.round(simResult.totalProfit).toLocaleString() });
+    stats.push({ l:'Drawdown used', v: simResult.maxDrawdown>0 ? '$'+Math.round(simResult.maxDrawdown).toLocaleString() : '$0' });
+    stats.push({ l:'Buffer remaining', v: '$'+Math.round(simResult.minAvail).toLocaleString() });
+  } else {
+    stats.push({ l: simResult.exhausted ? 'Profit / Loss' : 'Profit at fail', v: simResult.totalProfit>=0 ? '+$'+Math.round(simResult.totalProfit).toLocaleString() : '-$'+Math.round(Math.abs(simResult.totalProfit)).toLocaleString() });
+    stats.push({ l:'Max drawdown used', v: '$'+Math.round(simResult.maxDrawdown).toLocaleString() });
+    stats.push({ l:'Buffer at fail', v: simResult.minAvail!=null ? '$'+Math.round(Math.max(0,simResult.minAvail)).toLocaleString() : '—' });
+  }
+  if(simResult.lockTrade && S.ddType!=='static'){
+    stats.push({ l:'Floor locked', v:'Trade '+simResult.lockTrade });
+  } else if(S.ddType!=='static'){
+    stats.push({ l:'Floor lock', v:'Not reached' });
+  }
+  if(S.crOn){
+    // Only relevant if the account reached the profit target but CR blocked payout
+    const lastLog = simResult.tradeLog[simResult.tradeLog.length-1];
+    const hitTarget = lastLog && lastLog.profit >= S.target;
+
+    if(hitTarget && lastLog.bestDayProfit > 0){
+      const crRequired = lastLog.bestDayProfit / (S.crPct/100);
+      const violated = crRequired > lastLog.profit;
+
+      if(violated){
+        const crPcts = simResult.tradeLog
+          .filter(t => t.bestDayProfit > 0 && t.profit > 0)
+          .map(t => (t.bestDayProfit / t.profit) * 100);
+        const crMin = Math.min(...crPcts);
+        const crMax = Math.max(...crPcts);
+        const gap = crRequired - lastLog.profit;
+        stats.push({ l:'CR% Rule', v:`Min ${crMin.toFixed(1)}% · Max ${crMax.toFixed(1)}% — need $${Math.round(crRequired).toLocaleString()} total — $${Math.round(Math.max(0,gap)).toLocaleString()} more profit req'd`, color:'var(--yellow)' });
+      }
+    }
+  }
+
+  // W/L/B counts
+  const ws = seqData.seq.filter(s=>s==='W').length;
+  const ls = seqData.seq.filter(s=>s==='L').length;
+  const bs = seqData.seq.filter(s=>s==='B').length;
+  const cumRFinal = seqData.final;
+
+  el.innerHTML = `
+    <div class="sb-header" style="border-color:${headerColor}20;--hc:${headerColor}">
+      <div class="sb-title-row">
+        <div>
+          <div class="sb-pct-label" style="color:${headerColor}">${percentileLabel}</div>
+          <div class="sb-pass-label" style="color:${passColor}">${passLabel}</div>
+        </div>
+        <div class="sb-wlb">
+          <span style="color:${headerColor};font-size:0.65rem;">WR: ${Math.round(ws/N_SEQ*100)}%</span>
+          <span style="color:var(--text-muted)">·</span>
+          <span style="color:var(--green)">${ws}W</span>
+          <span style="color:var(--text-muted)">·</span>
+          <span style="color:var(--red)">${ls}L</span>
+          ${bs>0?`<span style="color:var(--text-muted)">·</span><span style="color:white">${bs}B/E</span>`:''}
+          <span style="color:white;font-size:0.65rem;margin-left:0.3rem;">Cum R: ${cumRFinal>=0?'+':''}${cumRFinal.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div class="sb-stats-row">
+        ${stats.filter(s=>!s.wide).map(s=>`
+          <div class="sb-stat">
+            <div class="sb-stat-l">${s.l}</div>
+            <div class="sb-stat-v" style="${s.color?'color:'+s.color:''}">${s.v}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="sb-seq-row">
+      ${seqData.seq.map((s,i)=>{
+        const log = simResult.tradeLog[i];
+        const blown = log && log.avail<=0;
+        const passed = simResult.passed && i+1===simResult.passTrade;
+        const extra = blown?' sb-blown':passed?' sb-passed':'';
+        return `<div class="sb-box ${s}${extra}" title="Trade ${i+1}: ${s} — Balance: $${log?Math.round(log.bal):'-'}">${s}</div>`;
+      }).join('')}
+    </div>
+
+    <canvas class="sb-chart" id="sbc-${pctKey}" height="180"></canvas>
+    <div class="sb-legend">
+      <div class="cl"><div class="cl-line" style="background:${color};"></div>Account balance</div>
+      <div class="cl"><div class="cl-line" style="background:var(--red);"></div>Floor</div>
+      <div class="cl"><div class="cl-line" style="background:var(--accent);border-style:dashed;"></div>Target</div>
+    </div>
+  `;
+
+  // Draw the chart after DOM update
+  requestAnimationFrame(() => drawSeqChart(`sbc-${pctKey}`, simResult, color));
+}
+
+function drawSeqChart(canvasId, simResult, color){
+  const canvas = $(canvasId);
+  if(!canvas||!canvas.parentElement) return;
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.parentElement.clientWidth;
+  const h = 180;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const tl = simResult.tradeLog;
+  if(!tl||!tl.length) return;
+
+  // Y: P&L from start (bal - S.dd)
+  const pnls = tl.map(t => t.bal - S.dd);
+  const floors = tl.map(t => t.floor - S.dd); // floor relative to start (usually 0 or negative)
+  const allVals = [...pnls, 0, S.target, -S.dd];
+  const maxV = Math.max(...allVals) * 1.15;
+  const minV = Math.min(...allVals, -S.dd*0.1) * 1.1;
+
+  const pL=58,pR=12,pT=18,pB=26;
+  const pw=w-pL-pR, ph=h-pT-pB;
+  const xs = i => pL + (i/(tl.length-1||1))*pw;
+  const ys = v => pT + ph - ((v-minV)/(maxV-minV||1))*ph;
+
+  // Grid
+  ctx.strokeStyle='rgba(34,35,51,0.9)'; ctx.lineWidth=1;
+  [0, S.target*0.5, S.target].forEach(v=>{
+    if(v < minV || v > maxV) return;
+    const y=ys(v);
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(w-pR,y); ctx.stroke();
+    ctx.fillStyle='#5f5e70'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText((v>=0?'+':'')+Math.round(v).toLocaleString(), pL-4, y+3);
+  });
+
+  // Floor line (dynamic — trails up as floor moves)
+  ctx.beginPath(); ctx.strokeStyle='rgba(229,91,91,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  tl.forEach((t,i)=>{
+    const y = ys(t.floor - S.dd);
+    i===0 ? ctx.moveTo(xs(i),y) : ctx.lineTo(xs(i),y);
+  });
+  ctx.stroke(); ctx.setLineDash([]);
+  // Draw FLOOR label at the initial floor level (bottom of chart area)
+  const floorLabelY = Math.min(ys(-S.dd) - 4, h - pB - 4);
+  ctx.fillStyle='rgba(229,91,91,0.7)'; ctx.font='8px DM Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('FLOOR', pL+4, floorLabelY);
+
+  // Target line
+  const ty = ys(S.target);
+  if(ty >= pT && ty <= h-pB){
+    ctx.beginPath(); ctx.strokeStyle='rgba(201,165,90,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.moveTo(pL,ty); ctx.lineTo(w-pR,ty); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(201,165,90,0.8)'; ctx.fillText('TARGET', pL+4, ty-4);
+  }
+
+  // P&L area fill
+  ctx.beginPath();
+  ctx.moveTo(xs(0), ys(0));
+  pnls.forEach((v,i) => ctx.lineTo(xs(i), ys(v)));
+  ctx.lineTo(xs(tl.length-1), ys(0));
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(201,165,90,0.06)';
+  ctx.fill();
+
+  // P&L line
+  ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2.5;
+  pnls.forEach((v,i) => i===0 ? ctx.moveTo(xs(i),ys(v)) : ctx.lineTo(xs(i),ys(v)));
+  ctx.stroke();
+
+  // Mark pass/fail point
+  if(simResult.passed && simResult.passTrade){
+    const pi = simResult.passTrade-1;
+    if(pi < tl.length){
+      ctx.beginPath(); ctx.arc(xs(pi), ys(pnls[pi]), 5, 0, Math.PI*2);
+      ctx.fillStyle=color; ctx.fill();
+      ctx.fillStyle=color; ctx.font='bold 8px DM Sans,sans-serif'; ctx.textAlign='center';
+      ctx.fillText('PASS', xs(pi), ys(pnls[pi])-9);
+    }
+  } else if(!simResult.passed && !simResult.exhausted && simResult.failTrade){
+    const fi = simResult.failTrade-1;
+    if(fi < tl.length){
+      ctx.beginPath(); ctx.arc(xs(fi), ys(pnls[fi]), 5, 0, Math.PI*2);
+      ctx.fillStyle='var(--red)'; ctx.fillStyle='#e55b5b'; ctx.fill();
+      ctx.fillStyle='#e55b5b'; ctx.font='bold 8px DM Sans,sans-serif'; ctx.textAlign='center';
+      ctx.fillText('FAIL', xs(fi), ys(pnls[fi])-9);
+    }
+  }
+
+  // Lock marker
+  if(simResult.lockTrade && S.ddType!=='static'){
+    const li = simResult.lockTrade-1;
+    if(li < tl.length){
+      const lx = xs(li);
+      ctx.beginPath(); ctx.strokeStyle='rgba(201,165,90,0.4)'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+      ctx.moveTo(lx,pT); ctx.lineTo(lx,h-pB); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(201,165,90,0.7)'; ctx.font='7px JetBrains Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText('LOCK',lx,pT+8);
+    }
+  }
+
+  // X-axis: trade numbers
+  ctx.fillStyle='#5f5e70'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+  [0,0.25,0.5,0.75,1].forEach(f=>{
+    const ti = Math.round(f*(tl.length-1));
+    ctx.fillText('T'+ti, pL+pw*f, h-pB+14);
+  });
+}
+
+// ═══ MAIN RENDER ═════════════════════════════════════════════════════════════
+
+function genExactWinRateSeq(){
+  // Build a sequence with exactly the input win rate, be rate, loss rate
+  const nW = Math.round(S.wr * N_SEQ);
+  const nB = Math.round(S.be * N_SEQ);
+  const nL = N_SEQ - nW - nB;
+  const seq = [
+    ...Array(nW).fill('W'),
+    ...Array(Math.max(0,nL)).fill('L'),
+    ...Array(Math.max(0,nB)).fill('B'),
+  ];
+  // Shuffle
+  for(let i=seq.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [seq[i],seq[j]]=[seq[j],seq[i]];
+  }
+  const cumR = seqCumRArr(seq);
+  return { seq, cumR, final: cumR[cumR.length-1] };
+}
+
+function regenAll(){
+  sequences = {
+    p90: genPercentileSeq(90),
+    p50: genExactWinRateSeq(),
+    p10: genPercentileSeq(10),
+  };
+  runBoxes();
+}
+
+function runBoxes(){
+  if(!sequences) return;
+  const rp = S.sizing==='pct' ? S.riskPct : null;
+  const configs = [
+    { id:'box-p90', data:sequences.p90, label:'P90 — Favorable Run',   color:'#4ecb71', band:'rgba(78,203,113,0.08)'  },
+    { id:'box-p50', data:sequences.p50, label:'P50 — Typical Run',     color:'#f0c040', band:'rgba(240,192,64,0.08)'  },
+    { id:'box-p10', data:sequences.p10, label:'P10 — Unfavorable Run', color:'#e55b5b', band:'rgba(229,91,91,0.08)'   },
+  ];
+  configs.forEach(c => {
+    const sim = runSequenceThroughAccount(c.data.seq, S.sizing==='pct' ? S.riskPct : null);
+    renderBox(c.id, c.data, sim, c.label, c.color, c.band);
+  });
+  updateFlagsSimple();
+  updateLockBar();
+}
+
+function updateLockBar(){
+  $('lb-needed').textContent = '$'+(S.dd+100).toLocaleString();
+  $('lock-card').style.display = S.ddType==='static'?'none':'flex';
+}
+
+function updateFlagsSimple(){
+  const el = $('flags');
+  el.innerHTML='';
+  const add=(type,icon,text)=>{
+    const d=document.createElement('div');
+    d.className=`flag ${type}`;
+    d.innerHTML=`<span class="flag-i">${icon}</span><span>${text}</span>`;
+    el.appendChild(d);
+  };
+  const lr = Math.max(0,1-S.wr-S.be);
+  const exp = (S.wr*S.r)-lr;
+  if(exp<=0.05) add('warn','⚠','Marginal or negative expectancy. Even small sizing may not reliably pass.');
+  if(S.ddType==='intraday'&&S.exit!=='none') add('info','ℹ',`Intraday trailing active. Losing trades assumed to move ${({tight:'0.25R',moderate:'0.5R',loose:'1.0R'}[S.exit]||'0.5R')} in your favor before failing — this moves the floor before the loss hits.`);
+  if(S.crOn) add('info','ℹ',`Consistency rule active — best day must stay ≤ ${S.crPct}% of total profits before payout is valid.`);
+  if(S.dllOn) add('info','ℹ',`Daily loss limit (${fmt(S.dllAmt)}) ends trading for the day but doesn't fail the challenge.`);
+}
+
+// ═══ MAIN INPUT HANDLER ══════════════════════════════════════════════════════
+async function runAll(){
+  $('spin').classList.add('show');
+  await new Promise(r=>setTimeout(r,10));
+  if(!sequences) regenAll();
+  else runBoxes();
+  updateCRNote();
+  $('spin').classList.remove('show');
+}
+
+// ═══ RESIZE ══════════════════════════════════════════════════════════════════
+window.addEventListener('resize',()=>{
+  if(sequences) runBoxes();
+});
+
+// ═══ BOOT ════════════════════════════════════════════════════════════════════
+window.onload=()=>{
+  setDLL(true);
+  setTimeout(()=>{ rDisp(); pctDisp(); }, 50);
+  setTimeout(regenAll, 300);
+};
+</script>
+</body>
+</html>
