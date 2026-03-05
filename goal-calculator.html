@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goal Calculator | The Timeless Perspective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0a0b0d;
+      --bg-secondary: #111218;
+      --bg-card: #16171e;
+      --border: #222333;
+      --border-light: #2a2b3d;
+      --text-primary: #e8e6e1;
+      --text-secondary: #9b9aac;
+      --text-muted: #5f5e70;
+      --accent: #c9a55a;
+      --accent-dim: #a6863e;
+      --accent-glow: rgba(201,165,90,0.12);
+      --green: #4ecb71;
+      --green-dim: rgba(78,203,113,0.12);
+      --yellow: #f0c040;
+      --yellow-dim: rgba(240,192,64,0.12);
+      --red: #e55b5b;
+      --red-dim: rgba(229,91,91,0.12);
+      --blue: #5b8fe5;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    }
+    body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+    /* NAV */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(10,11,13,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--text-primary); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-back:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero { padding: 6.5rem 2rem 2rem; text-align: center; }
+    .hero-tag { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem; }
+    .hero h1 { font-family: var(--font-display); font-size: 2.8rem; font-weight: 600; line-height: 1.1; margin-bottom: 0.7rem; }
+    .hero h1 em { color: var(--accent); font-style: italic; }
+    .hero p { font-size: 0.92rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto; }
+
+    /* LAYOUT */
+    .tool-wrapper { max-width: 1140px; margin: 0 auto; padding: 1.5rem 2rem 5rem; display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; align-items: start; }
+
+    /* INPUT PANEL */
+    .input-panel { position: sticky; top: 72px; display: flex; flex-direction: column; gap: 1rem; }
+
+    .panel-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.4rem; position: relative; }
+    .panel-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+
+    .sec-label { font-family: var(--font-mono); font-size: 0.58rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .field { margin-bottom: 0.9rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field label { display: block; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.3rem; font-weight: 500; }
+    .field label .hint { color: var(--text-muted); font-weight: 400; }
+
+    .input-row { display: flex; gap: 0.5rem; }
+    .input-row input, .input-row select { flex: 1; min-width: 0; }
+
+    input[type="number"], select {
+      width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-light);
+      color: var(--text-primary); font-family: var(--font-mono); font-size: 0.82rem;
+      padding: 0.48rem 0.7rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; appearance: none;
+    }
+    input[type="number"]:focus, select:focus { border-color: var(--accent-dim); box-shadow: 0 0 0 2px var(--accent-glow); }
+    input[type="number"]::placeholder { color: var(--text-muted); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239b9aac'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.7rem center; padding-right: 2rem; cursor: pointer; }
+    select option { background: #1a1b24; }
+
+    /* TOGGLE TABS */
+    .toggle-tabs { display: flex; border: 1px solid var(--border-light); }
+    .toggle-tab { flex: 1; padding: 0.4rem 0.5rem; font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; background: transparent; color: var(--text-muted); border: none; border-right: 1px solid var(--border-light); transition: all 0.18s; text-align: center; }
+    .toggle-tab:last-child { border-right: none; }
+    .toggle-tab.active { background: var(--accent-glow); color: var(--accent); }
+    .toggle-tab:hover:not(.active) { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+
+    /* INFO PILL */
+    .info-pill { background: var(--bg-secondary); border: 1px solid var(--border); padding: 0.5rem 0.8rem; font-size: 0.68rem; color: var(--text-muted); line-height: 1.6; display: flex; gap: 0.5rem; align-items: flex-start; width: 100%; overflow: hidden; }
+    .info-pill .arrow { color: var(--accent); flex-shrink: 0; padding-top: 0.05rem; }
+    .info-pill .info-text { white-space: normal; word-break: break-word; overflow-wrap: break-word; min-width: 0; flex: 1; }
+
+    /* CALC BUTTON */
+    .calc-btn { width: 100%; padding: 0.9rem; background: var(--accent); color: #0a0b0d; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; border: none; cursor: pointer; transition: background 0.18s; }
+    .calc-btn:hover { background: #d4b06a; }
+
+    /* RESULTS */
+    .results-panel { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* EMPTY STATE */
+    .empty-state { background: var(--bg-card); border: 1px solid var(--border); padding: 5rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 0.6rem; }
+    .empty-icon { font-size: 2.2rem; opacity: 0.25; }
+    .empty-title { font-family: var(--font-display); font-size: 1.3rem; color: var(--text-secondary); font-weight: 600; }
+    .empty-sub { font-size: 0.77rem; color: var(--text-muted); max-width: 260px; line-height: 1.6; }
+
+    /* HEADLINE BANNER */
+    .headline-banner { background: var(--bg-card); border: 1px solid var(--border); position: relative; overflow: hidden; }
+    .headline-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+    .hb-top { padding: 1.2rem 1.5rem 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .hb-main { }
+    .hb-label { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .hb-trades { font-family: var(--font-display); font-size: 3.4rem; font-weight: 600; color: var(--accent); line-height: 1; }
+    .hb-unit { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
+    .hb-right { text-align: right; }
+    .hb-ev { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem; }
+    .hb-ev-val { font-family: var(--font-mono); font-size: 1.05rem; color: var(--green); font-weight: 600; }
+    .hb-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .hb-cell { padding: 0.9rem 1.2rem; border-right: 1px solid var(--border); }
+    .hb-cell:last-child { border-right: none; }
+    .hb-cell-label { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .hb-cell-val { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; }
+    .hb-cell-sub { font-size: 0.62rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    /* BREAKDOWN CARD */
+    .bk-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.4rem; }
+    .bk-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); }
+    .bk-row:last-child { border-bottom: none; }
+    .bk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .bk-name { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+    .bk-bar-wrap { flex: 2; height: 4px; background: var(--bg-secondary); }
+    .bk-bar { height: 100%; border-radius: 0; transition: width 0.7s ease; }
+    .bk-count { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600; width: 50px; text-align: right; }
+    .bk-pct { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); width: 42px; text-align: right; }
+    .bk-r { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); width: 80px; text-align: right; }
+
+    /* DATE CARD */
+    .date-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .dc-left .dc-label { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .dc-left .dc-date { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--accent); line-height: 1.1; }
+    .dc-left .dc-sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem; }
+    .dc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
+    .dc-stat { text-align: right; }
+    .dc-stat-label { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+    .dc-stat-val { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-primary); font-weight: 600; }
+
+    /* EXPECTANCY CARD */
+    .exp-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.4rem; }
+    .exp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .exp-item { }
+    .exp-label { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .exp-val { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; }
+    .exp-note { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    /* CHART CARD */
+    .chart-card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.4rem; position: relative; overflow: hidden; }
+    .chart-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .chart-title { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+    .chart-legend { display: flex; gap: 1.2rem; }
+    .cl-item { display: flex; align-items: center; gap: 0.35rem; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); }
+    .cl-line { width: 16px; height: 2px; }
+    canvas { display: block; width: 100%; }
+
+    /* NARRATIVE */
+    .narrative-card { background: var(--bg-secondary); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 1.2rem 1.4rem; }
+    .nar-label { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+    .nar-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; }
+    .nar-text strong { color: var(--text-primary); }
+
+    @media (max-width: 900px) { .tool-wrapper { grid-template-columns: 1fr; } .input-panel { position: static; } .hb-grid { grid-template-columns: repeat(2, 1fr); } .hb-grid .hb-cell:nth-child(2) { border-right: none; } .hb-grid .hb-cell:nth-child(3) { border-top: 1px solid var(--border); } }
+    @media (max-width: 560px) { .hero h1 { font-size: 2rem; } .tool-wrapper { padding: 1rem 1rem 4rem; } .hb-trades { font-size: 2.5rem; } .exp-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">The <span>Timeless</span> Perspective</a>
+  <a class="nav-back" href="index.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Free Tool · Goal Calculator</div>
+  <h1>Trade Your Way to <em>Any Goal</em></h1>
+  <p>Enter your system's edge and your target. See exactly how many trades it takes — and when you'll get there.</p>
+</div>
+
+<div class="tool-wrapper">
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+
+    <div class="panel-card">
+      <div class="sec-label">Account</div>
+
+      <div class="field">
+        <label>Starting Balance ($)</label>
+        <input type="number" id="balance" value="100000" min="1" step="1000" placeholder="100000" />
+      </div>
+
+      <div class="field">
+        <label>Risk Per Trade <span class="hint">(% of current balance)</span></label>
+        <input type="number" id="risk" value="1" min="0.01" max="100" step="0.1" placeholder="1" />
+      </div>
+
+      <div class="field">
+        <label>Avg Profit R <span class="hint">(winner size in R)</span></label>
+        <input type="number" id="rProfit" value="1" min="0.01" step="0.1" placeholder="1" />
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="sec-label">System</div>
+
+      <div class="field">
+        <label>Win Rate (%)</label>
+        <input type="number" id="winRate" value="65" min="0.1" max="99.9" step="0.5" placeholder="65" />
+      </div>
+
+      <div class="field">
+        <label>Break-Even Rate (%) <span class="hint">default 0</span></label>
+        <input type="number" id="beRate" value="0" min="0" max="99" step="0.5" placeholder="0" />
+      </div>
+
+      <div class="field">
+        <label>Avg Trades Per Day <span class="hint">default 1.5</span></label>
+        <input type="number" id="tradesPerDay" value="1.5" min="0.1" max="50" step="0.1" placeholder="1.5" />
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="sec-label">Goal</div>
+
+      <div class="field">
+        <label>Goal Type</label>
+        <div class="toggle-tabs">
+          <button class="toggle-tab active" id="tab-profit" onclick="setGoalType('profit')">Profit Target</button>
+          <button class="toggle-tab" id="tab-equity" onclick="setGoalType('equity')">Equity Balance</button>
+        </div>
+      </div>
+
+      <div class="field" id="goal-field">
+        <label id="goal-label">Profit Target ($) <span class="hint" id="goal-hint">how much you want to make</span></label>
+        <input type="number" id="goal" value="100000" min="1" step="1000" placeholder="100000" />
+      </div>
+
+      <div class="info-pill" id="goal-info">
+        <span class="arrow">→</span>
+        <span class="info-text" id="goal-info-text">Starting at $100,000 · Profit goal $100,000 · Target balance $200,000</span>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">Calculate Goal</button>
+  </div>
+
+  <!-- RESULTS PANEL -->
+  <div class="results-panel" id="results-panel">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">◎</div>
+      <div class="empty-title">Enter Your Inputs</div>
+      <div class="empty-sub">Configure your system parameters and goal to see the projected trade path.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let goalType = 'profit';
+
+function setGoalType(type) {
+  goalType = type;
+  document.getElementById('tab-profit').classList.toggle('active', type === 'profit');
+  document.getElementById('tab-equity').classList.toggle('active', type === 'equity');
+
+  const goalInput = document.getElementById('goal');
+  const balance = parseFloat(document.getElementById('balance').value) || 100000;
+
+  if (type === 'profit') {
+    document.getElementById('goal-label').innerHTML = 'Profit Target ($) <span class="hint">how much you want to make</span>';
+    goalInput.value = 100000;
+    goalInput.placeholder = '100000';
+  } else {
+    document.getElementById('goal-label').innerHTML = 'Equity Balance Goal ($) <span class="hint">target account size</span>';
+    goalInput.value = balance * 5;
+    goalInput.placeholder = String(balance * 5);
+  }
+  updateInfoPill();
+}
+
+function updateInfoPill() {
+  const balance = parseFloat(document.getElementById('balance').value) || 0;
+  const goal = parseFloat(document.getElementById('goal').value) || 0;
+  const infoEl = document.getElementById('goal-info-text');
+
+  if (goalType === 'profit') {
+    const targetBalance = balance + goal;
+    infoEl.textContent = `Starting at ${fmt(balance)} · Profit goal ${fmt(goal)} · Target balance ${fmt(targetBalance)}`;
+  } else {
+    const profit = goal - balance;
+    if (profit > 0) {
+      infoEl.textContent = `Starting at ${fmt(balance)} · Profit needed ${fmt(profit)} · Target balance ${fmt(goal)}`;
+    } else {
+      infoEl.textContent = `Equity goal must exceed starting balance`;
+    }
+  }
+}
+
+['balance','goal','risk','rProfit','winRate','beRate','tradesPerDay'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateInfoPill);
+});
+
+// ─── US MARKET HOLIDAYS (simplified, key dates 2025-2030) ───────────────────
+const HOLIDAYS = new Set([
+  // 2025
+  '2025-01-01','2025-01-20','2025-02-17','2025-04-18','2025-05-26',
+  '2025-06-19','2025-07-04','2025-09-01','2025-11-27','2025-12-25',
+  // 2026
+  '2026-01-01','2026-01-19','2026-02-16','2026-04-03','2026-05-25',
+  '2026-06-19','2026-07-03','2026-09-07','2026-11-26','2026-12-25',
+  // 2027
+  '2027-01-01','2027-01-18','2027-02-15','2027-03-26','2027-05-31',
+  '2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24',
+  // 2028
+  '2028-01-17','2028-02-21','2028-04-14','2028-05-29','2028-06-19',
+  '2028-07-04','2028-09-04','2028-11-23','2028-12-25',
+  // 2029
+  '2029-01-01','2029-01-15','2029-02-19','2029-03-30','2029-05-28',
+  '2029-06-19','2029-07-04','2029-09-03','2029-11-22','2029-12-25',
+  // 2030
+  '2030-01-01','2030-01-21','2030-02-18','2030-04-19','2030-05-27',
+  '2030-06-19','2030-07-04','2030-09-02','2030-11-28','2030-12-25',
+]);
+
+function isTradingDay(date) {
+  const d = date.getDay(); // 0=Sun, 6=Sat
+  if (d === 0 || d === 6) return false;
+  const key = date.toISOString().slice(0, 10);
+  return !HOLIDAYS.has(key);
+}
+
+function addTradingDays(startDate, numDays) {
+  // numDays = trading days to advance
+  let d = new Date(startDate);
+  let count = 0;
+  while (count < numDays) {
+    d.setDate(d.getDate() + 1);
+    if (isTradingDay(d)) count++;
+  }
+  return d;
+}
+
+// ─── FORMATTING ──────────────────────────────────────────────────────────────
+function fmt(n, dec = 0) {
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function fmtN(n, dec = 2) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+function fmtDateShort(d) {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ─── CORE CALCULATION ────────────────────────────────────────────────────────
+function calculate() {
+  const balance0   = parseFloat(document.getElementById('balance').value);
+  const riskPct    = parseFloat(document.getElementById('risk').value) / 100;
+  const rProfit    = parseFloat(document.getElementById('rProfit').value);
+  const winPct     = parseFloat(document.getElementById('winRate').value) / 100;
+  const bePct      = parseFloat(document.getElementById('beRate').value) / 100;
+  const tradesPerDay = parseFloat(document.getElementById('tradesPerDay').value);
+  const goalVal    = parseFloat(document.getElementById('goal').value);
+
+  // Derived
+  const lossPct = 1 - winPct - bePct;
+
+  // Validation
+  if (!balance0 || balance0 <= 0) return alert('Enter a valid starting balance.');
+  if (!riskPct || riskPct <= 0) return alert('Enter a valid risk %.');
+  if (!rProfit || rProfit <= 0) return alert('Enter a valid profit R.');
+  if (winPct <= 0 || winPct >= 1) return alert('Win rate must be between 0 and 100%.');
+  if (bePct < 0 || bePct >= 1) return alert('B/E rate must be between 0 and 100%.');
+  if (lossPct < 0) return alert('Win rate + B/E rate cannot exceed 100%.');
+  if (!goalVal || goalVal <= 0) return alert('Enter a valid goal.');
+  if (!tradesPerDay || tradesPerDay <= 0) return alert('Enter valid trades per day.');
+
+  // Target balance
+  let targetBalance;
+  if (goalType === 'profit') {
+    targetBalance = balance0 + goalVal;
+  } else {
+    targetBalance = goalVal;
+    if (targetBalance <= balance0) return alert('Equity balance goal must exceed starting balance.');
+  }
+  const profitNeeded = targetBalance - balance0;
+
+  // Per-trade expectancy in R
+  // E[R per trade] = winPct * rProfit + bePct * 0 + lossPct * (-1)
+  const expectancyR = winPct * rProfit + bePct * 0 + lossPct * (-1);
+  if (expectancyR <= 0) {
+    return alert(`Your system has negative expectancy (${fmtN(expectancyR, 3)}R per trade). No goal is achievable with these stats.`);
+  }
+
+  // ── Simulate trade-by-trade using expected proportions (deterministic path) ──
+  // Because risk is % of balance, each trade changes balance:
+  //   Win:  balance *= (1 + riskPct * rProfit)
+  //   Loss: balance *= (1 - riskPct * 1)
+  //   B/E:  balance unchanged
+  //
+  // We use expected value per trade:
+  //   balance_new = balance * (winPct*(1+riskPct*rProfit) + bePct*1 + lossPct*(1-riskPct))
+  //   = balance * (1 + winPct*riskPct*rProfit - lossPct*riskPct)
+  //   = balance * (1 + riskPct * (winPct*rProfit - lossPct))
+  //   = balance * (1 + riskPct * expectancyR)
+
+  const growthFactor = 1 + riskPct * expectancyR;
+
+  // Solve for n: balance0 * growthFactor^n = targetBalance
+  // n = ln(targetBalance/balance0) / ln(growthFactor)
+  const nExact = Math.log(targetBalance / balance0) / Math.log(growthFactor);
+  const totalTrades = Math.ceil(nExact);
+
+  // Final balance after totalTrades
+  const finalBalance = balance0 * Math.pow(growthFactor, totalTrades);
+  const totalProfit = finalBalance - balance0;
+
+  // Trade composition
+  const totalWins   = Math.round(winPct * totalTrades);
+  const totalBEs    = Math.round(bePct * totalTrades);
+  const totalLosses = totalTrades - totalWins - totalBEs;
+
+  // R totals
+  const totalRWon  = totalWins * rProfit;
+  const totalRLost = totalLosses * 1;
+  const netR       = totalRWon - totalRLost;
+
+  // Date estimate
+  // Trading days needed = totalTrades / tradesPerDay (fractional → round up in days)
+  const tradingDaysNeeded = Math.ceil(totalTrades / tradesPerDay);
+  const today = new Date();
+  const estimatedDate = addTradingDays(today, tradingDaysNeeded);
+
+  // Calendar weeks + months for display
+  const calDays = Math.round((estimatedDate - today) / (1000 * 60 * 60 * 24));
+  const calWeeks = Math.round(calDays / 7);
+  const calMonths = Math.round(calDays / 30.44);
+
+  // Build equity curve data (sample 80 points for chart)
+  const chartPoints = Math.min(totalTrades, 80);
+  const step = totalTrades / chartPoints;
+  const equityCurve = [];
+  for (let i = 0; i <= chartPoints; i++) {
+    const t = Math.round(i * step);
+    equityCurve.push({ t, bal: balance0 * Math.pow(growthFactor, t) });
+  }
+
+  // R value at start (for display)
+  const rValueStart = balance0 * riskPct;
+  const rValueEnd   = finalBalance * riskPct;
+
+  renderResults({
+    balance0, targetBalance, profitNeeded, finalBalance, totalProfit,
+    totalTrades, totalWins, totalLosses, totalBEs,
+    totalRWon, totalRLost, netR, expectancyR,
+    riskPct, rProfit, winPct, bePct, lossPct,
+    tradingDaysNeeded, estimatedDate, calDays, calWeeks, calMonths,
+    tradesPerDay, equityCurve, rValueStart, rValueEnd,
+    goalType, goalVal
+  });
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderResults(d) {
+  const panel = document.getElementById('results-panel');
+
+  const goalDesc = d.goalType === 'profit'
+    ? `Profit target of ${fmt(d.goalVal)}`
+    : `Equity goal of ${fmt(d.goalVal)}`;
+
+  const timeDesc = d.calMonths >= 3
+    ? `~${d.calMonths} months`
+    : d.calWeeks >= 2
+      ? `~${d.calWeeks} weeks`
+      : `~${d.calDays} calendar days`;
+
+  // Expectancy color
+  const evColor = d.expectancyR >= 0.5 ? 'var(--green)' : d.expectancyR >= 0.2 ? 'var(--yellow)' : 'var(--accent)';
+
+  panel.innerHTML = `
+
+    <!-- HEADLINE BANNER -->
+    <div class="headline-banner">
+      <div class="hb-top">
+        <div class="hb-main">
+          <div class="hb-label">Trades Required to Reach Goal</div>
+          <div class="hb-trades">${d.totalTrades.toLocaleString()}</div>
+          <div class="hb-unit">total trades · ${fmtDate(d.estimatedDate)}</div>
+        </div>
+        <div class="hb-right">
+          <div class="hb-ev">Expectancy per trade</div>
+          <div class="hb-ev-val" style="color:${evColor}">${fmtN(d.expectancyR, 3)}R</div>
+          <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--text-muted);margin-top:0.5rem;">${fmt(d.balance0 * d.riskPct * d.expectancyR, 2)} avg per trade</div>
+        </div>
+      </div>
+      <div class="hb-grid">
+        <div class="hb-cell">
+          <div class="hb-cell-label">Starting Balance</div>
+          <div class="hb-cell-val" style="color:var(--text-secondary)">${fmt(d.balance0)}</div>
+          <div class="hb-cell-sub">1R = ${fmt(d.rValueStart, 2)}</div>
+        </div>
+        <div class="hb-cell">
+          <div class="hb-cell-label">Total Profit</div>
+          <div class="hb-cell-val" style="color:var(--green)">${fmt(d.totalProfit)}</div>
+          <div class="hb-cell-sub">${fmtN((d.totalProfit/d.balance0)*100, 1)}% return</div>
+        </div>
+        <div class="hb-cell">
+          <div class="hb-cell-label">Final Balance</div>
+          <div class="hb-cell-val" style="color:var(--accent)">${fmt(d.finalBalance)}</div>
+          <div class="hb-cell-sub">1R = ${fmt(d.rValueEnd, 2)}</div>
+        </div>
+        <div class="hb-cell">
+          <div class="hb-cell-label">Time Estimate</div>
+          <div class="hb-cell-val" style="color:var(--text-primary)">${timeDesc}</div>
+          <div class="hb-cell-sub">${d.tradingDaysNeeded} trading days</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADE BREAKDOWN -->
+    <div class="bk-card">
+      <div class="sec-label" style="font-family:var(--font-mono);font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">Trade Breakdown <span style="flex:1;height:1px;background:var(--border);display:block;"></span></div>
+
+      <div class="bk-row">
+        <div class="bk-dot" style="background:var(--green)"></div>
+        <div class="bk-name">Winners</div>
+        <div class="bk-bar-wrap"><div class="bk-bar" style="width:${(d.winPct*100).toFixed(1)}%;background:var(--green);"></div></div>
+        <div class="bk-count" style="color:var(--green)">${d.totalWins.toLocaleString()}</div>
+        <div class="bk-pct">${(d.winPct*100).toFixed(1)}%</div>
+        <div class="bk-r">+${fmtN(d.totalRWon, 1)}R total</div>
+      </div>
+      <div class="bk-row">
+        <div class="bk-dot" style="background:var(--red)"></div>
+        <div class="bk-name">Losers</div>
+        <div class="bk-bar-wrap"><div class="bk-bar" style="width:${(d.lossPct*100).toFixed(1)}%;background:var(--red);"></div></div>
+        <div class="bk-count" style="color:var(--red)">${d.totalLosses.toLocaleString()}</div>
+        <div class="bk-pct">${(d.lossPct*100).toFixed(1)}%</div>
+        <div class="bk-r">−${fmtN(d.totalRLost, 1)}R total</div>
+      </div>
+      ${d.totalBEs > 0 ? `
+      <div class="bk-row">
+        <div class="bk-dot" style="background:var(--text-muted)"></div>
+        <div class="bk-name">Break-Evens</div>
+        <div class="bk-bar-wrap"><div class="bk-bar" style="width:${(d.bePct*100).toFixed(1)}%;background:var(--text-muted);"></div></div>
+        <div class="bk-count" style="color:var(--text-muted)">${d.totalBEs.toLocaleString()}</div>
+        <div class="bk-pct">${(d.bePct*100).toFixed(1)}%</div>
+        <div class="bk-r">0.0R total</div>
+      </div>` : ''}
+      <div class="bk-row" style="border-top:1px solid var(--border-light);margin-top:0.3rem;padding-top:0.65rem;border-bottom:none;">
+        <div class="bk-dot" style="background:var(--accent)"></div>
+        <div class="bk-name" style="color:var(--text-primary);font-weight:600;">Net Result</div>
+        <div class="bk-bar-wrap"></div>
+        <div class="bk-count" style="color:var(--accent)">${d.totalTrades.toLocaleString()}</div>
+        <div class="bk-pct">100%</div>
+        <div class="bk-r" style="color:var(--accent)">+${fmtN(d.netR, 1)}R net</div>
+      </div>
+    </div>
+
+    <!-- EQUITY CURVE -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Expected Equity Curve</div>
+        <div class="chart-legend">
+          <div class="cl-item"><div class="cl-line" style="background:var(--accent)"></div>Account Balance</div>
+          <div class="cl-item"><div class="cl-line" style="background:var(--border-light);border-top:1px dashed var(--text-muted)"></div>Goal ${fmt(d.targetBalance)}</div>
+        </div>
+      </div>
+      <canvas id="equityChart" height="220"></canvas>
+    </div>
+
+    <!-- DATE + CADENCE -->
+    <div class="date-card">
+      <div class="dc-left">
+        <div class="dc-label">Estimated Completion Date</div>
+        <div class="dc-date">${fmtDate(d.estimatedDate)}</div>
+        <div class="dc-sub">${d.tradingDaysNeeded} trading days · ${timeDesc} from today</div>
+      </div>
+      <div class="dc-right">
+        <div class="dc-stat">
+          <div class="dc-stat-label">Trades / Day</div>
+          <div class="dc-stat-val">${fmtN(d.tradesPerDay, 1)}</div>
+        </div>
+        <div class="dc-stat" style="margin-top:0.5rem;">
+          <div class="dc-stat-label">Trades / Week</div>
+          <div class="dc-stat-val">${fmtN(d.tradesPerDay * 5, 1)}</div>
+        </div>
+        <div class="dc-stat" style="margin-top:0.5rem;">
+          <div class="dc-stat-label">Trades / Month</div>
+          <div class="dc-stat-val">${fmtN(d.tradesPerDay * 21, 0)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM EXPECTANCY -->
+    <div class="exp-card">
+      <div class="sec-label" style="font-family:var(--font-mono);font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">System Statistics <span style="flex:1;height:1px;background:var(--border);display:block;"></span></div>
+      <div class="exp-grid">
+        <div class="exp-item">
+          <div class="exp-label">Expectancy</div>
+          <div class="exp-val" style="color:${evColor}">${fmtN(d.expectancyR, 4)}R</div>
+          <div class="exp-note">per trade, on average</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label">Profit Factor</div>
+          <div class="exp-val" style="color:var(--text-primary)">${d.totalRLost > 0 ? fmtN(d.totalRWon / d.totalRLost, 2) : '∞'}</div>
+          <div class="exp-note">gross R won ÷ R lost</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label">Win Rate</div>
+          <div class="exp-val" style="color:var(--text-primary)">${fmtN(d.winPct*100,1)}%</div>
+          <div class="exp-note">${fmtN(d.lossPct*100,1)}% loss · ${fmtN(d.bePct*100,1)}% B/E</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label">Avg R per Winner</div>
+          <div class="exp-val" style="color:var(--green)">+${fmtN(d.rProfit, 2)}R</div>
+          <div class="exp-note">${fmt(d.balance0 * d.riskPct * d.rProfit, 2)} at start</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label">R per Loser</div>
+          <div class="exp-val" style="color:var(--red)">−1.00R</div>
+          <div class="exp-note">${fmt(d.balance0 * d.riskPct, 2)} at start</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label">Risk Per Trade</div>
+          <div class="exp-val" style="color:var(--accent)">${fmtN(d.riskPct*100, 2)}%</div>
+          <div class="exp-note">compounds each trade</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NARRATIVE -->
+    <div class="narrative-card">
+      <div class="nar-label">What This Means</div>
+      <div class="nar-text">
+        With a <strong>${fmtN(d.winPct*100,1)}% win rate</strong> and an average winner of <strong>${fmtN(d.rProfit,2)}R</strong>,
+        your system carries an expectancy of <strong>${fmtN(d.expectancyR,4)}R per trade</strong> — meaning every trade you execute,
+        on average, moves you ${fmtN(d.expectancyR,4)}R closer to your goal.
+        At <strong>${fmtN(d.riskPct*100,2)}% risk per trade</strong> compounding on a
+        <strong>${fmt(d.balance0)}</strong> account, that's approximately
+        <strong>${fmt(d.balance0 * d.riskPct * d.expectancyR, 2)}</strong> in expected profit per trade at the start —
+        growing to <strong>${fmt(d.finalBalance * d.riskPct * d.expectancyR, 2)}</strong> per trade near the finish.
+        To reach <strong>${goalDesc}</strong>, you need <strong>${d.totalTrades.toLocaleString()} trades</strong> —
+        <strong>${d.totalWins.toLocaleString()} wins</strong>, <strong>${d.totalLosses.toLocaleString()} losses</strong>${d.totalBEs > 0 ? `, and <strong>${d.totalBEs.toLocaleString()} break-evens</strong>` : ''}.
+        At your current pace of <strong>${fmtN(d.tradesPerDay,1)} trades per trading day</strong>,
+        that projects to <strong>${fmtDate(d.estimatedDate)}</strong> — roughly <strong>${timeDesc}</strong> from today.
+        The compounding effect means your final balance of <strong>${fmt(d.finalBalance)}</strong> 
+        represents a <strong>${fmtN((d.totalProfit/d.balance0)*100,1)}% return</strong> on your starting capital.
+      </div>
+    </div>
+
+  `;
+
+  // Draw chart
+  drawChart(d);
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+function drawChart(d) {
+  const canvas = document.getElementById('equityChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Retina
+  const W = canvas.parentElement.clientWidth - 56;
+  const H = 220;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 16, right: 20, bottom: 36, left: 72 };
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top - pad.bottom;
+
+  const pts = d.equityCurve;
+  const minBal = d.balance0;
+  const maxBal = Math.max(d.targetBalance, pts[pts.length-1].bal) * 1.04;
+  const maxT   = pts[pts.length-1].t;
+
+  function xPx(t) { return pad.left + (t / maxT) * cW; }
+  function yPx(b) { return pad.top + (1 - (b - minBal) / (maxBal - minBal)) * cH; }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(34,35,51,0.8)';
+  ctx.lineWidth = 1;
+  const yTicks = 5;
+  for (let i = 0; i <= yTicks; i++) {
+    const b = minBal + (i / yTicks) * (maxBal - minBal);
+    const y = yPx(b);
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
+
+    // Y label
+    ctx.fillStyle = '#5f5e70';
+    ctx.font = `9px 'JetBrains Mono', monospace`;
+    ctx.textAlign = 'right';
+    const label = b >= 1e6 ? `$${(b/1e6).toFixed(1)}M` : b >= 1e3 ? `$${(b/1e3).toFixed(0)}K` : `$${b.toFixed(0)}`;
+    ctx.fillText(label, pad.left - 6, y + 3);
+  }
+
+  // Goal line (dashed)
+  const goalY = yPx(d.targetBalance);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(95,94,112,0.5)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(pad.left, goalY); ctx.lineTo(pad.left + cW, goalY); ctx.stroke();
+  ctx.restore();
+
+  // Goal label
+  ctx.fillStyle = '#5f5e70';
+  ctx.font = `9px 'JetBrains Mono', monospace`;
+  ctx.textAlign = 'left';
+  ctx.fillText('Goal', pad.left + 4, goalY - 4);
+
+  // Equity curve — gradient fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+  grad.addColorStop(0, 'rgba(201,165,90,0.25)');
+  grad.addColorStop(1, 'rgba(201,165,90,0.0)');
+
+  ctx.beginPath();
+  ctx.moveTo(xPx(pts[0].t), yPx(pts[0].bal));
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(xPx(pts[i].t), yPx(pts[i].bal));
+  ctx.lineTo(xPx(pts[pts.length-1].t), pad.top + cH);
+  ctx.lineTo(xPx(pts[0].t), pad.top + cH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Equity curve line
+  ctx.beginPath();
+  ctx.moveTo(xPx(pts[0].t), yPx(pts[0].bal));
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(xPx(pts[i].t), yPx(pts[i].bal));
+  ctx.strokeStyle = '#c9a55a';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Start dot
+  ctx.beginPath();
+  ctx.arc(xPx(0), yPx(d.balance0), 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#c9a55a';
+  ctx.fill();
+
+  // End dot
+  ctx.beginPath();
+  ctx.arc(xPx(maxT), yPx(pts[pts.length-1].bal), 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#4ecb71';
+  ctx.fill();
+
+  // X axis labels
+  const xTicks = Math.min(6, pts.length);
+  ctx.fillStyle = '#5f5e70';
+  ctx.font = `9px 'JetBrains Mono', monospace`;
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= xTicks; i++) {
+    const t = Math.round((i / xTicks) * maxT);
+    ctx.fillText(`T${t}`, xPx(t), pad.top + cH + 18);
+  }
+
+  // Axes
+  ctx.strokeStyle = '#2a2b3d';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left, pad.top + cH);
+  ctx.lineTo(pad.left + cW, pad.top + cH);
+  ctx.stroke();
+}
+
+// Init info pill
+updateInfoPill();
+</script>
+</body>
+</html>
