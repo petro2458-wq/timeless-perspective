@@ -60,6 +60,46 @@
       transition: color 0.2s; cursor: pointer;
     }
     .nav-links a:hover { color: var(--accent); }
+    .nav-news-wrapper { position: relative; }
+    .nav-news {
+      color: #ff6b6b; text-decoration: none; font-size: 0.85rem;
+      font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+      transition: color 0.2s; cursor: pointer; position: relative; padding-left: 14px;
+    }
+    .nav-news::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 7px; height: 7px; background: #ff6b6b;
+      border-radius: 50%; display: inline-block;
+      animation: newsPulse 2s ease-in-out infinite;
+    }
+    @keyframes newsPulse {
+      0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+      50% { opacity: 0.4; transform: translateY(-50%) scale(0.7); }
+    }
+    .nav-news:hover { color: #ff9a9a; }
+    .nav-news-tooltip {
+      position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+      background: #1a1b24; border: 1px solid var(--accent-dim); border-radius: 8px;
+      padding: 0.75rem 1rem; width: 260px; opacity: 0; visibility: hidden;
+      transition: all 0.25s ease; pointer-events: none; z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .nav-news-tooltip::before {
+      content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
+      width: 10px; height: 10px; background: #1a1b24; border-left: 1px solid var(--accent-dim);
+      border-top: 1px solid var(--accent-dim);
+    }
+    .nav-news-wrapper:hover .nav-news-tooltip { opacity: 1; visibility: visible; }
+    .nav-news-tooltip p {
+      font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;
+      font-weight: 400; letter-spacing: 0; text-transform: none; margin: 0;
+    }
+    .nav-news-tooltip .tooltip-items {
+      font-size: 0.65rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6;
+    }
+    .nav-news-tooltip .tooltip-items span { display: block; }
+    .nav-news-tooltip .tooltip-items span::before { content: '▸ '; color: var(--accent); }
+
     .nav-cta {
       background: transparent; border: 1px solid var(--accent); color: var(--accent);
       padding: 0.5rem 1.2rem; font-size: 0.8rem; font-weight: 600;
@@ -67,6 +107,14 @@
       transition: all 0.3s; font-family: var(--font-body);
     }
     .nav-cta:hover { background: var(--accent); color: var(--bg-primary); }
+
+    .daily-news-page { padding: 5.5rem 1rem 2rem; background: var(--bg-primary); min-height: 100vh; }
+    .daily-news-container { max-width: 1020px; margin: 0 auto; }
+    .daily-news-meta {
+      text-align: center; margin-bottom: 1rem; font-family: var(--font-mono);
+      font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em;
+    }
+    .daily-news-content { border-radius: 12px; overflow: hidden; }
 
     .hero {
       min-height: auto; display: flex; flex-direction: column;
@@ -311,6 +359,8 @@
       section { padding: 2rem 1.25rem; }
       .hero { padding: 6rem 1.25rem 2rem; }
       .calc-container, .results-container { padding: 1.5rem; }
+      .daily-news-page { padding: 4.5rem 0.5rem 1rem; }
+      .nav-news-tooltip { display: none; }
     }
   </style>
 </head>
@@ -321,6 +371,20 @@
       The Timeless <span>Perspective</span>
     </button>
     <div class="nav-links">
+      <div class="nav-news-wrapper">
+        <a class="nav-news" onclick="navigate('daily-news')">Daily News</a>
+        <div class="nav-news-tooltip">
+          <p style="font-weight:600; color:#e8e6e1; margin-bottom:0.3rem;">Daily News</p>
+          <div class="tooltip-items">
+            <span>Key Insights</span>
+            <span>Red/Orange Folder News &amp; Results</span>
+            <span>US Gov't News</span>
+            <span>Key Earnings Flow</span>
+            <span>Daily Calendar for Day Traders</span>
+          </div>
+          <p style="margin-top:0.5rem; font-size:0.6rem; color:#5f5e70;">Auto-updated 4 AM &amp; 10 AM ET</p>
+        </div>
+      </div>
       <a onclick="navigate('home')">Home</a>
       <a onclick="navigate('tools')">Tools</a>
       <a onclick="navigate('blog')">Blog</a>
@@ -336,6 +400,7 @@
   <!-- FOOTER (always visible) -->
   <footer class="footer">
     <div class="footer-links">
+      <a onclick="navigate('daily-news')" style="color:#ff6b6b;font-weight:600">Daily News</a>
       <a onclick="navigate('home')">Home</a>
       <a onclick="navigate('tools')">Tools</a>
       <a onclick="navigate('blog')">Blog</a>
@@ -352,12 +417,9 @@
   <script>
     // ── DATA ────────────────────────────────────────────────────────────────
     const TOOLS = [
-      { id: 'losing-streak', name: 'Losing Streak Estimator', icon: '📉', status: 'live', desc: 'Calculate your expected worst losing streak. Input your win rate and trade count to prepare psychologically for rough patches.' },
-      { id: 'drawdown-sim', name: 'Drawdown Simulator', icon: '⚡', status: 'coming', desc: 'Load your system data and simulate worst-case 20-trade sequences. Play with balance, risk %, and fixed dollar risk.' },
-      { id: 'monte-carlo', name: 'Monte Carlo Position Sizer', icon: '🎲', status: 'coming', desc: 'Run thousands of simulations on your system. Find the 1% and 2% extreme drawdown scenarios to size for survival.' },
-      { id: 'psych-risk', name: 'Psych Risk Dial', icon: '🧠', status: 'coming', desc: 'Based on your account size and pain threshold, find the position size that lets you trade without losing sleep.' },
-      { id: 'breakeven', name: 'Break-Even Curve Calculator', icon: '📊', status: 'coming', desc: 'Input your win rate, see the minimum R-multiple needed to break even. Compare high vs. low win rate systems visually.' },
-      { id: 'journal', name: 'Trade Journal Analyzer', icon: '📝', status: 'coming', desc: 'Upload your trade log. Flags revenge trades, rule breaks, and emotional patterns to build self-awareness.' }
+      { id: 'streak-explorer', name: 'Streak Explorer', icon: '📉', status: 'live', file: 'streak-explorer.html', desc: 'Explore losing streak probabilities with exact Markov chain math. Heatmaps, percentile-based risk metrics, drawdown and recovery analysis.' },
+      { id: 'position-sizer', name: 'Position Sizer', icon: '⚡', status: 'live', file: 'position-sizer.html', desc: 'Calculate your optimal position size based on account balance, risk per trade, and stop distance. Built for futures traders.' },
+      { id: 'goal-calculator', name: 'Goal Calculator', icon: '🎯', status: 'live', file: 'goal-calculator.html', desc: 'Model your path from current account to target balance. See how win rate, R-multiple, and bet size compound over time.' }
     ];
 
     const BLOG_POSTS = [
@@ -437,11 +499,11 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    function renderToolCard(tool, clickable) {
-      const onclick = clickable && tool.status === 'live' ? ` onclick="navigate('${tool.id}')"` : '';
+    function renderToolCard(tool) {
+      const onclick = tool.file ? ` onclick="window.open('${tool.file}','_blank')"` : '';
       return `
         <div class="tool-card"${onclick}>
-          <div class="tool-status ${tool.status}">${tool.status === 'live' ? 'LIVE' : 'COMING SOON'}</div>
+          <div class="tool-status live">LIVE</div>
           <div class="tool-icon">${tool.icon}</div>
           <h3 class="tool-name">${tool.name}</h3>
           <p class="tool-desc">${tool.desc}</p>
@@ -473,6 +535,54 @@
           <div class="reading-author">${book.author}</div>
           <p class="reading-desc">${book.desc}</p>
         </div>`;
+    }
+
+    function renderDailyNews() {
+      // Trigger async fetch after render
+      setTimeout(loadDailyNews, 0);
+      return `
+        <div class="daily-news-page">
+          <div class="daily-news-container">
+            <div class="daily-news-meta" id="dn-meta">
+              AUTO-REFRESHES AT 4:00 AM &amp; 10:00 AM ET
+            </div>
+            <div class="daily-news-content" id="dn-content">
+              <div style="text-align:center; padding:80px 20px; color:#9e9e9e;">
+                <div style="font-size:32px; margin-bottom:12px;">📡</div>
+                <p>Loading daily news...</p>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function loadDailyNews() {
+      fetch('daily-news.html?t=' + Date.now())
+        .then(function(res) {
+          if (!res.ok) throw new Error('Not found');
+          return res.text();
+        })
+        .then(function(html) {
+          var el = document.getElementById('dn-content');
+          if (el) el.innerHTML = html;
+          // Extract timestamp from comment
+          var match = html.match(/generated\s+(\d{4}-\d{2}-\d{2}T[\d:.]+Z)/);
+          if (match) {
+            var d = new Date(match[1]);
+            var meta = document.getElementById('dn-meta');
+            if (meta) {
+              meta.textContent = 'LAST UPDATED: ' + d.toLocaleString('en-US', {
+                timeZone: 'America/New_York',
+                month: 'short', day: 'numeric',
+                hour: 'numeric', minute: '2-digit', hour12: true
+              }) + ' ET  •  AUTO-REFRESHES AT 4:00 AM & 10:00 AM ET';
+            }
+          }
+        })
+        .catch(function() {
+          var el = document.getElementById('dn-content');
+          if (el) el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#9e9e9e;"><div style="font-size:48px;margin-bottom:16px;">📡</div><h2 style="color:#e0e0e0;font-size:20px;">Calendar Unavailable</h2><p style="font-size:14px;margin-top:8px;">The daily news will be generated at the next scheduled run.</p></div>';
+        });
     }
 
     // ── PAGE TEMPLATES ─────────────────────────────────────────────────────
@@ -540,7 +650,7 @@
             <h2 class="section-title">Prepare Your Mind &amp; Math</h2>
             <p class="section-desc">Tools built from real trading scars &mdash; designed to help you size correctly and survive the psychological reality of drawdowns.</p>
             <div class="tools-grid">
-              ${TOOLS.map(t => renderToolCard(t, true)).join('')}
+              ${TOOLS.map(t => renderToolCard(t)).join('')}
             </div>
           </div>
         </section>
@@ -610,7 +720,7 @@
             <h1>Trading Tools</h1>
             <p class="tool-page-desc">Psychological preparation meets mathematical reality. Start with the Losing Streak Estimator &mdash; live now.</p>
             <div class="tools-grid">
-              ${TOOLS.map(t => renderToolCard(t, false)).join('')}
+              ${TOOLS.map(t => renderToolCard(t)).join('')}
             </div>
           </div>
         </section>`;
@@ -702,6 +812,8 @@
 
       if (currentPage === 'home') {
         html = renderHome();
+      } else if (currentPage === 'daily-news') {
+        html = renderDailyNews();
       } else if (currentPage === 'tools') {
         html = renderToolsPage();
       } else if (currentPage === 'blog') {
