@@ -403,33 +403,63 @@ function calculate() {
     return alert(`Your system has negative expectancy (${fmtN(expectancyR, 3)}R per trade). No goal is achievable with these stats.`);
   }
 
-  // ── Simulate trade-by-trade using expected proportions (deterministic path) ──
-  // Because risk is % of balance, each trade changes balance:
-  //   Win:  balance *= (1 + riskPct * rProfit)
-  //   Loss: balance *= (1 - riskPct * 1)
-  //   B/E:  balance unchanged
+  // ── Compound each trade outcome exactly ──
+  // Win:  balance *= (1 + riskPct * rProfit)
+  // Loss: balance *= (1 - riskPct)
+  // B/E:  balance *= 1  (no effect)
   //
-  // We use expected value per trade:
-  //   balance_new = balance * (winPct*(1+riskPct*rProfit) + bePct*1 + lossPct*(1-riskPct))
-  //   = balance * (1 + winPct*riskPct*rProfit - lossPct*riskPct)
-  //   = balance * (1 + riskPct * (winPct*rProfit - lossPct))
-  //   = balance * (1 + riskPct * expectancyR)
+  // For n trades with w wins and l losses:
+  //   finalBalance = balance0 * (1 + riskPct * rProfit)^w * (1 - riskPct)^l
+  //
+  // Geometric growth factor per trade (accounts for variance drag):
+  //   g = (1 + riskPct * rProfit)^winPct * (1 - riskPct)^lossPct
+  // This is used to estimate n, then we verify with exact compounding.
 
-  const growthFactor = 1 + riskPct * expectancyR;
+  const winMult  = 1 + riskPct * rProfit;
+  const lossMult = 1 - riskPct;
+  const geoGrowth = Math.pow(winMult, winPct) * Math.pow(lossMult, lossPct);
 
-  // Solve for n: balance0 * growthFactor^n = targetBalance
-  // n = ln(targetBalance/balance0) / ln(growthFactor)
-  const nExact = Math.log(targetBalance / balance0) / Math.log(growthFactor);
-  const totalTrades = Math.ceil(nExact);
+  // Estimate n from geometric growth, then search for minimum n
+  // where exact compounding hits the target.
+  // Rounding wins/losses creates non-monotonic jumps, so we scan a window.
+  const nEstimate = Math.ceil(Math.log(targetBalance / balance0) / Math.log(geoGrowth));
 
-  // Final balance after totalTrades
-  const finalBalance = balance0 * Math.pow(growthFactor, totalTrades);
+  let totalTrades = nEstimate;
+  let totalWins, totalBEs, totalLosses, finalBalance;
+
+  // Search downward first to find if a smaller n works
+  const searchStart = Math.max(1, nEstimate - 10);
+  const searchEnd   = nEstimate + 10;
+  let found = false;
+
+  for (let n = searchStart; n <= searchEnd; n++) {
+    const w  = Math.round(winPct * n);
+    const be = Math.round(bePct * n);
+    const l  = n - w - be;
+    if (l < 0) continue;
+
+    const bal = balance0 * Math.pow(winMult, w) * Math.pow(lossMult, l);
+    if (bal >= targetBalance) {
+      totalTrades = n;
+      totalWins   = w;
+      totalBEs    = be;
+      totalLosses = l;
+      finalBalance = bal;
+      found = true;
+      break;
+    }
+  }
+
+  // Fallback: if search window missed (shouldn't happen), use estimate
+  if (!found) {
+    totalTrades = nEstimate;
+    totalWins   = Math.round(winPct * totalTrades);
+    totalBEs    = Math.round(bePct * totalTrades);
+    totalLosses = totalTrades - totalWins - totalBEs;
+    finalBalance = balance0 * Math.pow(winMult, totalWins) * Math.pow(lossMult, totalLosses);
+  }
+
   const totalProfit = finalBalance - balance0;
-
-  // Trade composition
-  const totalWins   = Math.round(winPct * totalTrades);
-  const totalBEs    = Math.round(bePct * totalTrades);
-  const totalLosses = totalTrades - totalWins - totalBEs;
 
   // R totals
   const totalRWon  = totalWins * rProfit;
@@ -453,7 +483,11 @@ function calculate() {
   const equityCurve = [];
   for (let i = 0; i <= chartPoints; i++) {
     const t = Math.round(i * step);
-    equityCurve.push({ t, bal: balance0 * Math.pow(growthFactor, t) });
+    const w = Math.round(winPct * t);
+    const be = Math.round(bePct * t);
+    const l = t - w - be;
+    const bal = balance0 * Math.pow(winMult, w) * Math.pow(lossMult, Math.max(0, l));
+    equityCurve.push({ t, bal });
   }
 
   // R value at start (for display)
