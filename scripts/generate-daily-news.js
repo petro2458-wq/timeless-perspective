@@ -315,16 +315,57 @@ Your job is to search the web for current market data and return a SINGLE JSON o
 
 RESEARCH STEPS:
 
-STEP 1 — Search forexfactory.com/calendar (or investing.com/economic-calendar as backup) to find:
-- ALL red folder (high impact) and orange folder (medium impact) USD events for TODAY
-- ALL red/orange folder USD events for THIS WEEK: ${thisWeekLabel}
-- ALL red/orange folder USD events for NEXT WEEK: ${nextWeekLabel}
-- For each event: exact ET release time, event name, forecast, previous, actual (if released)
+STEP 1 — ECONOMIC CALENDAR (do this FIRST, do MULTIPLE searches):
+Search 1: "forexfactory.com calendar this week" or "investing.com economic calendar USD this week" to find ALL red/orange USD events for ${thisWeekLabel}.
+Search 2: "forexfactory.com calendar next week" or "US economic calendar next week ${nextWeekLabel}" to find ALL red/orange USD events for ${nextWeekLabel}.
+Search 3: If any day still has unclear events, search specifically: "US economic data releases [date]"
+
+KNOWN RECURRING USD EVENTS — use as a SAFETY NET, not a limit:
+These events happen on predictable schedules. After your searches, cross-check your results against this list. If your search missed any that should fall this week or next week, do a targeted search for that specific event. But ALSO include any events your search finds that are NOT on this list — this list is a floor, not a ceiling.
+
+WEEKLY (every week):
+- Initial Jobless Claims — every Thursday 8:30a ET (red folder)
+- Continuing Jobless Claims — every Thursday 8:30a ET (orange folder)
+- Crude Oil Inventories — every Wednesday 10:30a ET (orange folder)
+- Natural Gas Storage — every Thursday 10:30a ET (orange folder)
+
+MONTHLY (once per month, verify exact date via search):
+- Nonfarm Payrolls + Unemployment Rate — first Friday of month, 8:30a ET (red folder)
+- CPI + Core CPI — around 10th-14th of month, 8:30a ET (red folder)
+- PPI + Core PPI — around 13th-16th of month, 8:30a ET (red folder)
+- Retail Sales + Core Retail Sales — around 14th-17th of month, 8:30a ET (red folder)
+- JOLTS Job Openings — around 1st-10th of month, 10:00a ET (red folder)
+- ISM Manufacturing PMI — 1st business day of month, 10:00a ET (red folder)
+- ISM Services PMI — 3rd business day of month, 10:00a ET (red folder)
+- Consumer Confidence (CB) — last Tuesday of month, 10:00a ET (orange folder)
+- Michigan Consumer Sentiment — mid-month (prelim) + end of month (final), 10:00a ET (orange folder)
+- Housing Starts + Building Permits — around 17th-20th of month, 8:30a ET (orange folder)
+- Existing Home Sales — around 20th-24th of month, 10:00a ET (orange folder)
+- New Home Sales — around 23rd-27th of month, 10:00a ET (orange folder)
+- Durable Goods Orders — around 25th-28th of month, 8:30a ET (orange folder)
+- PCE Price Index + Core PCE — last Friday of month, 8:30a ET (red folder)
+- GDP (advance/second/third) — quarterly, usually end of month, 8:30a ET (red folder)
+- Personal Income + Personal Spending — end of month, 8:30a ET (orange folder)
+- Empire State Manufacturing — around 15th, 8:30a ET (orange folder)
+- Philly Fed Manufacturing — 3rd Thursday, 8:30a ET (orange folder)
+- Industrial Production — around mid-month, 9:15a ET (orange folder)
+- ADP Nonfarm Employment — 2 days before NFP, 8:15a ET (orange folder)
+- Trade Balance — around 5th-7th of month, 8:30a ET (orange folder)
+
+FED EVENTS (scheduled, 8 per year):
+- FOMC Rate Decision — 2:00p ET (red folder)
+- FOMC Press Conference — 2:30p ET (red folder)
+- FOMC Meeting Minutes — 3 weeks after decision, 2:00p ET (orange folder)
+- Fed Chair speeches/testimony — varies (red folder when scheduled)
+
+For each event found: record exact ET release time, event name, forecast, previous, actual (if released).
+
+IMPORTANT: "No high impact" should be RARE. Most weekdays have at least one notable event. Unemployment Claims alone happens EVERY Thursday at 8:30a. Crude Oil Inventories happens EVERY Wednesday at 10:30a. If you're returning "No high impact" for Thursday or Wednesday, you almost certainly missed data. Do another search.
 
 STEP 2 — Search for:
-- Pre-market movers (tickers, % change, brief reason)
+- Pre-market movers (tickers, % change, brief reason) — search "premarket movers today" or "stock futures today"
 - Previous day close: S&P 500, Nasdaq, Dow, VIX, 10Y yield, WTI oil
-- Key earnings results and upcoming earnings
+- Key earnings results and upcoming earnings this week
 - Major overnight/geopolitical news
 - Current fed funds rate and next FOMC meeting date
 
