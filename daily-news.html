@@ -1,5 +1,43 @@
-<!-- Daily News generated 2026-03-10T14:21:06.483Z -->
-<!-- Run: 10 AM ET | Model: claude-sonnet-4-20250514 -->
+/**
+ * generate-daily-news.js
+ * 
+ * Called by GitHub Actions at 4 AM and 10 AM ET (Mon-Fri).
+ * Calls Claude API with web search to generate a comprehensive
+ * daily trading calendar, then writes it as daily-news.html
+ * in the repo root for the website to fetch.
+ */
+
+const Anthropic = require('@anthropic-ai/sdk');
+const fs = require('fs');
+
+const client = new Anthropic();
+
+// Get today's date info for the prompt
+const now = new Date();
+const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' };
+const todayFormatted = now.toLocaleDateString('en-US', options);
+const hour = now.toLocaleString('en-US', { hour: 'numeric', hour12: true, timeZone: 'America/New_York' });
+
+// Compute this week's Mon–Fri dates in ET and inject them so Claude never has to guess
+function getWeekDates(offsetWeeks = 0) {
+  const etNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const dow = etNow.getDay(); // 0=Sun,1=Mon...6=Sat
+  const monday = new Date(etNow);
+  monday.setDate(etNow.getDate() - (dow === 0 ? 6 : dow - 1) + (offsetWeeks * 7));
+  const labels = ['MON','TUE','WED','THU','FRI'];
+  return labels.map((lbl, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return `${lbl} ${d.getMonth()+1}/${d.getDate()}`;
+  });
+}
+const thisWeekDays = getWeekDates(0);  // ["MON 3/9","TUE 3/10","WED 3/11","THU 3/12","FRI 3/13"]
+const thisWeekLabel = `${thisWeekDays[0]} – ${thisWeekDays[4]}`;
+const nextWeekDays = getWeekDates(1);  // ["MON 3/16","TUE 3/17","WED 3/18","THU 3/19","FRI 3/20"]
+const nextWeekLabel = `${nextWeekDays[0]} – ${nextWeekDays[4]}`;
+
+// The EXACT CSS template to enforce consistent formatting
+const CSS_TEMPLATE = `
 <style>
     .dn-container {
         max-width: 980px;
@@ -117,86 +155,175 @@
         .dn-container .nw-grid { grid-template-columns: repeat(2, 1fr); }
         .dn-container .data-grid { grid-template-columns: 1fr; }
     }
-</style>
+</style>`;
 
+// Example HTML structure (abbreviated) to show Claude exactly what format to follow
+const HTML_TEMPLATE_EXAMPLE = `
+<!-- This is the EXACT structure to follow. Replace content with today's real data. -->
 <div class="dn-container">
     <div class="header">
         <h1>USD Economic Calendar</h1>
-        <p>Tuesday, 3/10 • February CPI due tomorrow as oil surge drives stagflation fears</p>
+        <p>Day, M/D &bull; [headline summary of biggest movers/data]</p>
     </div>
     <div class="alerts-section">
-        <div class="alert-box alert-red"><strong>🚨 OIL SHOCK ALERT:</strong> WTI crude up 8% to $87.50, Brent briefly crossed $90 amid Iran conflict supply disruptions</div>
-        <div class="alert-box alert-orange"><strong>⚠️ STAGFLATION RISK:</strong> Rising oil prices and slowing labor market raise fears of weak growth with rising inflation</div>
-        <div class="alert-box alert-blue"><strong>Market Context:</strong> February CPI data scheduled for March 11 at 8:30 AM ET • Next FOMC meeting March 17-18 • Low odds of Fed cut at March meeting</div>
+        <div class="alert-box alert-red"><strong>[RED ALERT ICON + TITLE]:</strong> [details]</div>
+        <div class="alert-box alert-green"><strong>[GREEN BEAT ICON + TITLE]:</strong> [details]</div>
+        <div class="alert-box alert-orange"><strong>[ORANGE CAUTION ICON + TITLE]:</strong> [details]</div>
+        <div class="alert-blue"><strong>[Context note]:</strong> [key analysis points separated by bullets]</div>
     </div>
     <div class="week-strip">
-        <div class="week-day"><span class="day-label">MON 3/9</span><span class="day-note">Market rout</span></div>
-        <div class="week-day today"><span class="day-label">TUE 3/10</span><span class="day-note">Today</span></div>
-        <div class="week-day"><span class="day-label">WED 3/11</span><span class="day-note">CPI 8:30 AM</span></div>
-        <div class="week-day"><span class="day-label">THU 3/12</span><span class="day-note">Oracle earnings</span></div>
-        <div class="week-day"><span class="day-label">FRI 3/13</span><span class="day-note">PCE data</span></div>
+        <div class="week-day"><span class="day-label">MON M/D</span><span class="day-note">[red folder event @ time, or "No high impact"]</span></div>
+        <!-- 5 weekdays total. today gets class="week-day today".
+             day-note must list each red folder event for that day with its ET release time.
+             Format: "CPI 8:30a · Retail 8:30a" — use · as separator if multiple events.
+             If no red folder events: show the most notable orange folder event, or "No high impact". -->
     </div>
     <div class="earnings-strip">
-        <span class="strip-label">OVERNIGHT MOVERS:</span>
-        <span class="earnings-tag tag-miss">GAP -6% (Q4 miss)</span>
-        <span class="earnings-tag tag-miss">NATL -8% (merger issues)</span>
-        <span class="earnings-tag tag-beat">GWRE +4% (guidance raised)</span>
+        <span class="strip-label">RESULTS:</span>
+        <span class="earnings-tag tag-beat">TICKER +X% (reason)</span>
+        <span class="earnings-tag tag-miss">TICKER -X% (reason)</span>
     </div>
     <div class="main-content">
         <div class="left-column">
             <div class="side-box">
                 <h3>📊 Pre-Mkt Movers</h3>
-                <div class="side-item"><span class="ticker">GAP</span> <span class="miss-text">-6.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Q4 earnings miss<br>Retailer struggles continue</span></div>
-                <div class="side-item"><span class="ticker">NATL</span> <span class="miss-text">-8.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Merger complications<br>9.50% notes issue</span></div>
-                <div class="side-item"><span class="ticker">GWRE</span> <span class="beat-text">+4.0%</span><br><span style="font-size:11px;color:#9e9e9e;">Raised FY guidance<br>Strong Q2 results</span></div>
-                <div class="side-item"><span class="ticker">Oil Stocks</span> <span class="beat-text">+5-8%</span><br><span style="font-size:11px;color:#9e9e9e;">WTI surge benefits<br>Supply shock premium</span></div>
+                <div class="side-item"><span class="ticker">TICK</span> <span class="beat-text">+X%</span><br><span style="font-size:11px;color:#9e9e9e;">reason line 1<br>reason line 2</span></div>
             </div>
             <div class="side-box">
                 <h3>📅 Key Events</h3>
-                <div class="side-item">No major economic releases today</div>
-                <div class="side-item">Market focus on oil crisis</div>
-                <div class="side-item">Oracle earnings after hours</div>
-                <div class="side-item">Fed blackout period continues</div>
+                <div class="side-item">[events list]</div>
             </div>
         </div>
         <div class="data-box">
-            <div class="recap-card"><h3>📉 Monday's Market Rout</h3>
+            <div class="recap-card"><h3>📉 [Previous Close Recap Title]</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px 20px;">
-                    <div class="recap-row"><strong>S&P 500:</strong> <span class="down">-2.02% → 6,740</span></div>
-                    <div class="recap-row"><strong>Nasdaq:</strong> <span class="down">-1.24% → 22,303</span></div>
-                    <div class="recap-row"><strong>Dow:</strong> <span class="down">-3.01% → 47,002</span></div>
-                    <div class="recap-row"><strong>VIX:</strong> <span class="up">+74% → 35.30</span></div>
-                    <div class="recap-row"><strong>10Y Yield:</strong> <span class="down">-3bp → 4.11%</span></div>
-                    <div class="recap-row"><strong>WTI Oil:</strong> <span class="up">+35% → $87.50</span></div>
+                    <div class="recap-row"><strong>S&P 500:</strong> <span class="down">-X.XX% → X,XXX</span></div>
                 </div>
-                <div class="section-note">"All three major averages posted weekly losses and are now negative for the year"</div>
+                <div class="section-note">[analysis quote or context]</div>
             </div>
-            
             <div class="time-card">
-                <div class="time-header"><span class="time-label">Market Open</span><span class="impact-badge badge-critical">CRITICAL</span></div>
-                <div style="margin-top: 10px; color: #e0e0e0;">
-                    <strong>No scheduled economic releases today</strong><br>
-                    <span style="font-size: 12px; color: #9e9e9e;">Market entirely focused on oil crisis and geopolitical developments</span>
+                <div class="time-header"><span class="time-label">8:30 AM ET</span><span class="impact-badge badge-critical">CRITICAL</span></div>
+                <div class="data-grid">
+                    <div class="data-row"><span class="data-name">Data Point</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">X.X%</span><span class="val-label">F:</span><span class="val-forecast">X.X%</span><span class="val-label">P:</span><span class="val-prev">X.X%</span></span></div>
                 </div>
             </div>
-
             <div class="fed-card"><h3>🏛️ Fed Rate Path</h3>
-                <div class="recap-row"><strong>Current Rate:</strong> 3.50-3.75%</div>
-                <div class="recap-row"><strong>Next Meeting:</strong> March 17-18, 2026</div>
-                <div class="recap-row"><strong>Market Expectation:</strong> 1-2 cuts in 2026</div>
-                <div class="section-note">"Fed expected to pause at March meeting" amid stagflation concerns</div>
+                <div class="recap-row"><strong>Current Rate:</strong> X.XX-X.XX%</div>
             </div>
-            
-            <div class="next-week-bar"><h3>📅 This Week — March 10-14</h3>
+            <div class="next-week-bar"><h3>📅 Next Week — ${nextWeekLabel}</h3>
                 <div class="nw-grid">
-                    <div class="nw-day"><span class="nw-day-label">TUE 3/10</span><span class="nw-event">No major data<br>Oracle earnings</span></div>
-                    <div class="nw-day"><span class="nw-day-label">WED 3/11</span><span class="nw-event hot">CPI 8:30 AM<br>Core CPI</span></div>
-                    <div class="nw-day"><span class="nw-day-label">THU 3/12</span><span class="nw-event">Adobe earnings<br>Jobless claims</span></div>
-                    <div class="nw-day"><span class="nw-day-label">FRI 3/13</span><span class="nw-event hot">PCE data<br>Job openings</span></div>
-                    <div class="nw-day"><span class="nw-day-label">WEEKEND</span><span class="nw-event">Geopolitical watch</span></div>
+                    <div class="nw-day"><span class="nw-day-label">${nextWeekDays[0]}</span><span class="nw-event">[events]</span></div>
+                    <div class="nw-day"><span class="nw-day-label">${nextWeekDays[1]}</span><span class="nw-event">[events]</span></div>
+                    <div class="nw-day"><span class="nw-day-label">${nextWeekDays[2]}</span><span class="nw-event">[events]</span></div>
+                    <div class="nw-day"><span class="nw-day-label">${nextWeekDays[3]}</span><span class="nw-event">[events]</span></div>
+                    <div class="nw-day"><span class="nw-day-label">${nextWeekDays[4]}</span><span class="nw-event">[events]</span></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="dn-footer">USD Economic Calendar • Tuesday, March 10, 2026 • For informational purposes only — not investment advice</div>
-</div>
+    <div class="dn-footer">USD Economic Calendar &bull; [Day, Date] &bull; For informational purposes only — not investment advice</div>
+</div>`;
+
+async function generateCalendar() {
+  console.log(`🗞️ Generating Daily News for ${todayFormatted} (${hour} ET run)...`);
+
+  const message = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 16000,
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+    messages: [
+      {
+        role: 'user',
+        content: `You are a trading calendar generator for a day trader's personal website. Today is ${todayFormatted}. The current time is approximately ${hour} ET.
+
+Generate a comprehensive daily trading calendar. Use web search to find CURRENT, REAL data for today.
+
+STEP 1 — ECONOMIC CALENDAR (search this FIRST, before anything else):
+Search forexfactory.com/calendar to get today's COMPLETE scheduled release list for ALL of today's USD events.
+If ForexFactory is unavailable, search investing.com/economic-calendar as a backup.
+Capture EVERY red folder (high impact) and orange folder (medium impact) USD event scheduled for today — regardless of what time they occur.
+This means ALL of the following slots must be checked: pre-market, 8:30 AM, 9:45 AM, 10:00 AM, 10:30 AM, 12:00 PM, 2:00 PM, 3:00 PM, and any other time a red or orange event appears.
+Do NOT stop after finding 8:30 AM releases. A release like ISM Services PMI at 10:00 AM is just as important as any 8:30 AM release and must be included.
+For each red/orange event record: exact ET time, event name, impact level, forecast, previous, and actual if already released.
+
+STEP 2 — ADDITIONAL DATA (search after completing Step 1):
+2. Pre-market / after-hours earnings movers (specific tickers, % moves, key numbers)
+3. Key overnight news affecting markets (Fed speakers, geopolitical, policy)
+4. US government news (executive orders, legislation, regulatory actions)
+5. Major earnings reporting today and this week
+6. Previous day's close (S&P, Nasdaq, Dow, VIX, 10Y yield, oil)
+
+YOU MUST USE THIS EXACT CSS AND HTML STRUCTURE. Here is the CSS (include this exactly as-is at the top of your output):
+
+${CSS_TEMPLATE}
+
+Here is the HTML structure to follow EXACTLY (replace bracketed content with real data):
+
+${HTML_TEMPLATE_EXAMPLE}
+
+CRITICAL RULES:
+- Output MUST start with the <style> block above, then the <div class="dn-container"> structure
+- Use ONLY the class names shown above — do not invent new classes or use inline styles for layout
+- All alert boxes use: alert-red (critical/hot/miss), alert-green (beats), alert-orange (caution/mixed), alert-blue (info/context)
+- Earnings tags use: tag-beat (green), tag-miss (red), tag-mixed (orange), tag-upcoming (blue)
+- Price moves use: up (green), down (red), neutral (orange)
+- Time cards use impact badges: badge-critical (red folder), badge-high (orange folder), badge-medium (yellow folder), badge-low (gray), badge-actual (for released data)
+- Data rows show A: (actual), F: (forecast), P: (previous) — use val-actual for beats, val-actual-miss for misses
+- CREATE A SEPARATE time-card FOR EVERY DISTINCT RELEASE TIME — do not bundle 8:30 AM and 10:00 AM events into the same card
+- Include ALL red and orange folder events from ForexFactory regardless of time slot — missing a 10:00 AM release like ISM Services PMI is not acceptable
+- Include 5-10 pre-market movers in the left sidebar
+- Include the previous day's close recap with major index levels
+- Include Fed Rate Path card
+- The This Week bar header and 5 day columns are already pre-filled with the correct dates (${thisWeekLabel}) — use exactly those dates, do not change them. Mark past days as done, future days as upcoming.
+- Week strip day-note: each day must show its red folder events with ET release time (e.g. "CPI 8:30a · Retail 8:30a"). If no red folder events for that day, show the most notable orange folder event. If neither, show "No high impact". Never use vague labels like "CPI week" or "Claims" without the time.
+- The Next Week bar is already pre-filled with correct dates (${nextWeekLabel}) — fill each day's nw-event with its red/orange folder events and times. Same format: "NFP 8:30a" or "No high impact".
+- Every ticker, percentage, and data point must be REAL from your web searches
+- If data hasn't been released yet, show forecast with "Pending" for actual
+- Include section-note analysis after major cards
+
+If today is Saturday or Sunday, generate a "Weekend Preview" with upcoming week data.
+
+4 AM run: Show ALL red and orange folder events scheduled for today with forecast and previous values. Mark actuals as "Pending" for anything not yet released. This is the full-day preview — do not omit later-in-day events just because they haven't happened yet.
+10 AM run: Same complete event list, but fill in any actuals that have been released since 4 AM. Mark still-upcoming events as "Pending".
+
+Output ONLY the HTML starting with <style> and ending with </div>. No markdown, no code fences, no explanation.`
+      }
+    ]
+  });
+
+  // Extract the text content from the response
+  let html = '';
+  for (const block of message.content) {
+    if (block.type === 'text') {
+      html += block.text;
+    }
+  }
+
+  // Clean up any markdown code fences if present
+  html = html.replace(/```html?\n?/g, '').replace(/```\n?/g, '').trim();
+
+  // Wrap with metadata comment
+  const output = `<!-- Daily News generated ${now.toISOString()} -->
+<!-- Run: ${hour} ET | Model: claude-sonnet-4-20250514 -->
+${html}`;
+
+  // Write to repo root
+  fs.writeFileSync('daily-news.html', output, 'utf-8');
+  console.log(`✅ Written daily-news.html (${(output.length / 1024).toFixed(1)} KB)`);
+}
+
+generateCalendar().catch(err => {
+  console.error('❌ Generation failed:', err.message);
+  
+  // Write a fallback so the site doesn't break
+  const fallback = `<!-- Daily News generation failed ${now.toISOString()} -->
+<div style="max-width:980px;margin:0 auto;padding:40px 20px;text-align:center;color:#9e9e9e;font-family:-apple-system,sans-serif;">
+  <div style="font-size:48px;margin-bottom:16px;">📡</div>
+  <h2 style="color:#e0e0e0;font-size:20px;margin-bottom:8px;">Daily News Updating...</h2>
+  <p style="font-size:14px;">Calendar is being refreshed. Check back shortly.</p>
+  <p style="font-size:12px;margin-top:16px;color:#666;">Last attempt: ${todayFormatted} ${hour} ET</p>
+</div>`;
+  
+  fs.writeFileSync('daily-news.html', fallback, 'utf-8');
+  process.exit(1);
+});
