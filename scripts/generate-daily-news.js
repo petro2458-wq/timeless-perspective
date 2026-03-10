@@ -5,6 +5,10 @@
  * Calls Claude API with web search to generate a comprehensive
  * daily trading calendar, then writes it as daily-news.html
  * in the repo root for the website to fetch.
+ * 
+ * ARCHITECTURE: Claude generates a JSON data payload, then JS
+ * assembles the final HTML from a hardcoded template. This prevents
+ * Claude from rewriting dates, structure, or class names.
  */
 
 const Anthropic = require('@anthropic-ai/sdk');
@@ -18,8 +22,113 @@ const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric
 const todayFormatted = now.toLocaleDateString('en-US', options);
 const hour = now.toLocaleString('en-US', { hour: 'numeric', hour12: true, timeZone: 'America/New_York' });
 
-// The EXACT CSS template to enforce consistent formatting
-const CSS_TEMPLATE = `
+// Compute this week's Mon–Fri dates in ET
+function getWeekDates(offsetWeeks = 0) {
+  const etNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const dow = etNow.getDay();
+  const daysToMonday = (dow === 0 ? 6 : dow - 1);
+  const mondayMs = etNow.getTime() - (daysToMonday * 86400000) + (offsetWeeks * 7 * 86400000);
+  const labels = ['MON','TUE','WED','THU','FRI'];
+  return labels.map((lbl, i) => {
+    const d = new Date(mondayMs + i * 86400000);
+    const etStr = d.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric' });
+    const [m, day] = etStr.split('/');
+    return `${lbl} ${m}/${day}`;
+  });
+}
+const thisWeekDays = getWeekDates(0);
+const thisWeekLabel = `${thisWeekDays[0]} – ${thisWeekDays[4]}`;
+const nextWeekDays = getWeekDates(1);
+const nextWeekLabel = `${nextWeekDays[0]} – ${nextWeekDays[4]}`;
+
+const etNowForDay = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+const todayDow = etNowForDay.getDay();
+const todayWeekIndex = todayDow === 0 ? -1 : todayDow - 1;
+
+// ── Escape HTML entities in JSON strings ──
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Build final HTML from JSON data ──
+function buildHTML(data) {
+  // Week strip
+  const weekStripHTML = thisWeekDays.map((dayLabel, i) => {
+    const todayClass = i === todayWeekIndex ? ' today' : '';
+    const note = (data.weekStrip && data.weekStrip[i]) ? esc(data.weekStrip[i]) : 'No high impact';
+    return `        <div class="week-day${todayClass}"><span class="day-label">${dayLabel}</span><span class="day-note">${note}</span></div>`;
+  }).join('\n');
+
+  // Next week grid
+  const nextWeekHTML = nextWeekDays.map((dayLabel, i) => {
+    const evt = (data.nextWeek && data.nextWeek[i]) ? esc(data.nextWeek[i]) : 'No high impact';
+    const isHot = evt.toLowerCase().includes('fomc') || evt.toLowerCase().includes('fed') || evt.toLowerCase().includes('nfp') || evt.toLowerCase().includes('cpi');
+    return `                    <div class="nw-day"><span class="nw-day-label">${dayLabel}</span><span class="nw-event${isHot ? ' hot' : ''}">${evt}</span></div>`;
+  }).join('\n');
+
+  // Alerts
+  const alertsHTML = (data.alerts || []).map(a => {
+    const cls = a.type === 'red' ? 'alert-red' : a.type === 'green' ? 'alert-green' : a.type === 'orange' ? 'alert-orange' : 'alert-blue';
+    const isBox = a.type !== 'blue';
+    return `        <div class="${isBox ? 'alert-box ' : ''}${cls}"><strong>${esc(a.title)}:</strong> ${esc(a.detail)}</div>`;
+  }).join('\n');
+
+  // Earnings strip
+  const earningsHTML = (data.earnings || []).map(e => {
+    const cls = e.type === 'beat' ? 'tag-beat' : e.type === 'miss' ? 'tag-miss' : e.type === 'mixed' ? 'tag-mixed' : 'tag-upcoming';
+    return `        <span class="earnings-tag ${cls}">${esc(e.text)}</span>`;
+  }).join('\n');
+
+  // Pre-market movers
+  const moversHTML = (data.movers || []).map(m => {
+    const cls = m.pct && m.pct.startsWith('-') ? 'miss-text' : 'beat-text';
+    return `                <div class="side-item"><span class="ticker">${esc(m.ticker)}</span> <span class="${cls}">${esc(m.pct)}</span><br><span style="font-size:11px;color:#9e9e9e;">${esc(m.reason)}</span></div>`;
+  }).join('\n');
+
+  // Key events sidebar
+  const eventsHTML = (data.keyEvents || []).map(e => {
+    return `                <div class="side-item">${esc(e)}</div>`;
+  }).join('\n');
+
+  // Recap card
+  const recap = data.recap || {};
+  const recapRows = (recap.rows || []).map(r => {
+    const cls = r.direction === 'up' ? 'up' : r.direction === 'down' ? 'down' : 'neutral';
+    return `                    <div class="recap-row"><strong>${esc(r.label)}:</strong> <span class="${cls}">${esc(r.value)}</span></div>`;
+  }).join('\n');
+
+  // Time cards (economic releases)
+  const timeCardsHTML = (data.timeCards || []).map(tc => {
+    const badgeCls = tc.impact === 'critical' ? 'badge-critical' : tc.impact === 'high' ? 'badge-high' : tc.impact === 'medium' ? 'badge-medium' : tc.impact === 'actual' ? 'badge-actual' : 'badge-low';
+    const rows = (tc.rows || []).map(r => {
+      const actualCls = r.isMiss ? 'val-actual-miss' : 'val-actual';
+      const actualVal = r.actual || 'Pending';
+      return `                    <div class="data-row"><span class="data-name">${esc(r.name)}</span><span class="data-vals"><span class="val-label">A:</span><span class="${actualCls}">${esc(actualVal)}</span><span class="val-label">F:</span><span class="val-forecast">${esc(r.forecast || 'N/A')}</span><span class="val-label">P:</span><span class="val-prev">${esc(r.previous || 'N/A')}</span></span></div>`;
+    }).join('\n');
+    const note = tc.note ? `\n                <div class="section-note">${esc(tc.note)}</div>` : '';
+    return `            <div class="time-card">
+                <div class="time-header"><span class="time-label">${esc(tc.time)}</span><span class="impact-badge ${badgeCls}">${esc(tc.impactLabel || tc.impact)}</span></div>
+                <div class="data-grid">
+${rows}
+                </div>${note}
+            </div>`;
+  }).join('\n');
+
+  // If no time cards (light data day), show a light card
+  const lightCardFallback = (data.timeCards || []).length === 0 ? `
+            <div class="time-card">
+                <div class="time-header"><span class="time-label">Light Data Day</span><span class="impact-badge badge-low">LOW IMPACT</span></div>
+                <div class="section-note">${esc(data.lightDayNote || 'No major economic releases scheduled today.')}</div>
+            </div>` : '';
+
+  // Fed card
+  const fed = data.fed || {};
+  const fedRows = (fed.rows || []).map(r => {
+    return `                <div class="recap-row"><strong>${esc(r.label)}:</strong> ${esc(r.value)}</div>`;
+  }).join('\n');
+
+  return `
 <style>
     .dn-container {
         max-width: 980px;
@@ -100,7 +209,6 @@ const CSS_TEMPLATE = `
     .dn-container .up { color: #69f0ae; }
     .dn-container .down { color: #ff5252; }
     .dn-container .neutral { color: #ffb74d; }
-
     .dn-container .time-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; }
     .dn-container .time-header { display: flex; align-items: center; margin-bottom: 9px; gap: 10px; }
     .dn-container .time-label { font-size: 15px; font-weight: 700; color: #ffffff; }
@@ -137,70 +245,62 @@ const CSS_TEMPLATE = `
         .dn-container .nw-grid { grid-template-columns: repeat(2, 1fr); }
         .dn-container .data-grid { grid-template-columns: 1fr; }
     }
-</style>`;
+</style>
 
-// Example HTML structure (abbreviated) to show Claude exactly what format to follow
-const HTML_TEMPLATE_EXAMPLE = `
-<!-- This is the EXACT structure to follow. Replace content with today's real data. -->
 <div class="dn-container">
     <div class="header">
         <h1>USD Economic Calendar</h1>
-        <p>Day, M/D &bull; [headline summary of biggest movers/data]</p>
+        <p>${todayFormatted} &bull; ${esc(data.headline || '')}</p>
     </div>
     <div class="alerts-section">
-        <div class="alert-box alert-red"><strong>[RED ALERT ICON + TITLE]:</strong> [details]</div>
-        <div class="alert-box alert-green"><strong>[GREEN BEAT ICON + TITLE]:</strong> [details]</div>
-        <div class="alert-box alert-orange"><strong>[ORANGE CAUTION ICON + TITLE]:</strong> [details]</div>
-        <div class="alert-blue"><strong>[Context note]:</strong> [key analysis points separated by bullets]</div>
+${alertsHTML}
     </div>
     <div class="week-strip">
-        <div class="week-day"><span class="day-label">MON M/D</span><span class="day-note">[event]</span></div>
-        <!-- ... 5 weekdays, today gets class="week-day today" -->
+${weekStripHTML}
     </div>
     <div class="earnings-strip">
-        <span class="strip-label">RESULTS:</span>
-        <span class="earnings-tag tag-beat">TICKER +X% (reason)</span>
-        <span class="earnings-tag tag-miss">TICKER -X% (reason)</span>
+        <span class="strip-label">EARNINGS:</span>
+${earningsHTML}
     </div>
     <div class="main-content">
         <div class="left-column">
             <div class="side-box">
                 <h3>📊 Pre-Mkt Movers</h3>
-                <div class="side-item"><span class="ticker">TICK</span> <span class="beat-text">+X%</span><br><span style="font-size:11px;color:#9e9e9e;">reason line 1<br>reason line 2</span></div>
+${moversHTML}
             </div>
             <div class="side-box">
                 <h3>📅 Key Events</h3>
-                <div class="side-item">[events list]</div>
+${eventsHTML}
             </div>
         </div>
         <div class="data-box">
-            <div class="recap-card"><h3>📉 [Previous Close Recap Title]</h3>
+            <div class="recap-card"><h3>📉 ${esc(recap.title || 'Previous Close')}</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px 20px;">
-                    <div class="recap-row"><strong>S&P 500:</strong> <span class="down">-X.XX% → X,XXX</span></div>
+${recapRows}
                 </div>
-                <div class="section-note">[analysis quote or context]</div>
+                <div class="section-note">${esc(recap.note || '')}</div>
             </div>
-            <div class="time-card">
-                <div class="time-header"><span class="time-label">8:30 AM ET</span><span class="impact-badge badge-critical">CRITICAL</span></div>
-                <div class="data-grid">
-                    <div class="data-row"><span class="data-name">Data Point</span><span class="data-vals"><span class="val-label">A:</span><span class="val-actual">X.X%</span><span class="val-label">F:</span><span class="val-forecast">X.X%</span><span class="val-label">P:</span><span class="val-prev">X.X%</span></span></div>
-                </div>
-            </div>
+${timeCardsHTML}${lightCardFallback}
             <div class="fed-card"><h3>🏛️ Fed Rate Path</h3>
-                <div class="recap-row"><strong>Current Rate:</strong> X.XX-X.XX%</div>
+${fedRows}
             </div>
-            <div class="next-week-bar"><h3>📅 Next Week — [dates]</h3>
+            <div class="next-week-bar"><h3>📅 Next Week — ${nextWeekLabel}</h3>
                 <div class="nw-grid">
-                    <div class="nw-day"><span class="nw-day-label">MON M/D</span><span class="nw-event">[events]</span></div>
+${nextWeekHTML}
                 </div>
             </div>
         </div>
     </div>
-    <div class="dn-footer">USD Economic Calendar &bull; [Day, Date] &bull; For informational purposes only — not investment advice</div>
+    <div class="dn-footer">USD Economic Calendar &bull; ${todayFormatted} &bull; For informational purposes only — not investment advice</div>
 </div>`;
+}
+
 
 async function generateCalendar() {
   console.log(`🗞️ Generating Daily News for ${todayFormatted} (${hour} ET run)...`);
+  console.log(`   This week: ${thisWeekLabel}`);
+  console.log(`   Next week: ${nextWeekLabel}`);
+  console.log(`   Today index: ${todayWeekIndex} (0=Mon)`);
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
@@ -209,78 +309,159 @@ async function generateCalendar() {
     messages: [
       {
         role: 'user',
-        content: `You are a trading calendar generator for a day trader's personal website. Today is ${todayFormatted}. The current time is approximately ${hour} ET.
+        content: `You are a trading calendar data researcher. Today is ${todayFormatted}. The current time is approximately ${hour} ET.
 
-Generate a comprehensive daily trading calendar. Use web search to find CURRENT, REAL data for today.
+Your job is to search the web for current market data and return a SINGLE JSON object. Do NOT generate HTML. Output ONLY valid JSON.
 
-STEP 1 — ECONOMIC CALENDAR (search this FIRST, before anything else):
-Search forexfactory.com/calendar to get today's COMPLETE scheduled release list for ALL of today's USD events.
-If ForexFactory is unavailable, search investing.com/economic-calendar as a backup.
-Capture EVERY red folder (high impact) and orange folder (medium impact) USD event scheduled for today — regardless of what time they occur.
-This means ALL of the following slots must be checked: pre-market, 8:30 AM, 9:45 AM, 10:00 AM, 10:30 AM, 12:00 PM, 2:00 PM, 3:00 PM, and any other time a red or orange event appears.
-Do NOT stop after finding 8:30 AM releases. A release like ISM Services PMI at 10:00 AM is just as important as any 8:30 AM release and must be included.
-For each red/orange event record: exact ET time, event name, impact level, forecast, previous, and actual if already released.
+RESEARCH STEPS:
 
-STEP 2 — ADDITIONAL DATA (search after completing Step 1):
-2. Pre-market / after-hours earnings movers (specific tickers, % moves, key numbers)
-3. Key overnight news affecting markets (Fed speakers, geopolitical, policy)
-4. US government news (executive orders, legislation, regulatory actions)
-5. Major earnings reporting today and this week
-6. Previous day's close (S&P, Nasdaq, Dow, VIX, 10Y yield, oil)
+STEP 1 — Search forexfactory.com/calendar (or investing.com/economic-calendar as backup) to find:
+- ALL red folder (high impact) and orange folder (medium impact) USD events for TODAY
+- ALL red/orange folder USD events for THIS WEEK: ${thisWeekLabel}
+- ALL red/orange folder USD events for NEXT WEEK: ${nextWeekLabel}
+- For each event: exact ET release time, event name, forecast, previous, actual (if released)
 
-YOU MUST USE THIS EXACT CSS AND HTML STRUCTURE. Here is the CSS (include this exactly as-is at the top of your output):
+STEP 2 — Search for:
+- Pre-market movers (tickers, % change, brief reason)
+- Previous day close: S&P 500, Nasdaq, Dow, VIX, 10Y yield, WTI oil
+- Key earnings results and upcoming earnings
+- Major overnight/geopolitical news
+- Current fed funds rate and next FOMC meeting date
 
-${CSS_TEMPLATE}
+Return this EXACT JSON structure (no markdown, no code fences, no explanation — ONLY the JSON):
 
-Here is the HTML structure to follow EXACTLY (replace bracketed content with real data):
+{
+  "headline": "One-line summary of today's biggest story",
+  "alerts": [
+    {"type": "red|green|orange|blue", "title": "⚠️ ALERT TITLE", "detail": "Alert details"}
+  ],
+  "weekStrip": [
+    "EventName H:MMa · EventName H:MMa",
+    "EventName H:MMa",
+    "CPI 8:30a",
+    "Jobless Claims 8:30a · Philly Fed 8:30a",
+    "PPI 8:30a · Retail Sales 8:30a"
+  ],
+  "nextWeek": [
+    "Empire State 8:30a",
+    "FOMC 2:00p · Retail Sales 8:30a",
+    "Housing Starts 8:30a",
+    "Jobless Claims 8:30a · Philly Fed 8:30a",
+    "Existing Home Sales 10:00a"
+  ],
+  "earnings": [
+    {"type": "beat|miss|mixed|upcoming", "text": "ORCL +5% (cloud revenue beat)"}
+  ],
+  "movers": [
+    {"ticker": "TSLA", "pct": "+2.1%", "reason": "Tech recovery trade"}
+  ],
+  "keyEvents": [
+    "CPI inflation Wednesday 8:30a",
+    "FOMC meeting next week 3/17-18"
+  ],
+  "recap": {
+    "title": "Monday's Session Recap",
+    "rows": [
+      {"label": "S&P 500", "value": "+0.83% → 6,740", "direction": "up"},
+      {"label": "Nasdaq", "value": "+1.38% → 22,387", "direction": "up"},
+      {"label": "Dow Jones", "value": "+0.50% → 47,241", "direction": "up"},
+      {"label": "VIX", "value": "28.6 (-14%)", "direction": "down"},
+      {"label": "10Y Yield", "value": "4.10%", "direction": "neutral"},
+      {"label": "WTI Oil", "value": "$94.77 (+4.26%)", "direction": "up"}
+    ],
+    "note": "Brief analysis of yesterday's session"
+  },
+  "timeCards": [
+    {
+      "time": "8:30 AM ET",
+      "impact": "critical",
+      "impactLabel": "CRITICAL",
+      "rows": [
+        {"name": "CPI m/m", "actual": "0.3%", "forecast": "0.3%", "previous": "0.5%", "isMiss": false},
+        {"name": "Core CPI m/m", "actual": null, "forecast": "0.3%", "previous": "0.4%", "isMiss": false}
+      ],
+      "note": "Brief analysis"
+    }
+  ],
+  "lightDayNote": "No major economic releases today. Markets focused on...",
+  "fed": {
+    "rows": [
+      {"label": "Current Rate", "value": "3.50-3.75%"},
+      {"label": "Next Meeting", "value": "March 17-18, 2026"},
+      {"label": "Expected Action", "value": "Hold rates steady"},
+      {"label": "Market Pricing", "value": "25bp cut probability rising"}
+    ]
+  }
+}
 
-${HTML_TEMPLATE_EXAMPLE}
+CRITICAL RULES FOR weekStrip AND nextWeek ARRAYS:
+- weekStrip MUST have EXACTLY 5 elements (Mon through Fri of this week: ${thisWeekLabel})
+- nextWeek MUST have EXACTLY 5 elements (Mon through Fri of next week: ${nextWeekLabel})
+- Each element = that day's red folder events in format "EventName H:MMa" with · separator for multiple
+- Examples: "CPI 8:30a · Retail Sales 8:30a" or "FOMC 2:00p" or "No high impact"
+- NEVER use vague labels like "Oil Shock" or "Recovery" or "CPI Data" — ALWAYS include the release time
+- If no red folder events, show the most notable orange folder event with its time
+- If neither, use "No high impact"
 
-CRITICAL RULES:
-- Output MUST start with the <style> block above, then the <div class="dn-container"> structure
-- Use ONLY the class names shown above — do not invent new classes or use inline styles for layout
-- All alert boxes use: alert-red (critical/hot/miss), alert-green (beats), alert-orange (caution/mixed), alert-blue (info/context)
-- Earnings tags use: tag-beat (green), tag-miss (red), tag-mixed (orange), tag-upcoming (blue)
-- Price moves use: up (green), down (red), neutral (orange)
-- Time cards use impact badges: badge-critical (red folder), badge-high (orange folder), badge-medium (yellow folder), badge-low (gray), badge-actual (for released data)
-- Data rows show A: (actual), F: (forecast), P: (previous) — use val-actual for beats, val-actual-miss for misses
-- CREATE A SEPARATE time-card FOR EVERY DISTINCT RELEASE TIME — do not bundle 8:30 AM and 10:00 AM events into the same card
-- Include ALL red and orange folder events from ForexFactory regardless of time slot — missing a 10:00 AM release like ISM Services PMI is not acceptable
-- Include 5-10 pre-market movers in the left sidebar
-- Include the previous day's close recap with major index levels
-- Include Fed Rate Path card
-- Include Next Week preview with 5 weekdays
-- Every ticker, percentage, and data point must be REAL from your web searches
-- If data hasn't been released yet, show forecast with "Pending" for actual
-- Include section-note analysis after major cards
+CRITICAL RULES FOR timeCards:
+- Create a SEPARATE timeCard for each distinct release time today
+- If today is a light data day with no red/orange events, leave timeCards as empty array [] and fill lightDayNote
+- "actual" should be null if not yet released (will display as "Pending")
+- Set "isMiss" to true if actual missed forecast in a negative direction
 
-If today is Saturday or Sunday, generate a "Weekend Preview" with upcoming week data.
-
-4 AM run: Show ALL red and orange folder events scheduled for today with forecast and previous values. Mark actuals as "Pending" for anything not yet released. This is the full-day preview — do not omit later-in-day events just because they haven't happened yet.
-10 AM run: Same complete event list, but fill in any actuals that have been released since 4 AM. Mark still-upcoming events as "Pending".
-
-Output ONLY the HTML starting with <style> and ending with </div>. No markdown, no code fences, no explanation.`
+CRITICAL: Output ONLY the JSON object. No markdown code fences. No explanation. No HTML. Just the raw JSON starting with { and ending with }.`
       }
     ]
   });
 
-  // Extract the text content from the response
-  let html = '';
+  // Extract JSON from response
+  let jsonStr = '';
   for (const block of message.content) {
     if (block.type === 'text') {
-      html += block.text;
+      jsonStr += block.text;
     }
   }
 
-  // Clean up any markdown code fences if present
-  html = html.replace(/```html?\n?/g, '').replace(/```\n?/g, '').trim();
+  // Clean up potential markdown fences
+  jsonStr = jsonStr.replace(/```json?\n?/g, '').replace(/```\n?/g, '').trim();
 
-  // Wrap with metadata comment
+  console.log(`📋 Raw JSON length: ${jsonStr.length} chars`);
+
+  let data;
+  try {
+    data = JSON.parse(jsonStr);
+    console.log('✅ JSON parsed successfully');
+    console.log(`   weekStrip entries: ${(data.weekStrip || []).length}`);
+    console.log(`   nextWeek entries: ${(data.nextWeek || []).length}`);
+    console.log(`   timeCards: ${(data.timeCards || []).length}`);
+    console.log(`   movers: ${(data.movers || []).length}`);
+  } catch (e) {
+    console.error('❌ JSON parse failed:', e.message);
+    console.error('First 500 chars:', jsonStr.substring(0, 500));
+    throw new Error('Failed to parse Claude JSON response');
+  }
+
+  // Validate weekStrip and nextWeek have 5 entries
+  if (!data.weekStrip || data.weekStrip.length !== 5) {
+    console.warn(`⚠️ weekStrip has ${(data.weekStrip || []).length} entries, padding to 5`);
+    data.weekStrip = data.weekStrip || [];
+    while (data.weekStrip.length < 5) data.weekStrip.push('No high impact');
+    data.weekStrip = data.weekStrip.slice(0, 5);
+  }
+  if (!data.nextWeek || data.nextWeek.length !== 5) {
+    console.warn(`⚠️ nextWeek has ${(data.nextWeek || []).length} entries, padding to 5`);
+    data.nextWeek = data.nextWeek || [];
+    while (data.nextWeek.length < 5) data.nextWeek.push('No high impact');
+    data.nextWeek = data.nextWeek.slice(0, 5);
+  }
+
+  // Build HTML from template + data
+  const html = buildHTML(data);
+
   const output = `<!-- Daily News generated ${now.toISOString()} -->
-<!-- Run: ${hour} ET | Model: claude-sonnet-4-20250514 -->
+<!-- Run: ${hour} ET | Model: claude-sonnet-4-20250514 | Architecture: JSON→HTML -->
 ${html}`;
 
-  // Write to repo root
   fs.writeFileSync('daily-news.html', output, 'utf-8');
   console.log(`✅ Written daily-news.html (${(output.length / 1024).toFixed(1)} KB)`);
 }
@@ -288,7 +469,6 @@ ${html}`;
 generateCalendar().catch(err => {
   console.error('❌ Generation failed:', err.message);
   
-  // Write a fallback so the site doesn't break
   const fallback = `<!-- Daily News generation failed ${now.toISOString()} -->
 <div style="max-width:980px;margin:0 auto;padding:40px 20px;text-align:center;color:#9e9e9e;font-family:-apple-system,sans-serif;">
   <div style="font-size:48px;margin-bottom:16px;">📡</div>
