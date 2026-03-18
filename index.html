@@ -308,6 +308,64 @@
     .article-body blockquote { border-left: 2px solid var(--accent); padding: 1rem 1.5rem; margin: 2rem 0; font-family: var(--font-display); font-size: 1.15rem; font-style: italic; color: var(--text-primary); line-height: 1.6; }
     .article-footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
 
+    /* ── DAILY NEWS ────────────────────────────────────── */
+    .nav-news-wrapper { position: relative; display: inline-block; }
+    .nav-news {
+      color: #ff6b6b; text-decoration: none; font-size: 0.85rem;
+      font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+      transition: color 0.2s; cursor: pointer; position: relative; padding-left: 14px;
+    }
+    .nav-news::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 7px; height: 7px; background: #ff6b6b; border-radius: 50%;
+      animation: newsPulse 2s ease-in-out infinite;
+    }
+    @keyframes newsPulse {
+      0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+      50% { opacity: 0.4; transform: translateY(-50%) scale(0.7); }
+    }
+    .nav-news:hover { color: #ff9a9a; }
+    .nav-news-tooltip {
+      position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+      background: #1a1b24; border: 1px solid var(--accent-dim); border-radius: 8px;
+      padding: 0.75rem 1rem; width: 260px; opacity: 0; visibility: hidden;
+      transition: all 0.25s ease; pointer-events: none; z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .nav-news-tooltip::before {
+      content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
+      width: 10px; height: 10px; background: #1a1b24; border-left: 1px solid var(--accent-dim);
+      border-top: 1px solid var(--accent-dim);
+    }
+    .nav-news-wrapper:hover .nav-news-tooltip { opacity: 1; visibility: visible; }
+    .nav-news-tooltip p {
+      font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;
+      font-weight: 400; letter-spacing: 0; text-transform: none; margin: 0;
+    }
+    .nav-news-tooltip .tooltip-items {
+      font-size: 0.65rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6;
+    }
+    .nav-news-tooltip .tooltip-items span { display: block; }
+    .nav-news-tooltip .tooltip-items span::before { content: '\25b8 '; color: var(--accent); }
+
+    .daily-news-page { padding: 5.5rem 1rem 2rem; background: var(--bg-primary); min-height: 100vh; }
+    .daily-news-container { max-width: 1020px; margin: 0 auto; }
+    .daily-news-header { text-align: center; margin-bottom: 1.5rem; }
+    .daily-news-header h1 { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 400; margin-bottom: 0.5rem; }
+    .daily-news-header h1 em { color: var(--accent); font-style: italic; }
+    .daily-news-meta {
+      text-align: center; margin-bottom: 1rem; font-family: var(--font-mono);
+      font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em;
+    }
+    .daily-news-content { border-radius: 12px; overflow: hidden; }
+    .daily-news-loading { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .daily-news-loading .spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     /* ── MOBILE HAMBURGER & DRAWER ───────────────────────────── */
     .nav-hamburger {
       display: none; background: none; border: none; cursor: pointer;
@@ -341,6 +399,9 @@
     }
     .mobile-drawer a:last-child { border-bottom: none; }
     .mobile-drawer a:hover, .mobile-drawer a:active { color: var(--accent); }
+    .mobile-drawer .mobile-drawer-news {
+      color: #ff6b6b; font-weight: 600;
+    }
     .mobile-drawer .mobile-drawer-x {
       margin-top: 1rem; display: flex; align-items: center; gap: 0.6rem;
       color: var(--text-muted); font-size: 0.85rem; text-decoration: none;
@@ -365,7 +426,7 @@
     }
     .desktop-switch a:hover { color: var(--accent); }
 
-    /* ── RESPONSIVE: MOBILE (≤768px) ──────────────────────── */
+    /* ── RESPONSIVE: MOBILE (<=768px) ──────────────────────── */
     @media (max-width: 768px) {
       /* Nav */
       .nav { padding: 0.85rem 1.25rem; }
@@ -374,6 +435,7 @@
       .nav-cta { display: none; }
       .nav-x-link { display: none; }
       .nav-hamburger { display: block; }
+      .nav-news-tooltip { display: none; }
 
       /* Hero */
       .hero { padding: 5rem 1.25rem 2rem; }
@@ -441,6 +503,9 @@
       .article-body h2 { font-size: 1.4rem; margin: 2rem 0 0.75rem; }
       .article-body h3 { font-size: 1.15rem; }
       .article-body blockquote { font-size: 1rem; padding: 0.75rem 1rem; }
+
+      /* Daily News */
+      .daily-news-page { padding: 4.5rem 0.5rem 1rem; }
 
       /* Footer */
       .footer { padding: 2rem 1.25rem; }
@@ -570,10 +635,7 @@
         return () => window.removeEventListener('scroll', handleScroll);
       }, []);
 
-      // Close menu on page change
       useEffect(() => { setMenuOpen(false); }, [currentPage]);
-
-      // Lock body scroll when menu is open
       useEffect(() => {
         document.body.style.overflow = menuOpen ? 'hidden' : '';
         return () => { document.body.style.overflow = ''; };
@@ -588,6 +650,19 @@
               The Timeless <span>Perspective</span>
             </button>
             <div className="nav-links">
+              <div className="nav-news-wrapper">
+                <a className="nav-news" onClick={() => navTo('daily-news')}>Daily News</a>
+                <div className="nav-news-tooltip">
+                  <p>Daily Calendar for Day Traders</p>
+                  <div className="tooltip-items">
+                    <span>Red / Orange Folder News</span>
+                    <span>Release Times &amp; Impact Levels</span>
+                    <span>Forecast vs Previous vs Actual</span>
+                    <span>Weekly Event Strip</span>
+                    <span>Next Week Preview</span>
+                  </div>
+                </div>
+              </div>
               <a onClick={() => navTo('home')}>Home</a>
               <a onClick={() => navTo('tools')}>Tools</a>
               <a onClick={() => navTo('blog')}>Blog</a>
@@ -604,12 +679,9 @@
               </button>
             </div>
           </nav>
-
-          {/* Mobile overlay */}
           <div className={`mobile-overlay ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)} />
-
-          {/* Mobile drawer */}
           <div className={`mobile-drawer ${menuOpen ? 'open' : ''}`}>
+            <a className="mobile-drawer-news" onClick={() => navTo('daily-news')}>Daily News</a>
             <a onClick={() => navTo('home')}>Home</a>
             <a onClick={() => navTo('tools')}>Tools</a>
             <a onClick={() => navTo('blog')}>Articles</a>
@@ -816,10 +888,61 @@
       );
     }
 
+    function DailyNews({ setPage }) {
+      const [content, setContent] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [meta, setMeta] = useState('');
+
+      useEffect(() => {
+        fetch('daily-news.html')
+          .then(r => { if (!r.ok) throw new Error('not found'); return r.text(); })
+          .then(html => {
+            setContent(html);
+            setLoading(false);
+            const match = html.match(/generated\s+(\d{4}-[^-]+-[^T]+T[^\s]+Z)/);
+            if (match) {
+              const d = new Date(match[1]);
+              setMeta('LAST UPDATED: ' + d.toLocaleString('en-US', {
+                timeZone: 'America/New_York',
+                month: 'short', day: 'numeric',
+                hour: 'numeric', minute: '2-digit', hour12: true
+              }) + ' ET  \u2022  AUTO-REFRESHES AT 4:00 AM & 10:00 AM ET');
+            }
+          })
+          .catch(() => {
+            setContent('<div style="text-align:center;padding:60px 20px;color:#9e9e9e;"><div style="font-size:48px;margin-bottom:16px;">\ud83d\udce1</div><h2 style="color:#e0e0e0;font-size:20px;">Calendar Unavailable</h2><p style="font-size:14px;margin-top:8px;">The daily news will be generated at the next scheduled run.</p></div>');
+            setLoading(false);
+          });
+      }, []);
+
+      return (
+        <div className="daily-news-page">
+          <div className="daily-news-container">
+            <button className="tool-back" onClick={() => setPage('home')}>\u2190 Back to Home</button>
+            <div className="daily-news-header">
+              <h1>Daily <em>News</em></h1>
+            </div>
+            {meta && <div className="daily-news-meta">{meta}</div>}
+            <div className="daily-news-content">
+              {loading ? (
+                <div className="daily-news-loading">
+                  <div className="spinner"></div>
+                  <p>Loading economic calendar...</p>
+                </div>
+              ) : (
+                <div dangerouslySetInnerHTML={{__html: content}} />
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     function Footer({ setPage }) {
       return (
         <footer className="footer">
           <div className="footer-links">
+            <a onClick={() => setPage('daily-news')} style={{color:'#ff6b6b', fontWeight:600}}>Daily News</a>
             <a onClick={() => setPage('home')}>Home</a>
             <a onClick={() => setPage('tools')}>Tools</a>
             <a onClick={() => setPage('blog')}>Blog</a>
@@ -854,6 +977,8 @@
             </>
           )}
 
+          {page === 'daily-news' && <DailyNews setPage={setPage} />}
+
           {page === 'tools' && (
             <section className="tool-page">
               <div className="tool-page-inner">
@@ -873,20 +998,6 @@
               </div>
             </section>
           )}
-
-          {/* ── EMBEDDED TOOL PAGES ───────────────────────── */}
-          {TOOLS.map(tool => page === 'tool-' + tool.id && (
-            <div key={tool.id} className="tool-embed-page">
-              <div className="tool-embed-header">
-                <button className="tool-back" onClick={() => setPage('tools')}>← Back to Tools</button>
-                <a className="tool-embed-newtab" href={tool.file} target="_blank" rel="noopener noreferrer">
-                  Open in New Tab
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-                </a>
-              </div>
-              <iframe className="tool-embed-frame" src={tool.file + '?embed=true'} title={tool.name} />
-            </div>
-          ))}
 
           {page === 'blog' && (
             <section className="tool-page">
@@ -958,6 +1069,20 @@
               </div>
             </section>
           )}
+
+          {/* ── EMBEDDED TOOL PAGES ───────────────────────── */}
+          {TOOLS.map(tool => page === 'tool-' + tool.id && (
+            <div key={tool.id} className="tool-embed-page">
+              <div className="tool-embed-header">
+                <button className="tool-back" onClick={() => setPage('tools')}>\u2190 Back to Tools</button>
+                <a className="tool-embed-newtab" href={tool.file} target="_blank" rel="noopener noreferrer">
+                  Open in New Tab
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </div>
+              <iframe className="tool-embed-frame" src={tool.file + '?embed=true'} title={tool.name} />
+            </div>
+          ))}
 
           {BLOG_POSTS.map((post, i) => page === 'article-' + i && (
             <div key={i} className="article-page">
