@@ -12,7 +12,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-<style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --bg-primary: #0a0b0d;
@@ -60,46 +63,6 @@
       transition: color 0.2s; cursor: pointer;
     }
     .nav-links a:hover { color: var(--accent); }
-    .nav-news-wrapper { position: relative; }
-    .nav-news {
-      color: #ff6b6b; text-decoration: none; font-size: 0.85rem;
-      font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
-      transition: color 0.2s; cursor: pointer; position: relative; padding-left: 14px;
-    }
-    .nav-news::before {
-      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-      width: 7px; height: 7px; background: #ff6b6b;
-      border-radius: 50%; display: inline-block;
-      animation: newsPulse 2s ease-in-out infinite;
-    }
-    @keyframes newsPulse {
-      0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
-      50% { opacity: 0.4; transform: translateY(-50%) scale(0.7); }
-    }
-    .nav-news:hover { color: #ff9a9a; }
-    .nav-news-tooltip {
-      position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
-      background: #1a1b24; border: 1px solid var(--accent-dim); border-radius: 8px;
-      padding: 0.75rem 1rem; width: 260px; opacity: 0; visibility: hidden;
-      transition: all 0.25s ease; pointer-events: none; z-index: 200;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    }
-    .nav-news-tooltip::before {
-      content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
-      width: 10px; height: 10px; background: #1a1b24; border-left: 1px solid var(--accent-dim);
-      border-top: 1px solid var(--accent-dim);
-    }
-    .nav-news-wrapper:hover .nav-news-tooltip { opacity: 1; visibility: visible; }
-    .nav-news-tooltip p {
-      font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;
-      font-weight: 400; letter-spacing: 0; text-transform: none; margin: 0;
-    }
-    .nav-news-tooltip .tooltip-items {
-      font-size: 0.65rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6;
-    }
-    .nav-news-tooltip .tooltip-items span { display: block; }
-    .nav-news-tooltip .tooltip-items span::before { content: '▸ '; color: var(--accent); }
-
     .nav-cta {
       background: transparent; border: 1px solid var(--accent); color: var(--accent);
       padding: 0.5rem 1.2rem; font-size: 0.8rem; font-weight: 600;
@@ -107,14 +70,6 @@
       transition: all 0.3s; font-family: var(--font-body);
     }
     .nav-cta:hover { background: var(--accent); color: var(--bg-primary); }
-
-    .daily-news-page { padding: 5.5rem 1rem 2rem; background: var(--bg-primary); min-height: 100vh; }
-    .daily-news-container { max-width: 1020px; margin: 0 auto; }
-    .daily-news-meta {
-      text-align: center; margin-bottom: 1rem; font-family: var(--font-mono);
-      font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em;
-    }
-    .daily-news-content { border-radius: 12px; overflow: hidden; }
 
     .hero {
       min-height: auto; display: flex; flex-direction: column;
@@ -359,70 +314,34 @@
       section { padding: 2rem 1.25rem; }
       .hero { padding: 6rem 1.25rem 2rem; }
       .calc-container, .results-container { padding: 1.5rem; }
-      .daily-news-page { padding: 4.5rem 0.5rem 1rem; }
-      .nav-news-tooltip { display: none; }
     }
   </style>
 </head>
 <body>
-  <!-- NAV -->
-  <nav class="nav" id="main-nav">
-    <button class="nav-logo" onclick="navigate('home')">
-      The Timeless <span>Perspective</span>
-    </button>
-    <div class="nav-links">
-      <div class="nav-news-wrapper">
-        <a class="nav-news" onclick="navigate('daily-news')">Daily News</a>
-        <div class="nav-news-tooltip">
-          <p style="font-weight:600; color:#e8e6e1; margin-bottom:0.3rem;">Daily News</p>
-          <div class="tooltip-items">
-            <span>Key Insights</span>
-            <span>Red/Orange Folder News &amp; Results</span>
-            <span>US Gov't News</span>
-            <span>Key Earnings Flow</span>
-            <span>Daily Calendar for Day Traders</span>
-          </div>
-          <p style="margin-top:0.5rem; font-size:0.6rem; color:#5f5e70;">Auto-updated 4 AM &amp; 10 AM ET</p>
-        </div>
-      </div>
-      <a onclick="navigate('home')">Home</a>
-      <a onclick="navigate('tools')">Tools</a>
-      <a onclick="navigate('blog')">Blog</a>
-      <a onclick="navigate('book')">Book</a>
-      <a onclick="navigate('reading')">Reading</a>
-    </div>
-    <button class="nav-cta">Subscribe</button>
-  </nav>
+  <div id="root"></div>
 
-  <!-- APP CONTAINER -->
-  <div id="app"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
 
-  <!-- FOOTER (always visible) -->
-  <footer class="footer">
-    <div class="footer-links">
-      <a onclick="navigate('daily-news')" style="color:#ff6b6b;font-weight:600">Daily News</a>
-      <a onclick="navigate('home')">Home</a>
-      <a onclick="navigate('tools')">Tools</a>
-      <a onclick="navigate('blog')">Blog</a>
-      <a onclick="navigate('book')">Book</a>
-      <a href="https://x.com/CandyCabin75" target="_blank">X / @CandyCabin75</a>
-      <a onclick="navigate('reading')">Reading List</a>
-    </div>
-    <div class="footer-copy">&copy; 2026 The Timeless Perspective</div>
-    <div class="footer-disclaimer">
-      Trading futures and options involves substantial risk of loss and is not suitable for all investors. Past performance is not indicative of future results.
-    </div>
-  </footer>
-
-  <script>
     // ── DATA ────────────────────────────────────────────────────────────────
     const TOOLS = [
-      { id: 'streak-explorer', name: 'Streak Explorer', icon: '📉', status: 'live', file: 'streak-explorer.html', desc: 'Explore losing streak probabilities with exact Markov chain math. Heatmaps, percentile-based risk metrics, drawdown and recovery analysis.' },
-      { id: 'position-sizer', name: 'Position Sizer', icon: '⚡', status: 'live', file: 'position-sizer.html', desc: 'Calculate your optimal position size based on account balance, risk per trade, and stop distance. Built for futures traders.' },
-      { id: 'goal-calculator', name: 'Goal Calculator', icon: '🎯', status: 'live', file: 'goal-calculator.html', desc: 'Model your path from current account to target balance. See how win rate, R-multiple, and bet size compound over time.' }
+      { id: 'losing-streak', name: 'Losing Streak Estimator', icon: '📉', status: 'live', desc: 'Calculate your expected worst losing streak. Input your win rate and trade count to prepare psychologically for rough patches.' },
+      { id: 'drawdown-sim', name: 'Drawdown Simulator', icon: '⚡', status: 'coming', desc: 'Load your system data and simulate worst-case 20-trade sequences. Play with balance, risk %, and fixed dollar risk.' },
+      { id: 'monte-carlo', name: 'Monte Carlo Position Sizer', icon: '🎲', status: 'coming', desc: 'Run thousands of simulations on your system. Find the 1% and 2% extreme drawdown scenarios to size for survival.' },
+      { id: 'psych-risk', name: 'Psych Risk Dial', icon: '🧠', status: 'coming', desc: 'Based on your account size and pain threshold, find the position size that lets you trade without losing sleep.' },
+      { id: 'breakeven', name: 'Break-Even Curve Calculator', icon: '📊', status: 'coming', desc: 'Input your win rate, see the minimum R-multiple needed to break even. Compare high vs. low win rate systems visually.' },
+      { id: 'journal', name: 'Trade Journal Analyzer', icon: '📝', status: 'coming', desc: 'Upload your trade log. Flags revenge trades, rule breaks, and emotional patterns to build self-awareness.' }
     ];
 
     const BLOG_POSTS = [
+      {
+        date: 'Article 3 — The Bet Size Series',
+        title: 'Stop Asking "35% Win Rate or 70% Win Rate?" You\'re Asking the Wrong Question.',
+        excerpt: 'Two systems. Same expectancy. Completely different outcomes. The variable everyone ignores is losing streaks — and whether your psychology can survive them.',
+        tag: 'Position Sizing',
+        banner: 'banner_article3.png',
+        bodyHtml: '<p><em>In Article 2, I showed you why the 1% rule is lazy, arbitrary, and quietly destroying your results. If you haven\'t read it, start there. This article builds directly on that proof.</em></p>\n<hr/>\n<p>You\'ve seen this question a hundred times in trading forums:</p>\n<blockquote>"Would you rather trade a 35% win rate system with 3R average winners, or a 70% win rate system with 1R average winners?"</blockquote>\n<p>It sounds like a smart question. It sounds like the kind of thing serious traders debate.</p>\n<p>It\'s the wrong question entirely. And the reason it\'s wrong tells you almost everything you need to know about why most traders eventually fail.</p>\n<h2>Both systems are profitable. Neither system is tradeable — until you answer a different question.</h2>\n<p>Run the expectancy math on both systems. The 35% / 3R system produces +0.40R per trade. The 70% / 1R system also produces +0.40R per trade. Identical. On paper, these systems are twins.</p>\n<p>But expectancy doesn\'t trade. You do.</p>\n<p>And the variable that separates a profitable system from an abandoned one isn\'t expectancy — it\'s how many losses in a row the system will throw at you, and whether you can keep executing when it does.</p>\n<h2>The nutrition analogy.</h2>\n<p>Every nutritionist will tell you the same thing: the best diet is the one you can stick to.</p>\n<p>A theoretically perfect meal plan that you abandon after three weeks produces worse results than a decent plan you follow for a year. Compliance beats optimization every time.</p>\n<p>Trading systems work exactly the same way.</p>\n<p>A 35% win rate system with a 0.40R edge will lose 7, 8, 9, 10 trades in a row on a regular basis. Not as a rare event. As a feature of the math. That\'s what a 35% win rate does — it clusters losses into brutal, extended streaks that feel like the system is broken.</p>\n<p>A 70% win rate system will still hit 3, 4, maybe 5 losses in a row. But those streaks are shorter, less frequent, and psychologically easier to survive.</p>\n<p>So the real question isn\'t which system has better expectancy. It\'s which system you can actually execute through the worst stretch it will ever produce — without flinching, without reducing size, without abandoning the rules.</p>\n<p>For most traders, the answer is: the one with shorter losing streaks.</p>\n<h2>But psychology is only half the answer.</h2>\n<p>I don\'t want to leave you with "just pick the system you can handle." That\'s true but incomplete.</p>\n<p>The best system satisfies two criteria, in this order:</p>\n<p><strong>1. It\'s the one you can stick to.</strong> Through the losing streaks. Through the drawdowns. Through the stretch where every other trader on Twitter seems to be printing money and you\'re watching red trade after red trade stack up. If you can\'t execute it consistently, the math never gets a chance to work.</p>\n<p><strong>2. It\'s the one that makes you the most money.</strong> And this — critically — is not determined by expectancy alone. It\'s determined by position sizing.</p>\n<p>Here\'s where the real edge lives.</p>\n<h2>Profitability is achieved through position sizing.</h2>\n<p>Two traders can run the exact same system with the exact same trades and end up with wildly different account balances. I proved this in Article 1. The only variable is bet size.</p>\n<p>I advocate a percentage-risk compounding approach: risk a fixed percentage of your current equity on every trade. Your true currency risk declines as your equity declines, and it increases as your equity increases. This is not static dollar risk — it\'s dynamic. It breathes with your account.</p>\n<p>When you compound this way, the math rewards you twice: once on the winners, and again through the compounding effect of growing position sizes as equity grows.</p>\n<p>But there\'s a trap inside this approach, and it will catch you if you don\'t understand one number.</p>\n<h2>How many losses in a row will your system produce?</h2>\n<p>Not "might." Will.</p>\n<p>This is the most important number in position sizing, and almost nobody calculates it properly.</p>\n<p>Most traders look at their trade log and say: "My worst streak was 6 losses in a row over 100 trades." Then they size for a 6-loss streak.</p>\n<p>That\'s not enough.</p>\n<p>100 trades is a tiny sample. It\'s like checking the weather for one week and concluding it never snows. Your observed worst streak is almost certainly not your true worst streak. You just haven\'t traded long enough to see it yet.</p>\n<h2>Sample size changes everything.</h2>\n<p>Here\'s the math that most traders ignore:</p>\n<p>Your worst losing streak over 100 trades probably doesn\'t reflect the real number. Over 500 trades, you\'ll see worse. Over 1,000 trades, worse still. The more you trade, the more the tails reveal themselves.</p>\n<p>This is why I use what I call the P2 streak.</p>\n<p>P2 is the losing streak that only occurs about 2%% of the time. It\'s not your typical bad stretch — it\'s the one that makes you question everything. The one that feels like the system is broken, like the market has changed, like you\'ve lost your edge.</p>\n<p>It\'s not any of those things. It\'s just the math doing exactly what the math does over a large enough sample.</p>\n<p>Here\'s how to think about it: if you take 1,000 trades, you can expect a 20-trade window somewhere in that sequence to be truly awful. Not average-bad. Not "I had a rough week." The kind of stretch where you stare at your P&L and wonder if you should be doing something else with your life.</p>\n<p>That\'s the P2 streak. And it\'s the streak you should be sizing for.</p>\n<h2>Size for the storm you haven\'t seen yet.</h2>\n<p>Most traders size for the losing streak they\'ve already experienced. That\'s like building a house to survive last year\'s hurricane.</p>\n<p>You need to size for the P2 event — the worst streak that probability says your system will deliver over the long run.</p>\n<p>Here\'s what the P2 streak looks like across a range of win rates — assuming 1,000 trades at 2%% risk per trade:</p>\n<p><img src="p2_table.png" alt="P2 Losing Streaks Table" style="width:100%%;max-width:800px;border-radius:8px;margin:1rem 0;" /></p>\n<p>Read that table slowly. A 50%% win rate system — which feels like a coin flip, which feels manageable — will at some point deliver 14 losses in a row. At just 2%% risk, that\'s a quarter of your account. Gone. Not because your system is broken. Because that\'s what 50%% win rates do over 1,000 trades.</p>\n<p>And look at the 35%% system — the one with the <em>identical expectancy</em> to the 70%% system from our original question. Twenty-two consecutive losses. A 36%% drawdown. At 2%% risk. Same expected profit per trade. Completely different lived experience. Most traders would abandon that system long before loss number 15. They\'d convince themselves the edge disappeared. They\'d change something. And the math would never get its chance to recover.</p>\n<p>Now ask yourself: at your current position size, can your account survive your P2 streak? Can your psychology survive it?</p>\n<p>If the answer to either question is no, you\'re sized too large. It doesn\'t matter how good your expectancy is. It doesn\'t matter that your average month is profitable. The P2 streak doesn\'t care about your average month.</p>\n<h2>This is where the two questions converge.</h2>\n<p>Remember the original question — 35%% win rate or 70%% win rate?</p>\n<p>Both systems have the same expectancy: +0.40R per trade. On a spreadsheet, they\'re identical. In your trading account, they\'re not even close.</p>\n<p>The 35%% system\'s P2 streak is 22 consecutive losses — a 36%% drawdown at 2%% risk. If you can survive that stretch psychologically and financially, the math will reward you. But most traders can\'t. Most traders will break somewhere around loss 12 or 13, long before the system gets a chance to recover.</p>\n<p>The 70%% system\'s P2 streak is 8 losses — a 15%% drawdown. Manageable. Survivable. You can size more aggressively — and because you can compound through shorter drawdowns more quickly, the 70%% system may actually outperform the 35%% system in practice, despite identical expectancy on paper.</p>\n<p>Neither answer is universal. But the right answer for YOU depends entirely on:</p>\n<p>How much drawdown you can genuinely endure without breaking your rules. What losing streak your system will produce at the P2 level. And how you size your positions to survive that streak while still compounding aggressively enough to build wealth.</p>\n<h2>The bottom line.</h2>\n<p>Stop debating which system has better expectancy. Start asking which system produces losing streaks you can survive — and then size your positions so that the worst 20-trade window your system will ever produce doesn\'t destroy your account or your conviction.</p>\n<p>The best system isn\'t the one with the best math on a spreadsheet.</p>\n<p>It\'s the one where the math, the losing streaks, and your psychology all align — and then you size it properly.</p>\n<p>That\'s the system you can stick to. And the one you stick to is the one that makes you money.</p>\n<p>But here\'s where this gets really interesting.</p>\n<p>If position sizing can be calibrated to survive any system\'s losing streaks — if the math lets you adjust your bet size so that a 35%% system and a 70%% system both produce survivable drawdowns — then bet size becomes the great equalizer. It doesn\'t just complement your system. It absorbs the differences between systems entirely.</p>\n<p>Which raises a question that should make you uncomfortable:</p>\n<p><em>Does the system actually matter?</em></p>\n<p>That\'s Article 4.</p>'
+      },
       {
         date: 'Article 1 — The Bet Size Series',
         title: '10 Traders. Same System. Zero Mistakes. 10 Completely Different Results. Here’s Why.',
@@ -473,367 +392,354 @@
       { title: 'The Power of Now', author: 'Eckhart Tolle', desc: 'Timeless presence applied to trading decisions.' }
     ];
 
+    // ── COMPONENTS ──────────────────────────────────────────────────────────
+    function Nav({ currentPage, setPage }) {
+      const [scrolled, setScrolled] = useState(false);
 
-    // ── STATE ───────────────────────────────────────────────────────────────
-    let currentPage = 'home';
+      useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, []);
 
-    // ── NAV SCROLL ─────────────────────────────────────────────────────────
-    window.addEventListener('scroll', function() {
-      const nav = document.getElementById('main-nav');
-      if (window.scrollY > 20) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
-      }
-    });
-
-    // ── NAVIGATION ─────────────────────────────────────────────────────────
-    function navigate(page) {
-      currentPage = page;
-      render();
-      window.scrollTo(0, 0);
-    }
-
-    // ── RENDER HELPERS ─────────────────────────────────────────────────────
-    function escapeHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    function renderToolCard(tool) {
-      const onclick = tool.file ? ` onclick="window.open('${tool.file}','_blank')"` : '';
-      return `
-        <div class="tool-card"${onclick}>
-          <div class="tool-status live">LIVE</div>
-          <div class="tool-icon">${tool.icon}</div>
-          <h3 class="tool-name">${tool.name}</h3>
-          <p class="tool-desc">${tool.desc}</p>
-        </div>`;
-    }
-
-    function renderBlogCard(post, index) {
-      const bannerHtml = (post.banner && post.banner.length > 10)
-        ? `<img src="${post.banner}" alt="${escapeHtml(post.title)}" class="blog-banner" />`
-        : '';
-      return `
-        <div class="blog-card" onclick="navigate('article-${index}')">
-          ${bannerHtml}
-          <div class="blog-card-body">
-            <div class="blog-date">${post.date}</div>
-            <h3 class="blog-title">${post.title}</h3>
-            <p class="blog-excerpt">${post.excerpt}</p>
-            <div class="blog-tag">${post.tag}</div>
+      return (
+        <nav className={`nav ${scrolled ? 'scrolled' : ''}`}>
+          <button className="nav-logo" onClick={() => setPage('home')}>
+            The Timeless <span>Perspective</span>
+          </button>
+          <div className="nav-links">
+            <a onClick={() => setPage('home')}>Home</a>
+            <a onClick={() => setPage('tools')}>Tools</a>
+            <a onClick={() => setPage('blog')}>Blog</a>
+            <a onClick={() => setPage('book')}>Book</a>
+            <a onClick={() => setPage('reading')}>Reading</a>
           </div>
-        </div>`;
+          <button className="nav-cta">Subscribe</button>
+        </nav>
+      );
     }
 
-    function renderReadingCard(book) {
-      const isMentor = book.author.includes('Martin') || book.author.includes('Howell') || book.author.includes('Jorge');
-      return `
-        <div class="reading-card ${isMentor ? 'mentor' : ''}">
-          ${isMentor ? '<div class="reading-mentor-badge">Personal Mentor</div>' : ''}
-          <h3 class="reading-title">${book.title}</h3>
-          <div class="reading-author">${book.author}</div>
-          <p class="reading-desc">${book.desc}</p>
-        </div>`;
-    }
-
-    function renderDailyNews() {
-      // Trigger async fetch after render
-      setTimeout(loadDailyNews, 0);
-      return `
-        <div class="daily-news-page">
-          <div class="daily-news-container">
-            <div class="daily-news-meta" id="dn-meta">
-              AUTO-REFRESHES AT 4:00 AM &amp; 10:00 AM ET
+    function Hero({ setPage }) {
+      return (
+        <section className="hero">
+          <div className="hero-inner">
+            <div className="hero-tag">
+              <span>FROM EXECUTIVE TO EDGE</span>
             </div>
-            <div class="daily-news-content" id="dn-content">
-              <div style="text-align:center; padding:80px 20px; color:#9e9e9e;">
-                <div style="font-size:32px; margin-bottom:12px;">📡</div>
-                <p>Loading daily news...</p>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function loadDailyNews() {
-      fetch('daily-news.html?t=' + Date.now())
-        .then(function(res) {
-          if (!res.ok) throw new Error('Not found');
-          return res.text();
-        })
-        .then(function(html) {
-          var el = document.getElementById('dn-content');
-          if (el) el.innerHTML = html;
-          // Extract timestamp from comment
-          var match = html.match(/generated\s+(\d{4}-\d{2}-\d{2}T[\d:.]+Z)/);
-          if (match) {
-            var d = new Date(match[1]);
-            var meta = document.getElementById('dn-meta');
-            if (meta) {
-              meta.textContent = 'LAST UPDATED: ' + d.toLocaleString('en-US', {
-                timeZone: 'America/New_York',
-                month: 'short', day: 'numeric',
-                hour: 'numeric', minute: '2-digit', hour12: true
-              }) + ' ET  •  AUTO-REFRESHES AT 4:00 AM & 10:00 AM ET';
-            }
-          }
-        })
-        .catch(function() {
-          var el = document.getElementById('dn-content');
-          if (el) el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#9e9e9e;"><div style="font-size:48px;margin-bottom:16px;">📡</div><h2 style="color:#e0e0e0;font-size:20px;">Calendar Unavailable</h2><p style="font-size:14px;margin-top:8px;">The daily news will be generated at the next scheduled run.</p></div>';
-        });
-    }
-
-    // ── PAGE TEMPLATES ─────────────────────────────────────────────────────
-    function renderHome() {
-      return `
-        <section class="hero">
-          <div class="hero-inner">
-            <div class="hero-tag"><span>FROM EXECUTIVE TO EDGE</span></div>
             <h1>Master Position Sizing.<br/>Master <em>Your Mind</em>.</h1>
-            <p class="hero-sub">
+            <p className="hero-sub">
               Former petroleum engineering leader turned full-time futures trader.
               Building <strong>asymmetric returns</strong> through psychology-first position sizing.
             </p>
-            <div class="hero-stats">
+
+            <div className="hero-stats">
               <div>
-                <div class="hero-stat-value">19.7&times;</div>
-                <div class="hero-stat-label">TTM Return</div>
+                <div className="hero-stat-value">19.7×</div>
+                <div className="hero-stat-label">TTM Return</div>
               </div>
               <div>
-                <div class="hero-stat-value">10,000+</div>
-                <div class="hero-stat-label">Live Market Hours</div>
+                <div className="hero-stat-value">10,000+</div>
+                <div className="hero-stat-label">Live Market Hours</div>
               </div>
               <div>
-                <div class="hero-stat-value">18 mo</div>
-                <div class="hero-stat-label">Elite Psych Coaching</div>
+                <div className="hero-stat-value">18 mo</div>
+                <div className="hero-stat-label">Elite Psych Coaching</div>
               </div>
             </div>
-            <div class="hero-actions">
-              <button class="btn-primary" onclick="navigate('tools')">Explore Free Tools &rarr;</button>
-              <button class="btn-secondary" onclick="navigate('reading')">Recommended Reading</button>
+
+            <div className="hero-actions">
+              <button className="btn-primary" onClick={() => setPage('tools')}>
+                Explore Free Tools →
+              </button>
+              <button className="btn-secondary" onClick={() => setPage('reading')}>
+                Recommended Reading
+              </button>
             </div>
           </div>
         </section>
+      );
+    }
 
-        <section class="about">
-          <div class="section-inner">
-            <div class="about-grid">
-              <div class="about-text">
-                <h2 class="section-title">From Billion-Dollar Assets to Daily Charts</h2>
+    function About() {
+      return (
+        <section className="about">
+          <div className="section-inner">
+            <div className="about-grid">
+              <div className="about-text">
+                <h2 className="section-title">From Billion-Dollar Assets to Daily Charts</h2>
                 <p>20 years optimizing complex energy systems under uncertainty at Hess and Kosmos gave me the probabilistic foundation for professional trading.</p>
-                <p>Since going full-time in 2020, I&rsquo;ve logged <strong>10,000+</strong> live market hours, worked with elite trading psychologists, and developed <em>The Timeless Perspective</em> &mdash; a framework that turns performance anxiety into effortless consistency.</p>
+                <p>Since going full-time in 2020, I've logged <strong>10,000+</strong> live market hours, worked with elite trading psychologists, and developed <em>The Timeless Perspective</em> — a framework that turns performance anxiety into effortless consistency.</p>
                 <p>Now writing the book on position sizing most traders never received.</p>
               </div>
+
               <div>
-                <div class="about-milestones">
-                  <div class="milestone">
-                    <div class="milestone-year">2025</div>
-                    <div class="milestone-title">Intentional $10K &rarr; $207K Challenge</div>
-                    <div class="milestone-desc">1,970% return focused purely on skill and psychology &mdash; no large capital pressure.</div>
+                <div className="about-milestones">
+                  <div className="milestone">
+                    <div className="milestone-year">2025</div>
+                    <div className="milestone-title">Intentional $10K → $207K Challenge</div>
+                    <div className="milestone-desc">1,970% return focused purely on skill and psychology — no large capital pressure.</div>
                   </div>
-                  <div class="milestone">
-                    <div class="milestone-year">2020&ndash;Present</div>
-                    <div class="milestone-title">Full-Time Futures Trading</div>
-                    <div class="milestone-desc">Specializing in ES, NQ, YM, RTY, Gold, CL, NG. Daily timeframe liquidity engineering setups.</div>
+                  <div className="milestone">
+                    <div className="milestone-year">2020–Present</div>
+                    <div className="milestone-title">Full-Time Futures Trading</div>
+                    <div className="milestone-desc">Specializing in ES, NQ, YM, RTY, Gold, CL, NG. Daily timeframe liquidity engineering setups.</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
+      );
+    }
 
-        <section class="tools">
-          <div class="section-inner">
-            <div class="section-tag">FREE TRADER TOOLS</div>
-            <h2 class="section-title">Prepare Your Mind &amp; Math</h2>
-            <p class="section-desc">Tools built from real trading scars &mdash; designed to help you size correctly and survive the psychological reality of drawdowns.</p>
-            <div class="tools-grid">
-              ${TOOLS.map(t => renderToolCard(t)).join('')}
+    function ToolsSection({ setPage }) {
+      return (
+        <section className="tools">
+          <div className="section-inner">
+            <div className="section-tag">FREE TRADER TOOLS</div>
+            <h2 className="section-title">Prepare Your Mind & Math</h2>
+            <p className="section-desc">Tools built from real trading scars — designed to help you size correctly and survive the psychological reality of drawdowns.</p>
+
+            <div className="tools-grid">
+              {TOOLS.map(tool => (
+                <div key={tool.id} className="tool-card" onClick={() => tool.status === 'live' && setPage(tool.id)}>
+                  <div className={`tool-status ${tool.status}`}>{tool.status === 'live' ? 'LIVE' : 'COMING SOON'}</div>
+                  <div className="tool-icon">{tool.icon}</div>
+                  <h3 className="tool-name">{tool.name}</h3>
+                  <p className="tool-desc">{tool.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+      );
+    }
 
-        <section class="book">
-          <div class="section-inner">
-            <div class="book-layout">
-              <div class="book-cover">
-                <div class="book-cover-tag">COMING 2026</div>
-                <h2 class="book-cover-title">Position Sizing</h2>
-                <p class="book-cover-subtitle">The Most Underutilized Edge in Trading</p>
+    function BookSection({ setPage }) {
+      return (
+        <section className="book">
+          <div className="section-inner">
+            <div className="book-layout">
+              <div className="book-cover">
+                <div className="book-cover-tag">COMING 2026</div>
+                <h2 className="book-cover-title">Position Sizing</h2>
+                <p className="book-cover-subtitle">The Most Underutilized Edge in Trading</p>
               </div>
-              <div class="book-info">
-                <h3>Most traders have an <em>edge</em>.<br/>They just aren&rsquo;t <em>sized</em> for it.</h3>
-                <p>After 10,000+ hours, multiple elite psychology coaches, and turning $10K into $207K in 2025 through psychology-first sizing &mdash; I&rsquo;m writing the book I wish existed when I started.</p>
-                <p class="book-quote">
-                  &ldquo;You don&rsquo;t blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology.&rdquo;
+
+              <div className="book-info">
+                <h3>Most traders have an <em>edge</em>.<br/>They just aren’t <em>sized</em> for it.</h3>
+                <p>After 10,000+ hours, multiple elite psychology coaches, and turning $10K into $207K in 2025 through psychology-first sizing — I’m writing the book I wish existed when I started.</p>
+                <p className="book-quote">
+                  “You don’t blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology.”
                 </p>
-                <div class="hero-actions" style="margin-top:1.5rem">
-                  <button class="btn-primary" onclick="navigate('book')">Join the Waitlist &rarr;</button>
+                <div className="hero-actions" style={{marginTop:'1.5rem'}}>
+                  <button className="btn-primary" onClick={() => setPage('book')}>Join the Waitlist →</button>
                 </div>
               </div>
             </div>
           </div>
         </section>
+      );
+    }
 
-        <section class="blog">
-          <div class="section-inner">
-            <div class="section-tag">THE BET SIZE SERIES + MORE</div>
-            <h2 class="section-title">Articles &amp; Deep Dives</h2>
-            <p class="section-desc">Long-form thinking on position sizing, psychology, and timeless execution.</p>
-            <div class="blog-grid">
-              ${BLOG_POSTS.map((p, i) => renderBlogCard(p, i)).join('')}
+    function BlogSection({ setPage }) {
+      return (
+        <section className="blog">
+          <div className="section-inner">
+            <div className="section-tag">THE BET SIZE SERIES + MORE</div>
+            <h2 className="section-title">Articles & Deep Dives</h2>
+            <p className="section-desc">Long-form thinking on position sizing, psychology, and timeless execution.</p>
+
+            <div className="blog-grid">
+              {BLOG_POSTS.map((post, i) => (
+                <div key={i} className="blog-card" onClick={() => setPage('article-' + i)}>
+                  {post.banner && post.banner.length > 10 && <img src={post.banner} alt={post.title} className="blog-banner" />}
+                  <div className="blog-card-body">
+                    <div className="blog-date">{post.date}</div>
+                    <h3 className="blog-title">{post.title}</h3>
+                    <p className="blog-excerpt">{post.excerpt}</p>
+                    <div className="blog-tag">{post.tag}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+      );
+    }
 
-        <section class="reading">
-          <div class="section-inner">
-            <div class="section-tag">MENTOR SHELF</div>
-            <h2 class="section-title">Books That Shaped Me</h2>
-            <p class="section-desc">The library behind The Timeless Perspective &mdash; trading psychology, position sizing, and performance identity.</p>
-            <div class="reading-grid">
-              ${READING_LIST.map(b => renderReadingCard(b)).join('')}
+    function ReadingSection() {
+      return (
+        <section className="reading">
+          <div className="section-inner">
+            <div className="section-tag">MENTOR SHELF</div>
+            <h2 className="section-title">Books That Shaped Me</h2>
+            <p className="section-desc">The library behind The Timeless Perspective — trading psychology, position sizing, and performance identity.</p>
+
+            <div className="reading-grid">
+              {READING_LIST.map((book, i) => (
+                <div key={i} className={`reading-card ${book.author.includes('Martin') || book.author.includes('Howell') || book.author.includes('Jorge') ? 'mentor' : ''}`}>
+                  {(book.author.includes('Martin') || book.author.includes('Howell') || book.author.includes('Jorge')) && <div className="reading-mentor-badge">Personal Mentor</div>}
+                  <h3 className="reading-title">{book.title}</h3>
+                  <div className="reading-author">{book.author}</div>
+                  <p className="reading-desc">{book.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+      );
+    }
 
-        <section class="newsletter">
-          <div class="section-inner">
-            <h2 class="section-title">Stay in the Loop</h2>
-            <p class="section-desc">Get early book chapters, new tools, and psychology-first position sizing insights delivered directly.</p>
-            <form class="newsletter-form">
-              <input class="newsletter-input" placeholder="your@email.com" type="email" />
-              <button class="newsletter-btn">Subscribe</button>
+    function Newsletter() {
+      return (
+        <section className="newsletter">
+          <div className="section-inner">
+            <h2 className="section-title">Stay in the Loop</h2>
+            <p className="section-desc">Get early book chapters, new tools, and psychology-first position sizing insights delivered directly.</p>
+
+            <form className="newsletter-form">
+              <input className="newsletter-input" placeholder="your@email.com" type="email" />
+              <button className="newsletter-btn">Subscribe</button>
             </form>
-            <p class="newsletter-note">No spam. Unsubscribe anytime.</p>
+            <p className="newsletter-note">No spam. Unsubscribe anytime.</p>
           </div>
-        </section>`;
+        </section>
+      );
     }
 
-    function renderToolsPage() {
-      return `
-        <section class="tool-page">
-          <div class="tool-page-inner">
-            <button class="tool-back" onclick="navigate('home')">&larr; Back to Home</button>
-            <h1>Trading Tools</h1>
-            <p class="tool-page-desc">Psychological preparation meets mathematical reality. Start with the Losing Streak Estimator &mdash; live now.</p>
-            <div class="tools-grid">
-              ${TOOLS.map(t => renderToolCard(t)).join('')}
-            </div>
+    function Footer({ setPage }) {
+      return (
+        <footer className="footer">
+          <div className="footer-links">
+            <a onClick={() => setPage('home')}>Home</a>
+            <a onClick={() => setPage('tools')}>Tools</a>
+            <a onClick={() => setPage('blog')}>Blog</a>
+            <a onClick={() => setPage('book')}>Book</a>
+            <a href="https://x.com/CandyCabin75" target="_blank">X / @CandyCabin75</a>
+            <a onClick={() => setPage('reading')}>Reading List</a>
           </div>
-        </section>`;
+          <div className="footer-copy">© 2026 The Timeless Perspective</div>
+          <div className="footer-disclaimer">
+            Trading futures and options involves substantial risk of loss and is not suitable for all investors. Past performance is not indicative of future results.
+          </div>
+        </footer>
+      );
     }
 
-    function renderBlogPage() {
-      return `
-        <section class="tool-page">
-          <div class="tool-page-inner">
-            <button class="tool-back" onclick="navigate('home')">&larr; Back to Home</button>
-            <h1>Articles &amp; Deep Dives</h1>
-            <p class="tool-page-desc">Long-form thinking on position sizing, psychology, and timeless execution.</p>
-            <div class="blog-grid" style="margin-top:2rem">
-              ${BLOG_POSTS.map((p, i) => renderBlogCard(p, i)).join('')}
-            </div>
-          </div>
-        </section>`;
-    }
+    function App() {
+      const [page, setPage] = useState('home');
 
-    function renderBookPage() {
-      return `
-        <section style="padding:6rem 2rem 4rem">
-          <div class="section-inner">
-            <button class="tool-back" onclick="navigate('home')">&larr; Back to Home</button>
-            <div class="book-layout" style="margin-top:2rem">
-              <div class="book-cover">
-                <div class="book-cover-tag">COMING 2026</div>
-                <h2 class="book-cover-title">Position Sizing</h2>
-                <p class="book-cover-subtitle">The Most Underutilized Edge in Trading</p>
-              </div>
-              <div class="book-info">
-                <h3>Most traders have an <em>edge</em>.<br/>They just aren&rsquo;t <em>sized</em> for it.</h3>
-                <p>After 10,000+ hours, multiple elite psychology coaches, and turning $10K into $207K in 2025 through psychology-first sizing &mdash; I&rsquo;m writing the book I wish existed when I started.</p>
-                <p class="book-quote">
-                  &ldquo;You don&rsquo;t blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology.&rdquo;
-                </p>
-                <p>Join the waitlist for early chapters, tools, and launch updates.</p>
-                <div class="newsletter-form" style="margin-top:1.5rem;max-width:420px">
-                  <input class="newsletter-input" placeholder="your@email.com" type="email" />
-                  <button class="newsletter-btn">Join Waitlist</button>
+      return (
+        <>
+          <Nav currentPage={page} setPage={setPage} />
+
+          {page === 'home' && (
+            <>
+              <Hero setPage={setPage} />
+              <About />
+              <ToolsSection setPage={setPage} />
+              <BookSection setPage={setPage} />
+              <BlogSection setPage={setPage} />
+              <ReadingSection />
+              <Newsletter />
+            </>
+          )}
+
+          {page === 'tools' && (
+            <section className="tool-page">
+              <div className="tool-page-inner">
+                <button className="tool-back" onClick={() => setPage('home')}>← Back to Home</button>
+                <h1>Trading Tools</h1>
+                <p className="tool-page-desc">Psychological preparation meets mathematical reality. Start with the Losing Streak Estimator — live now.</p>
+                <div className="tools-grid">
+                  {TOOLS.map(tool => (
+                    <div key={tool.id} className="tool-card">
+                      <div className={`tool-status ${tool.status}`}>{tool.status.toUpperCase()}</div>
+                      <div className="tool-icon">{tool.icon}</div>
+                      <h3 className="tool-name">{tool.name}</h3>
+                      <p className="tool-desc">{tool.desc}</p>
+                    </div>
+                  ))}
                 </div>
-                <p class="newsletter-note">No spam. Early access only.</p>
+              </div>
+            </section>
+          )}
+
+          {page === 'blog' && (
+            <section className="tool-page">
+              <div className="tool-page-inner">
+                <button className="tool-back" onClick={() => setPage('home')}>← Back to Home</button>
+                <h1>Articles & Deep Dives</h1>
+                <p className="tool-page-desc">Long-form thinking on position sizing, psychology, and timeless execution.</p>
+                <div className="blog-grid" style={{marginTop:'2rem'}}>
+                  {BLOG_POSTS.map((post, i) => (
+                    <div key={i} className="blog-card" onClick={() => setPage('article-' + i)}>
+                      {post.banner && post.banner.length > 10 && <img src={post.banner} alt={post.title} className="blog-banner" />}
+                      <div className="blog-card-body">
+                        <div className="blog-date">{post.date}</div>
+                        <h3 className="blog-title">{post.title}</h3>
+                        <p className="blog-excerpt">{post.excerpt}</p>
+                        <div className="blog-tag">{post.tag}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {page === 'book' && (
+            <section style={{padding:'6rem 2rem 4rem'}}>
+              <div className="section-inner">
+                <button className="tool-back" onClick={() => setPage('home')}>← Back to Home</button>
+                <div className="book-layout" style={{marginTop:'2rem'}}>
+                  <div className="book-cover">
+                    <div className="book-cover-tag">COMING 2026</div>
+                    <h2 className="book-cover-title">Position Sizing</h2>
+                    <p className="book-cover-subtitle">The Most Underutilized Edge in Trading</p>
+                  </div>
+                  <div className="book-info">
+                    <h3>Most traders have an <em>edge</em>.<br/>They just aren't <em>sized</em> for it.</h3>
+                    <p>After 10,000+ hours, multiple elite psychology coaches, and turning $10K into $207K in 2025 through psychology-first sizing — I'm writing the book I wish existed when I started.</p>
+                    <p className="book-quote">
+                      "You don't blow up because your system failed.<br/>You blow up because your <em>size</em> failed your psychology."
+                    </p>
+                    <p>Join the waitlist for early chapters, tools, and launch updates.</p>
+                    <div className="newsletter-form" style={{marginTop:'1.5rem', maxWidth:'420px'}}>
+                      <input className="newsletter-input" placeholder="your@email.com" type="email" />
+                      <button className="newsletter-btn">Join Waitlist</button>
+                    </div>
+                    <p className="newsletter-note">No spam. Early access only.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {BLOG_POSTS.map((post, i) => page === 'article-' + i && (
+            <div key={i} className="article-page">
+              <div className="article-inner">
+                <button className="tool-back" onClick={() => { setPage('blog'); window.scrollTo(0,0); }}>← Back to Blog</button>
+                <div className="article-meta">{post.date}</div>
+                <h1 className="article-h1">{post.title}</h1>
+                <div className="article-tag">{post.tag}</div>
+                {post.banner && post.banner.length > 10 && <img src={post.banner} alt={post.title} className="article-hero-img" />}
+                <div className="article-body" dangerouslySetInnerHTML={{__html: post.bodyHtml}} />
+                <div className="article-footer">
+                  <button className="btn-secondary" onClick={() => { setPage('blog'); window.scrollTo(0,0); }}>← All Articles</button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>`;
+          ))}
+
+          <Footer setPage={setPage} />
+        </>
+      );
     }
 
-    function renderReadingPage() {
-      return `
-        <section class="tool-page">
-          <div class="tool-page-inner">
-            <button class="tool-back" onclick="navigate('home')">&larr; Back to Home</button>
-            <h1>Books That Shaped Me</h1>
-            <p class="tool-page-desc">The library behind The Timeless Perspective.</p>
-            <div class="reading-grid" style="margin-top:2rem">
-              ${READING_LIST.map(b => renderReadingCard(b)).join('')}
-            </div>
-          </div>
-        </section>`;
-    }
-
-    function renderArticle(index) {
-      const post = BLOG_POSTS[index];
-      if (!post) return renderHome();
-      const bannerHtml = (post.banner && post.banner.length > 10)
-        ? `<img src="${post.banner}" alt="${escapeHtml(post.title)}" class="article-hero-img" />`
-        : '';
-      return `
-        <div class="article-page">
-          <div class="article-inner">
-            <button class="tool-back" onclick="navigate('blog')">&larr; Back to Blog</button>
-            <div class="article-meta">${post.date}</div>
-            <h1 class="article-h1">${post.title}</h1>
-            <div class="article-tag">${post.tag}</div>
-            ${bannerHtml}
-            <div class="article-body">${post.bodyHtml}</div>
-            <div class="article-footer">
-              <button class="btn-secondary" onclick="navigate('blog')">&larr; All Articles</button>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    // ── MAIN RENDER ────────────────────────────────────────────────────────
-    function render() {
-      const app = document.getElementById('app');
-      let html = '';
-
-      if (currentPage === 'home') {
-        html = renderHome();
-      } else if (currentPage === 'daily-news') {
-        html = renderDailyNews();
-      } else if (currentPage === 'tools') {
-        html = renderToolsPage();
-      } else if (currentPage === 'blog') {
-        html = renderBlogPage();
-      } else if (currentPage === 'book') {
-        html = renderBookPage();
-      } else if (currentPage === 'reading') {
-        html = renderReadingPage();
-      } else if (currentPage.startsWith('article-')) {
-        const index = parseInt(currentPage.split('-')[1], 10);
-        html = renderArticle(index);
-      } else {
-        html = renderHome();
-      }
-
-      app.innerHTML = html;
-    }
-
-    // ── INITIAL RENDER ─────────────────────────────────────────────────────
-    render();
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
