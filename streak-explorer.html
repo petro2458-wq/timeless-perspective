@@ -172,30 +172,6 @@
   }
   .param-input:focus { border-color: var(--accent); }
 
-  /* TOOLTIP */
-  .param-tip {
-    position: relative; cursor: help;
-    border-bottom: 1px dotted var(--text-muted);
-  }
-  .param-tip .tip-text {
-    visibility: hidden; opacity: 0;
-    position: absolute; bottom: calc(100% + 10px); left: 50%;
-    transform: translateX(-50%);
-    width: 280px; padding: 0.85rem 1rem;
-    background: #1e2028; border: 1px solid var(--border-light);
-    color: var(--text-secondary); font-size: 0.78rem; line-height: 1.65;
-    font-family: var(--font-body); font-weight: 400;
-    z-index: 50; pointer-events: none;
-    transition: opacity 0.2s, visibility 0.2s;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  }
-  .param-tip .tip-text::after {
-    content: ''; position: absolute; top: 100%; left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent; border-top-color: var(--border-light);
-  }
-  .param-tip:hover .tip-text { visibility: visible; opacity: 1; }
-
   input[type=range] {
     -webkit-appearance: none; width: 100%; height: 1px;
     background: var(--border-light); outline: none;
@@ -287,6 +263,8 @@
 </style>
 </head>
 <body>
+<script>if(window.location.search.includes('embed=true'))document.body.classList.add('embed-mode');</script>
+<style>.embed-mode .nav{display:none!important}.embed-mode .hero{padding-top:2rem!important}</style>
 
 <nav class="nav">
   <a class="nav-logo" href="#">The Timeless <span>Perspective</span></a>
@@ -368,12 +346,10 @@
 
           <div class="param-row">
             <div class="param-meta">
-              <span class="param-name param-tip">Sample size (n)
-                <span class="tip-text">The number of trades over which to calculate your losing streaks. Use 20 for a single month, or 500–1000+ for career-level stress testing. Larger samples reveal longer tail streaks — which is what your position size needs to survive.</span>
-              </span>
+              <span class="param-name">Trades per month</span>
               <input type="text" class="param-input" id="freqInput" value="20">
             </div>
-            <input type="range" id="freq" min="10" max="2000" step="10" value="20">
+            <input type="range" id="freq" min="5" max="120" step="5" value="20">
           </div>
 
           <div class="param-row">
@@ -403,28 +379,28 @@
             <div class="metric">
               <div class="metric-label">
                 P95 streak
-                <span class="metric-sub" id="subS95">routine — nearly every month</span>
+                <span class="metric-sub">routine — nearly every month</span>
               </div>
               <div class="metric-val" id="mS95"></div>
             </div>
             <div class="metric">
               <div class="metric-label">
                 P50 streak
-                <span class="metric-sub" id="subS50">typical worst streak per month</span>
+                <span class="metric-sub">typical worst streak per month</span>
               </div>
               <div class="metric-val" id="mS50"></div>
             </div>
             <div class="metric">
               <div class="metric-label">
                 P5 streak
-                <span class="metric-sub" id="subS5">plan for this — happens a few times per year</span>
+                <span class="metric-sub">plan for this — happens a few times per year</span>
               </div>
               <div class="metric-val" id="mS5"></div>
             </div>
             <div class="metric">
               <div class="metric-label">
                 P2 streak
-                <span class="metric-sub" id="subS2">stress test — roughly once every 4 years</span>
+                <span class="metric-sub">stress test — roughly once every 4 years</span>
               </div>
               <div class="metric-val" id="mS2"></div>
             </div>
@@ -718,21 +694,6 @@ function updateProbe(wr,r){
   sv('mS5', s5+' losses',  s5>=8?'bad':s5>=5?'warn':'ok');
   sv('mS2', s2+' losses',  s2>=10?'bad':s2>=6?'warn':'ok');
 
-  // Dynamic sub-labels based on sample size
-  const nLabel=freq<=30?freq+' trades (1 month)':freq<=120?freq+' trades (~'+(freq/20).toFixed(0)+' months)':freq+' trades (~'+(freq/240).toFixed(1)+' years)';
-  document.getElementById('subS95').textContent='routine — over '+nLabel;
-  document.getElementById('subS50').textContent='typical worst streak over '+nLabel;
-  if(freq<=30){
-    document.getElementById('subS5').textContent='plan for this — happens a few times per year';
-    document.getElementById('subS2').textContent='stress test — roughly once every 4 years';
-  } else if(freq<=250){
-    document.getElementById('subS5').textContent='plan for this — likely within '+nLabel;
-    document.getElementById('subS2').textContent='stress test — rare but possible within '+nLabel;
-  } else {
-    document.getElementById('subS5').textContent='plan for this — expect this over '+nLabel;
-    document.getElementById('subS2').textContent='stress test — the career-level worst case';
-  }
-
   // P5 cost
   document.getElementById('riskLblP5').textContent=`at ${rPct.toFixed(1)}% risk`;
   sv('mDDP5', ddP5.toFixed(1)+'%', ddP5>=15?'bad':ddP5>=8?'warn':'good');
@@ -748,8 +709,8 @@ function updateProbe(wr,r){
   // Probability bars
   const probP5=pStreakExact(lp,s5,freq);
   const probP2=pStreakExact(lp,s2,freq);
-  document.getElementById('probLabelP5').textContent=`Prob of ≥${s5} losses in a row over ${freq} trades`;
-  document.getElementById('probLabelP2').textContent=`Prob of ≥${s2} losses in a row over ${freq} trades`;
+  document.getElementById('probLabelP5').textContent=`Prob of ≥${s5} losses in a row this month`;
+  document.getElementById('probLabelP2').textContent=`Prob of ≥${s2} losses in a row this month`;
   document.getElementById('probValP5').textContent=Math.min(100,probP5*100).toFixed(0)+'%';
   document.getElementById('probValP2').textContent=Math.min(100,probP2*100).toFixed(0)+'%';
   setBar('probBarP5',Math.min(100,probP5*100));
@@ -772,30 +733,29 @@ function setBar(id,pct){
 function buildNarrative(wr,r,e,s5,s2,s50,s95,ddP5,dollarP5,recP5,ddP2,dollarP2,recP2,freq,rPct){
   document.getElementById('narrative').classList.add('show');
   const prof=r>beR(wr);
-  const recMonthsP5=freq>=20?(recP5/(freq/Math.ceil(freq/20))).toFixed(1):(recP5/freq).toFixed(1);
-  const recMonthsP2=freq>=20?(recP2/(freq/Math.ceil(freq/20))).toFixed(1):(recP2/freq).toFixed(1);
-  const sampleDesc=freq<=30?'a single month':freq<=120?'~'+(freq/20).toFixed(0)+' months':freq<=500?'~'+(freq/240).toFixed(1)+' years':'~'+(freq/240).toFixed(1)+' years of trading';
+  const monthsP5=(recP5/freq).toFixed(1);
+  const monthsP2=(recP2/freq).toFixed(1);
   let html;
 
   if(!prof){
     html=`At <strong>${(wr*100).toFixed(0)}% win rate</strong> you need at least <strong>${beR(wr).toFixed(2)}R</strong> per winner to break even. You're at <strong>${r.toFixed(1)}R</strong>. The losing streaks aren't bad luck — they're the math working exactly as designed. Position sizing cannot fix negative expectancy.`;
   } else {
-    html=`<strong>P5 — your planning number.</strong> Over <strong>${freq} trades</strong> (${sampleDesc}), 5% of the time you'll hit a losing streak <em>at least</em> this long. This is the streak you should plan your position sizing around.<br><br>`;
+    html=`<strong>P5 — your planning number.</strong> P5 means that 5% of your trading months will produce a losing streak <em>at least</em> this long. 5% may seem rare — but it's not. And if you just experienced a P5 month, that doesn't mean you won't get another one soon after. Streaks don't care about your recent history. This is a really good planning case for position sizing your system.<br><br>`;
 
     html+=`At your selected risk of <strong>${rPct.toFixed(1)}% per trade</strong>, a P5 losing streak of <strong>${s5} consecutive losses</strong> draws your account down by <strong>${ddP5.toFixed(1)}%</strong> — that's <strong>${fmtDollar(dollarP5)} for every $100,000</strong> of account equity.`;
 
     if(recP5<999){
-      html+=` With your system's expectancy of <strong>+${e.toFixed(3)}R per trade</strong>, recovery takes roughly <strong>${recP5} trades</strong>.`;
+      html+=` With your system's expectancy of <strong>+${e.toFixed(3)}R per trade</strong>, recovery takes roughly <strong>${recP5} trades (${monthsP5} months)</strong>.`;
     }
 
     html+=`<br><br>`;
 
-    html+=`<strong>P2 — your stress test.</strong> Over <strong>${freq} trades</strong>, there's only a 2% chance of hitting a streak this long. It's rare enough to feel like the system is broken — but it's not. It's just the math doing what it always does over large enough samples.<br><br>`;
+    html+=`<strong>P2 — your stress test.</strong> The P2 streak happens roughly once every 4 years of active trading. It's rare enough to feel like the system is broken — but it's not. It's just the math doing what it always does over long enough timeframes.<br><br>`;
 
     html+=`A P2 streak of <strong>${s2} consecutive losses</strong> at <strong>${rPct.toFixed(1)}% risk</strong> means a <strong>${ddP2.toFixed(1)}% drawdown</strong> — <strong>${fmtDollar(dollarP2)} per $100,000</strong>.`;
 
     if(recP2<999){
-      html+=` Recovery requires roughly <strong>${recP2} trades</strong>.`;
+      html+=` Recovery requires roughly <strong>${recP2} trades (${monthsP2} months)</strong>.`;
     }
 
     html+=` If this number makes you uncomfortable, your position size is too large for this system. The traders who survive their P2 streak are the ones who sized for it before it arrived.`;
@@ -865,7 +825,7 @@ rInput.addEventListener('change', function(){
   rSlider.value=v; syncFromSliders(); refresh();
 });
 freqInput.addEventListener('change', function(){
-  const v=clamp(Math.round(parseNum(this.value)/10)*10,10,2000);
+  const v=clamp(Math.round(parseNum(this.value)/5)*5,5,120);
   if(isNaN(v)) return;
   freqSlider.value=v; freqInput.value=v; refresh();
 });
