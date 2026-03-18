@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Tracker — The Timeless Perspective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg-primary:#0a0b0d;--bg-secondary:#111218;--bg-card:#16171e;
+    --border:#222333;--border-light:#2a2b3d;
+    --text-primary:#e8e6e1;--text-secondary:#9b9aac;--text-muted:#5f5e70;
+    --accent:#c9a55a;--accent-dim:#a6863e;--accent-glow:rgba(201,165,90,0.15);
+    --green:#4ecb71;--green-dim:rgba(78,203,113,0.12);
+    --red:#e55b5b;--red-dim:rgba(229,91,91,0.12);
+    --blue:#5b8dee;
+    --font-display:'Cormorant Garamond',Georgia,serif;
+    --font-body:'DM Sans',-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono','Courier New',monospace;
+  }
+  body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--accent);color:var(--bg-primary);}
+
+  .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,11,13,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+  .nav-logo{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--text-primary);text-decoration:none;}
+  .nav-logo span{color:var(--accent);}
+  .nav-tag{font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;}
+
+  .hero{padding:7rem 2rem 2.5rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+  .hero::before{content:'';position:absolute;top:-40%;right:-20%;width:70vw;height:70vw;background:radial-gradient(ellipse,rgba(201,165,90,0.06) 0%,transparent 65%);pointer-events:none;}
+  .hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1;}
+  .section-tag{font-family:var(--font-mono);font-size:0.7rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;}
+  .section-tag::before{content:'';width:28px;height:1px;background:var(--accent);}
+  h1{font-family:var(--font-display);font-size:clamp(2.4rem,5vw,3.6rem);font-weight:400;line-height:1.1;margin-bottom:1rem;}
+  h1 em{font-style:italic;color:var(--accent);}
+  .hero-sub{font-size:1rem;color:var(--text-secondary);max-width:620px;line-height:1.75;}
+
+  .tool-section{padding:2rem 2rem 5rem;}
+  .tool-inner{max-width:1100px;margin:0 auto;}
+  .tool-grid{display:grid;grid-template-columns:340px 1fr;gap:1.5rem;align-items:start;}
+  @media(max-width:900px){.tool-grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);}
+  .card-pad{padding:1.5rem;}
+  .card-label{font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:1rem;}
+  .card-accent{position:relative;overflow:hidden;}
+  .card-accent::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);}
+
+  /* LEFT PANEL */
+  .left-panel{position:sticky;top:72px;display:flex;flex-direction:column;gap:1.25rem;}
+
+  .field{margin-bottom:0.85rem;}
+  .field:last-child{margin-bottom:0;}
+  .field-label{font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.3rem;display:flex;justify-content:space-between;align-items:baseline;}
+  .field-hint{font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);}
+  .field-input{
+    font-family:var(--font-mono);font-size:0.82rem;color:var(--text-primary);
+    background:var(--bg-secondary);border:1px solid var(--border);
+    padding:0.45rem 0.65rem;width:100%;outline:none;transition:border-color 0.2s;
+  }
+  .field-input:focus{border-color:var(--accent);}
+
+  .divider{height:1px;background:var(--border);margin:1rem 0;}
+
+  /* TRADE BUTTONS */
+  .trade-btns{display:flex;gap:0.5rem;margin-bottom:0.75rem;}
+  .trade-btn{
+    flex:1;padding:0.7rem 0;border:1px solid var(--border);background:var(--bg-secondary);
+    font-family:var(--font-mono);font-size:0.75rem;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;cursor:pointer;transition:all 0.15s;text-align:center;
+  }
+  .trade-btn.win{color:var(--green);border-color:rgba(78,203,113,0.2);}
+  .trade-btn.win:hover{background:var(--green-dim);border-color:var(--green);}
+  .trade-btn.loss{color:var(--red);border-color:rgba(229,91,91,0.2);}
+  .trade-btn.loss:hover{background:var(--red-dim);border-color:var(--red);}
+  .trade-btn.be{color:var(--text-muted);border-color:var(--border);}
+  .trade-btn.be:hover{background:var(--bg-card);border-color:var(--text-muted);}
+
+  .undo-btn{
+    width:100%;padding:0.4rem;border:1px solid var(--border);background:none;
+    font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);
+    letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;
+  }
+  .undo-btn:hover{color:var(--accent);border-color:var(--accent);}
+
+  .reset-row{display:flex;gap:0.5rem;margin-top:0.75rem;}
+  .reset-btn{
+    flex:1;padding:0.35rem;border:1px solid var(--border);background:none;
+    font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);
+    letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;text-align:center;
+  }
+  .reset-btn:hover{color:var(--red);border-color:var(--red);}
+
+  /* TRADE LOG */
+  .trade-log{max-height:120px;overflow-y:auto;font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);line-height:1.8;margin-top:0.5rem;}
+  .trade-log::-webkit-scrollbar{width:3px;}
+  .trade-log::-webkit-scrollbar-thumb{background:var(--border-light);}
+  .tl-w{color:var(--green);} .tl-l{color:var(--red);} .tl-b{color:var(--text-muted);}
+
+  /* RIGHT PANEL */
+  .right-panel{display:flex;flex-direction:column;gap:1.25rem;}
+
+  /* PROGRESS */
+  .progress-bar-wrap{height:6px;background:var(--border);margin:1rem 0 0.5rem;position:relative;}
+  .progress-bar{height:100%;background:var(--accent);transition:width 0.4s;}
+  .progress-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;}
+  .pstat{text-align:center;padding:0.6rem 0.3rem;background:var(--bg-secondary);border:1px solid var(--border);}
+  .pstat-val{font-family:var(--font-mono);font-size:1rem;font-weight:600;color:var(--text-primary);}
+  .pstat-label{font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:0.2rem;}
+  .pstat-val.green{color:var(--green);} .pstat-val.red{color:var(--red);} .pstat-val.gold{color:var(--accent);}
+
+  /* EQUITY CHART */
+  .chart-container{position:relative;width:100%;height:220px;}
+  canvas{width:100%;height:100%;display:block;}
+
+  /* HARVEST — monthly bars */
+  .harvest-section{margin-top:0.5rem;}
+  .month-bars{display:flex;align-items:flex-end;gap:4px;height:200px;padding:0 0 28px;}
+  .month-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;}
+  .month-bar{width:100%;background:var(--accent);transition:height 0.4s;min-height:2px;position:relative;}
+  .month-bar-val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.6rem;color:var(--accent);white-space:nowrap;}
+  .month-label{position:absolute;bottom:-24px;font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);letter-spacing:0.05em;white-space:nowrap;}
+
+  /* NARRATIVE */
+  .narrative-card{background:var(--bg-card);border:1px solid var(--border);border-left:2px solid var(--accent);}
+  .narrative-text{font-size:0.85rem;color:var(--text-secondary);line-height:1.75;}
+  .narrative-text strong{color:var(--text-primary);font-weight:600;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="#">The Timeless <span>Perspective</span></a>
+  <div class="nav-tag">Tool 04 — Trade Tracker</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="section-tag">Goal Tracking</div>
+    <h1>Track the <em>Math</em></h1>
+    <p class="hero-sub">Log your trades. Watch the remaining trades to goal update in real time. Once you hit your target, see what consistent profit extraction looks like over the next 12 months.</p>
+  </div>
+</div>
+
+<section class="tool-section">
+  <div class="tool-inner">
+    <div class="tool-grid">
+
+      <!-- LEFT PANEL -->
+      <div class="left-panel">
+
+        <!-- SYSTEM PARAMS -->
+        <div class="card card-pad card-accent">
+          <div class="card-label">System Parameters</div>
+          <div class="field">
+            <div class="field-label">Win Rate <span class="field-hint">%</span></div>
+            <input type="text" class="field-input" id="inWR" value="65">
+          </div>
+          <div class="field">
+            <div class="field-label">Avg R Profit <span class="field-hint">R-multiple on winners</span></div>
+            <input type="text" class="field-input" id="inR" value="1.0">
+          </div>
+          <div class="field">
+            <div class="field-label">Breakeven Trades <span class="field-hint">%</span></div>
+            <input type="text" class="field-input" id="inBE" value="0">
+          </div>
+          <div class="field">
+            <div class="field-label">Risk Per Trade <span class="field-hint">% of equity</span></div>
+            <input type="text" class="field-input" id="inRisk" value="6.0">
+          </div>
+          <div class="field">
+            <div class="field-label">Trades Per Day <span class="field-hint">signal frequency</span></div>
+            <input type="text" class="field-input" id="inFreq" value="1.5">
+          </div>
+        </div>
+
+        <!-- GOAL -->
+        <div class="card card-pad card-accent">
+          <div class="card-label">Goal</div>
+          <div class="field">
+            <div class="field-label">Starting Balance <span class="field-hint">$</span></div>
+            <input type="text" class="field-input" id="inStart" value="250000">
+          </div>
+          <div class="field">
+            <div class="field-label">Equity Target <span class="field-hint">$</span></div>
+            <input type="text" class="field-input" id="inGoal" value="500000">
+          </div>
+          <div class="divider"></div>
+          <div class="card-label">Harvest Phase</div>
+          <div class="field">
+            <div class="field-label">Take Profits Every <span class="field-hint">R accumulated</span></div>
+            <input type="text" class="field-input" id="inHarvestR" value="5">
+          </div>
+          <div class="field">
+            <div class="field-label">Harvest Risk Per Trade <span class="field-hint">% of equity</span></div>
+            <input type="text" class="field-input" id="inHarvestRisk" value="6.0">
+          </div>
+        </div>
+
+        <!-- TRADE ENTRY -->
+        <div class="card card-pad card-accent">
+          <div class="card-label">Log Trade</div>
+          <div class="trade-btns">
+            <button class="trade-btn win" onclick="logTrade('W')">+ Win</button>
+            <button class="trade-btn loss" onclick="logTrade('L')">− Loss</button>
+            <button class="trade-btn be" onclick="logTrade('B')">B/E</button>
+          </div>
+          <button class="undo-btn" onclick="undoTrade()">Undo Last Trade</button>
+          <div class="reset-row">
+            <button class="reset-btn" onclick="resetTrades()">Reset Trades</button>
+            <button class="reset-btn" onclick="resetAll()">Reset Everything</button>
+          </div>
+          <div class="trade-log" id="tradeLog"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+
+        <!-- PROGRESS TO GOAL -->
+        <div class="card card-pad card-accent">
+          <div class="card-label">Growth Phase — Progress to Goal</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progBar" style="width:0%"></div>
+          </div>
+          <div class="progress-stats" style="grid-template-columns:repeat(3,1fr);">
+            <div class="pstat"><div class="pstat-val gold" id="pEquity">$250,000</div><div class="pstat-label">Current Equity</div></div>
+            <div class="pstat"><div class="pstat-val" id="pTradesDone">0</div><div class="pstat-label">Trades Logged</div></div>
+            <div class="pstat"><div class="pstat-val" id="pActualWR">—</div><div class="pstat-label">Actual Win Rate</div></div>
+          </div>
+          <div class="progress-stats" style="grid-template-columns:repeat(4,1fr);margin-top:0.5rem;">
+            <div class="pstat"><div class="pstat-val" id="pTradesLeft">—</div><div class="pstat-label">Trades Remaining</div></div>
+            <div class="pstat"><div class="pstat-val green" id="pWinsLeft">—</div><div class="pstat-label">Wins Required</div></div>
+            <div class="pstat"><div class="pstat-val red" id="pLossesLeft">—</div><div class="pstat-label">Losses Expected</div></div>
+            <div class="pstat"><div class="pstat-val gold" id="pNetR">—</div><div class="pstat-label">Net R Required</div></div>
+          </div>
+        </div>
+
+        <!-- EQUITY CHART -->
+        <div class="card card-pad card-accent">
+          <div class="card-label">Equity Curve — Actual vs Projected</div>
+          <div class="chart-container">
+            <canvas id="eqChart"></canvas>
+          </div>
+        </div>
+
+        <!-- HARVEST PROJECTION -->
+        <div class="card card-pad card-accent">
+          <div class="card-label">Harvest Phase — Profit Extraction Cycle</div>
+          <div id="harvestCycle" style="margin-bottom:1.25rem;"></div>
+          <div class="card-label" style="margin-top:0;">Projected Monthly Profits (12 Months)</div>
+          <div class="harvest-section">
+            <div class="month-bars" id="monthBars"></div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);margin-top:0.5rem;text-align:center;" id="harvestSummary"></div>
+        </div>
+
+        <!-- NARRATIVE -->
+        <div class="narrative-card card-pad">
+          <div class="card-label">What This Means</div>
+          <div class="narrative-text" id="narrativeText"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const TRADING_DAYS=21;
+const STORAGE_KEY='ttp_trade_tracker_v1';
+
+// ─── STATE ────────────────────────────────────────────────────
+let state={trades:[], startDate:new Date().toISOString()};
+
+function saveState(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+}
+function loadState(){
+  try{const s=localStorage.getItem(STORAGE_KEY);if(s)state=JSON.parse(s);}catch(e){}
+}
+
+// ─── INPUTS ───────────────────────────────────────────────────
+function getInputs(){
+  const wr=parseFloat(document.getElementById('inWR').value)/100;
+  const r=parseFloat(document.getElementById('inR').value);
+  const be=parseFloat(document.getElementById('inBE').value)/100;
+  const riskPct=parseFloat(document.getElementById('inRisk').value)/100;
+  const freqDay=parseFloat(document.getElementById('inFreq').value);
+  const startBal=parseFloat(document.getElementById('inStart').value.replace(/[^0-9.]/g,''));
+  const goalBal=parseFloat(document.getElementById('inGoal').value.replace(/[^0-9.]/g,''));
+  const harvestR=parseFloat(document.getElementById('inHarvestR').value);
+  const harvestRisk=parseFloat(document.getElementById('inHarvestRisk').value)/100;
+  const freqMonth=Math.round(freqDay*TRADING_DAYS);
+  const lossPct=1-wr-be;
+  const exp=wr*r-lossPct;
+  return{wr,r,be,riskPct,freqDay,freqMonth,startBal,goalBal,harvestR,harvestRisk,lossPct,exp};
+}
+
+// ─── TRADE LOG ────────────────────────────────────────────────
+function logTrade(type){
+  state.trades.push({type,ts:Date.now()});
+  saveState();
+  recalc();
+}
+function undoTrade(){
+  if(state.trades.length>0){state.trades.pop();saveState();recalc();}
+}
+function resetTrades(){
+  if(!confirm('Reset all logged trades? This cannot be undone.'))return;
+  state.trades=[];state.startDate=new Date().toISOString();saveState();recalc();
+}
+function resetAll(){
+  if(!confirm('Reset everything — trades and all inputs?'))return;
+  state.trades=[];state.startDate=new Date().toISOString();saveState();recalc();
+}
+
+function renderLog(){
+  const el=document.getElementById('tradeLog');
+  if(state.trades.length===0){el.textContent='No trades logged yet.';return;}
+  const last20=state.trades.slice(-20);
+  el.innerHTML=last20.map((t,i)=>{
+    const idx=state.trades.length-20+i;
+    const cls=t.type==='W'?'tl-w':t.type==='L'?'tl-l':'tl-b';
+    const label=t.type==='W'?'WIN':t.type==='L'?'LOSS':'B/E';
+    return `<span class="${cls}">#${(idx<0?i:idx)+1} ${label}</span>`;
+  }).join(' · ');
+}
+
+// ─── EQUITY CALC ──────────────────────────────────────────────
+function calcEquity(inp){
+  let equity=inp.startBal;
+  const curve=[equity];
+  let wins=0,losses=0,bes=0;
+
+  for(const t of state.trades){
+    if(t.type==='W'){
+      equity*=(1+inp.riskPct*inp.r);
+      wins++;
+    } else if(t.type==='L'){
+      equity*=(1-inp.riskPct);
+      losses++;
+    } else {
+      bes++;
+    }
+    curve.push(equity);
+  }
+  const total=wins+losses+bes;
+  const actualWR=total>0?wins/total:0;
+  const actualBE=total>0?bes/total:0;
+  const actualLoss=total>0?losses/total:0;
+  return{equity,curve,wins,losses,bes,total,actualWR,actualBE,actualLoss};
+}
+
+// ─── TRADES REMAINING ─────────────────────────────────────────
+function tradesRemaining(currentEquity,goalBal,inp){
+  // Use PLANNED system stats for projection
+  // Geometric growth factor per trade
+  const g=Math.pow(1+inp.riskPct*inp.r,inp.wr)*Math.pow(1-inp.riskPct,inp.lossPct);
+  if(g<=1)return Infinity;
+  if(currentEquity>=goalBal)return 0;
+  return Math.ceil(Math.log(goalBal/currentEquity)/Math.log(g));
+}
+
+// ─── PROJECTED CURVE ──────────────────────────────────────────
+function projectedCurve(currentEquity,goalBal,inp,tradesLeft){
+  const g=Math.pow(1+inp.riskPct*inp.r,inp.wr)*Math.pow(1-inp.riskPct,inp.lossPct);
+  const pts=[currentEquity];
+  let eq=currentEquity;
+  for(let i=0;i<tradesLeft;i++){
+    eq*=g;
+    pts.push(eq);
+  }
+  return pts;
+}
+
+// ─── HARVEST PROJECTION ──────────────────────────────────────
+function harvestProjection(inp){
+  // Harvest uses its own risk % (may differ from growth phase)
+  const hRisk=inp.harvestRisk;
+  const g=Math.pow(1+hRisk*inp.r,inp.wr)*Math.pow(1-hRisk,inp.lossPct);
+
+  // Target: accumulate harvestR in net R
+  // Target equity = goalBal * (1 + harvestR * hRisk)  — because each R = hRisk * balance
+  const targetMult=1+inp.harvestR*hRisk;
+  if(g<=1)return{months:[],tradesPerCycle:Infinity,profitPerCycle:0,winsPerCycle:0,lossesPerCycle:0,netR:0};
+
+  const tradesPerCycle=Math.ceil(Math.log(targetMult)/Math.log(g));
+  const profitPerCycle=inp.goalBal*(Math.pow(g,tradesPerCycle)-1);
+  const winsPerCycle=Math.round(inp.wr*tradesPerCycle);
+  const lossesPerCycle=Math.round(inp.lossPct*tradesPerCycle);
+  const besPerCycle=tradesPerCycle-winsPerCycle-lossesPerCycle;
+  const netR=winsPerCycle*inp.r-lossesPerCycle;
+
+  const cyclesPerMonth=inp.freqMonth/tradesPerCycle;
+  const profitPerMonth=cyclesPerMonth*profitPerCycle;
+
+  const now=new Date();
+  const months=[];
+  for(let i=0;i<12;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    const label=d.toLocaleString('en-US',{month:'short',year:'2-digit'});
+    months.push({label,profit:profitPerMonth});
+  }
+
+  return{months,tradesPerCycle,profitPerCycle,cyclesPerMonth,profitPerMonth,winsPerCycle,lossesPerCycle,besPerCycle,netR,hRisk};
+}
+
+// ─── CHART ────────────────────────────────────────────────────
+function drawChart(actualCurve,projCurve,startBal,goalBal){
+  const cv=document.getElementById('eqChart');
+  const cx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const rect=cv.parentElement.getBoundingClientRect();
+  cv.width=rect.width*dpr;cv.height=rect.height*dpr;
+  cv.style.width=rect.width+'px';cv.style.height=rect.height+'px';
+  cx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height;
+  const M={top:15,right:15,bottom:30,left:65};
+  const pW=W-M.left-M.right,pH=H-M.top-M.bottom;
+
+  cx.clearRect(0,0,W,H);cx.fillStyle='#16171e';cx.fillRect(0,0,W,H);
+
+  // Combine for scale
+  const allVals=[...actualCurve,...projCurve,startBal,goalBal];
+  const minV=Math.min(...allVals)*0.95;
+  const maxV=Math.max(...allVals)*1.05;
+  const totalPts=actualCurve.length+projCurve.length-1;
+  const n=Math.max(totalPts-1,1);
+
+  function x(i){return M.left+i/n*pW;}
+  function y(v){return M.top+(1-(v-minV)/(maxV-minV))*pH;}
+
+  // Grid
+  cx.strokeStyle='rgba(55,57,85,0.5)';cx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const val=minV+i/4*(maxV-minV);
+    const yy=y(val);
+    cx.beginPath();cx.moveTo(M.left,yy);cx.lineTo(M.left+pW,yy);cx.stroke();
+    cx.fillStyle='rgba(155,154,172,0.6)';cx.font='10px "DM Sans"';cx.textAlign='right';cx.textBaseline='middle';
+    cx.fillText(fmtDollar(val),M.left-6,yy);
+  }
+
+  // Goal line
+  cx.strokeStyle='rgba(201,165,90,0.3)';cx.lineWidth=1;cx.setLineDash([4,6]);
+  cx.beginPath();cx.moveTo(M.left,y(goalBal));cx.lineTo(M.left+pW,y(goalBal));cx.stroke();
+  cx.setLineDash([]);
+  cx.fillStyle='rgba(201,165,90,0.5)';cx.font='10px "JetBrains Mono"';cx.textAlign='left';
+  cx.fillText('GOAL '+fmtDollar(goalBal),M.left+4,y(goalBal)-6);
+
+  // Axes
+  cx.strokeStyle='rgba(100,102,135,0.9)';cx.lineWidth=1.5;
+  cx.beginPath();cx.moveTo(M.left,M.top);cx.lineTo(M.left,M.top+pH);cx.lineTo(M.left+pW,M.top+pH);cx.stroke();
+
+  // Projected path (dashed, behind actual)
+  if(projCurve.length>1){
+    const offset=actualCurve.length-1;
+    cx.strokeStyle='rgba(201,165,90,0.25)';cx.lineWidth=1.5;cx.setLineDash([4,4]);
+    cx.beginPath();
+    for(let i=0;i<projCurve.length;i++){
+      const px=x(offset+i),py=y(projCurve[i]);
+      i===0?cx.moveTo(px,py):cx.lineTo(px,py);
+    }
+    cx.stroke();cx.setLineDash([]);
+  }
+
+  // Actual path
+  if(actualCurve.length>1){
+    cx.strokeStyle='var(--accent)';cx.lineWidth=2.5;cx.shadowColor='rgba(201,165,90,0.4)';cx.shadowBlur=6;
+    cx.beginPath();
+    for(let i=0;i<actualCurve.length;i++){
+      const px=x(i),py=y(actualCurve[i]);
+      i===0?cx.moveTo(px,py):cx.lineTo(px,py);
+    }
+    cx.stroke();cx.shadowBlur=0;
+
+    // End dot
+    const lx=x(actualCurve.length-1),ly=y(actualCurve[actualCurve.length-1]);
+    cx.fillStyle='#c9a55a';cx.beginPath();cx.arc(lx,ly,4,0,Math.PI*2);cx.fill();
+  }
+
+  // X axis
+  cx.fillStyle='rgba(155,154,172,0.5)';cx.font='9px "DM Sans"';cx.textAlign='center';cx.textBaseline='top';
+  cx.fillText('Trades',M.left+pW/2,H-5);
+}
+
+// ─── MONTH BARS ───────────────────────────────────────────────
+function renderMonthBars(harvest){
+  const el=document.getElementById('monthBars');
+  if(!harvest.months.length||harvest.profitPerMonth<=0){
+    el.innerHTML='<div style="color:var(--text-muted);font-size:0.75rem;text-align:center;width:100%;padding:2rem 0;">Negative or zero expectancy — no harvest projection available.</div>';
+    return;
+  }
+  const maxProfit=Math.max(...harvest.months.map(m=>m.profit));
+  el.innerHTML=harvest.months.map(m=>{
+    const h=maxProfit>0?Math.max(2,m.profit/maxProfit*160):2;
+    return `<div class="month-col">
+      <div class="month-bar" style="height:${h}px">
+        <div class="month-bar-val">${fmtK(m.profit)}</div>
+      </div>
+      <div class="month-label">${m.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── NARRATIVE ────────────────────────────────────────────────
+function renderNarrative(inp,eq,tRemain,harvest){
+  const el=document.getElementById('narrativeText');
+  const atGoal=eq.equity>=inp.goalBal;
+
+  let html='';
+  if(eq.total===0){
+    html=`No trades logged yet. Your system has an expectancy of <strong>${inp.exp>=0?'+':''}${inp.exp.toFixed(3)}R per trade</strong>. `;
+    html+=`At <strong>${(inp.riskPct*100).toFixed(1)}% risk</strong> on a <strong>${fmtDollar(inp.startBal)}</strong> account, the goal calculator projects <strong>${tRemain} trades</strong> to reach <strong>${fmtDollar(inp.goalBal)}</strong>. Start logging trades to watch this update in real time.`;
+  } else if(!atGoal){
+    const daysLeft=Math.ceil(tRemain/inp.freqDay);
+    const weeksLeft=Math.round(daysLeft/5);
+    html=`After <strong>${eq.total} trades</strong>, your equity is <strong>${fmtDollar(eq.equity)}</strong>. `;
+    if(eq.actualWR>0) html+=`Actual win rate: <strong>${(eq.actualWR*100).toFixed(1)}%</strong> (planned: ${(inp.wr*100).toFixed(0)}%). `;
+    html+=`Based on your planned system stats, <strong>${tRemain} trades remain</strong> to reach <strong>${fmtDollar(inp.goalBal)}</strong>`;
+    if(weeksLeft>0) html+=` — roughly <strong>${weeksLeft} trading weeks</strong> at ${inp.freqDay} trades/day`;
+    html+=`.`;
+  } else {
+    html=`<strong>Goal reached.</strong> Your equity is <strong>${fmtDollar(eq.equity)}</strong> — above the <strong>${fmtDollar(inp.goalBal)}</strong> target.<br><br>`;
+    html+=`<strong>Harvest phase:</strong> At <strong>${inp.harvestR}R</strong> profit extraction cycles, each cycle takes roughly <strong>${harvest.tradesPerCycle} trades</strong> and generates <strong>${fmtDollar(harvest.profitPerCycle)}</strong> in profit. `;
+    html+=`At <strong>${inp.freqDay} trades/day</strong>, that's approximately <strong>${harvest.cyclesPerMonth.toFixed(1)} cycles per month</strong> — <strong>${fmtDollar(harvest.profitPerMonth)}</strong> monthly income while the account resets to <strong>${fmtDollar(inp.goalBal)}</strong> each cycle.`;
+  }
+  el.innerHTML=html;
+}
+
+// ─── FORMAT ───────────────────────────────────────────────────
+function fmtDollar(v){
+  if(v>=1000000)return '$'+(v/1000000).toFixed(2)+'M';
+  return '$'+Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
+function fmtK(v){
+  if(v>=1000000)return '$'+(v/1000000).toFixed(1)+'M';
+  if(v>=1000)return '$'+(v/1000).toFixed(1)+'k';
+  return '$'+v.toFixed(0);
+}
+
+// ─── MASTER RECALC ────────────────────────────────────────────
+function recalc(){
+  const inp=getInputs();
+  const eq=calcEquity(inp);
+  const tRemain=tradesRemaining(eq.equity,inp.goalBal,inp);
+  const proj=tRemain<Infinity&&tRemain>0?projectedCurve(eq.equity,inp.goalBal,inp,tRemain):[];
+  const harvest=harvestProjection(inp);
+
+  // Progress bar
+  const profitNeeded=inp.goalBal-inp.startBal;
+  const profitMade=eq.equity-inp.startBal;
+  const pct=profitNeeded>0?Math.max(0,Math.min(100,profitMade/profitNeeded*100)):0;
+  document.getElementById('progBar').style.width=pct+'%';
+
+  // Stats row 1
+  document.getElementById('pEquity').textContent=fmtDollar(eq.equity);
+  document.getElementById('pTradesDone').textContent=eq.total;
+  document.getElementById('pActualWR').textContent=eq.total>0?(eq.actualWR*100).toFixed(1)+'%':'—';
+
+  // Stats row 2 — remaining trades breakdown
+  document.getElementById('pTradesLeft').textContent=tRemain>=99999?'∞':tRemain;
+  if(tRemain<99999&&tRemain>0){
+    const winsLeft=Math.round(inp.wr*tRemain);
+    const lossesLeft=Math.round(inp.lossPct*tRemain);
+    const netRLeft=winsLeft*inp.r-lossesLeft;
+    document.getElementById('pWinsLeft').textContent=winsLeft;
+    document.getElementById('pLossesLeft').textContent=lossesLeft;
+    document.getElementById('pNetR').textContent='+'+netRLeft.toFixed(1)+'R';
+  } else {
+    document.getElementById('pWinsLeft').textContent=tRemain===0?'0':'—';
+    document.getElementById('pLossesLeft').textContent=tRemain===0?'0':'—';
+    document.getElementById('pNetR').textContent=tRemain===0?'Goal reached':'—';
+  }
+
+  // Color equity
+  const eqEl=document.getElementById('pEquity');
+  eqEl.className='pstat-val '+(eq.equity>=inp.goalBal?'green':eq.equity>=inp.startBal?'gold':'red');
+
+  renderLog();
+  drawChart(eq.curve,proj,inp.startBal,inp.goalBal);
+  renderMonthBars(harvest);
+  renderHarvestCycle(harvest,inp);
+  renderNarrative(inp,eq,tRemain,harvest);
+
+  // Harvest summary
+  const hEl=document.getElementById('harvestSummary');
+  if(harvest.profitPerMonth>0){
+    const annual=harvest.profitPerMonth*12;
+    hEl.textContent=`${harvest.cyclesPerMonth.toFixed(1)} cycles/mo \u00B7 ${fmtK(harvest.profitPerMonth)}/mo \u00B7 ${fmtK(annual)}/yr projected`;
+  } else {
+    hEl.textContent='';
+  }
+}
+
+function renderHarvestCycle(harvest,inp){
+  const el=document.getElementById('harvestCycle');
+  if(harvest.tradesPerCycle>=9999||harvest.profitPerCycle<=0){
+    el.innerHTML='<div style="color:var(--text-muted);font-size:0.75rem;">Negative expectancy — no harvest possible.</div>';
+    return;
+  }
+  const riskDisplay=(harvest.hRisk*100).toFixed(1);
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:0.75rem;">
+      <div class="pstat"><div class="pstat-val" style="font-size:0.9rem;">${harvest.tradesPerCycle}</div><div class="pstat-label">Trades / Cycle</div></div>
+      <div class="pstat"><div class="pstat-val green" style="font-size:0.9rem;">${harvest.winsPerCycle}</div><div class="pstat-label">Wins</div></div>
+      <div class="pstat"><div class="pstat-val red" style="font-size:0.9rem;">${harvest.lossesPerCycle}</div><div class="pstat-label">Losses</div></div>
+    </div>
+    <div style="background:var(--accent-glow);border:1px solid rgba(201,165,90,0.2);padding:0.65rem 0.85rem;font-size:0.8rem;color:var(--text-secondary);line-height:1.7;">
+      At <strong style="color:var(--accent);">${riskDisplay}% risk</strong> on <strong style="color:var(--text-primary);">${fmtDollar(inp.goalBal)}</strong>, each cycle of <strong style="color:var(--text-primary);">${harvest.tradesPerCycle} trades</strong> produces <strong style="color:var(--accent);">+${harvest.netR.toFixed(1)}R</strong> net \u2014 delivering <strong style="color:var(--green);">${fmtK(harvest.profitPerCycle)}</strong> in profit before resetting.
+    </div>
+  `;
+}
+
+// ─── EVENT WIRING ─────────────────────────────────────────────
+document.querySelectorAll('.field-input').forEach(el=>{
+  el.addEventListener('change',recalc);
+  el.addEventListener('focus',function(){this.select();});
+  el.addEventListener('keydown',function(e){if(e.key==='Enter')this.blur();});
+});
+window.addEventListener('resize',recalc);
+
+// ─── INIT ─────────────────────────────────────────────────────
+loadState();
+recalc();
+</script>
+</body>
+</html>
