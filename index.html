@@ -325,12 +325,10 @@
 
     // ── DATA ────────────────────────────────────────────────────────────────
     const TOOLS = [
-      { id: 'losing-streak', name: 'Losing Streak Estimator', icon: '📉', status: 'live', desc: 'Calculate your expected worst losing streak. Input your win rate and trade count to prepare psychologically for rough patches.' },
-      { id: 'drawdown-sim', name: 'Drawdown Simulator', icon: '⚡', status: 'coming', desc: 'Load your system data and simulate worst-case 20-trade sequences. Play with balance, risk %, and fixed dollar risk.' },
-      { id: 'monte-carlo', name: 'Monte Carlo Position Sizer', icon: '🎲', status: 'coming', desc: 'Run thousands of simulations on your system. Find the 1% and 2% extreme drawdown scenarios to size for survival.' },
-      { id: 'psych-risk', name: 'Psych Risk Dial', icon: '🧠', status: 'coming', desc: 'Based on your account size and pain threshold, find the position size that lets you trade without losing sleep.' },
-      { id: 'breakeven', name: 'Break-Even Curve Calculator', icon: '📊', status: 'coming', desc: 'Input your win rate, see the minimum R-multiple needed to break even. Compare high vs. low win rate systems visually.' },
-      { id: 'journal', name: 'Trade Journal Analyzer', icon: '📝', status: 'coming', desc: 'Upload your trade log. Flags revenge trades, rule breaks, and emotional patterns to build self-awareness.' }
+      { id: 'streak-explorer', name: 'Streak Risk Explorer', icon: '📉', file: 'streak-explorer.html', desc: 'Calculate your expected worst losing streak. Input your win rate and trade count to prepare psychologically for rough patches.' },
+      { id: 'position-sizer', name: 'Prop Firm Position Sizer', icon: '🎲', file: 'position-sizer.html', desc: 'See how position sizing drives your probability of passing — across favorable, typical, and unfavorable conditions simultaneously.' },
+      { id: 'goal-calculator', name: 'Goal Calculator', icon: '📊', file: 'goal-calculator.html', desc: 'Set your trading goal, input your system stats, and see exactly what it takes to get there — with math, not hope.' },
+      { id: 'trade-tracker', name: 'Trade Tracker', icon: '📝', file: 'trade-tracker.html', desc: 'Log your trades and track your real performance over time. See your actual win rate, R-multiple, and equity curve.' }
     ];
 
     const BLOG_POSTS = [
@@ -502,8 +500,8 @@
 
             <div className="tools-grid">
               {TOOLS.map(tool => (
-                <div key={tool.id} className="tool-card" onClick={() => tool.status === 'live' && setPage(tool.id)}>
-                  <div className={`tool-status ${tool.status}`}>{tool.status === 'live' ? 'LIVE' : 'COMING SOON'}</div>
+                <div key={tool.id} className="tool-card" onClick={() => window.open(tool.file, '_blank')}>
+                  <div className="tool-status live">LIVE</div>
                   <div className="tool-icon">{tool.icon}</div>
                   <h3 className="tool-name">{tool.name}</h3>
                   <p className="tool-desc">{tool.desc}</p>
@@ -651,11 +649,11 @@
               <div className="tool-page-inner">
                 <button className="tool-back" onClick={() => setPage('home')}>← Back to Home</button>
                 <h1>Trading Tools</h1>
-                <p className="tool-page-desc">Psychological preparation meets mathematical reality. Start with the Losing Streak Estimator — live now.</p>
+                <p className="tool-page-desc">Psychological preparation meets mathematical reality. All tools are free and live — click to launch.</p>
                 <div className="tools-grid">
                   {TOOLS.map(tool => (
-                    <div key={tool.id} className="tool-card">
-                      <div className={`tool-status ${tool.status}`}>{tool.status.toUpperCase()}</div>
+                    <div key={tool.id} className="tool-card" onClick={() => window.open(tool.file, '_blank')}>
+                      <div className="tool-status live">LIVE</div>
                       <div className="tool-icon">{tool.icon}</div>
                       <h3 className="tool-name">{tool.name}</h3>
                       <p className="tool-desc">{tool.desc}</p>
@@ -712,6 +710,26 @@
                     </div>
                     <p className="newsletter-note">No spam. Early access only.</p>
                   </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {page === 'reading' && (
+            <section className="tool-page">
+              <div className="tool-page-inner">
+                <button className="tool-back" onClick={() => setPage('home')}>← Back to Home</button>
+                <h1>Books That Shaped My Journey</h1>
+                <p className="tool-page-desc">Psychology, position sizing, and mental performance — the reading list behind the trading.</p>
+                <div className="reading-grid" style={{marginTop:'2rem'}}>
+                  {READING_LIST.map((book, i) => (
+                    <div key={i} className={`reading-card ${book.author.includes('Martin') || book.author.includes('Howell') || book.author.includes('Jorge') ? 'mentor' : ''}`}>
+                      {(book.author.includes('Martin') || book.author.includes('Howell') || book.author.includes('Jorge')) && <div className="reading-mentor-badge">Personal Mentor</div>}
+                      <h3 className="reading-title">{book.title}</h3>
+                      <div className="reading-author">{book.author}</div>
+                      <p className="reading-desc">{book.desc}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
