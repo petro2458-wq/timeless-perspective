@@ -1,37 +1,262 @@
-<!-- Daily News generated 2026-03-10T17:34:13.495Z -->
-<!-- Run: 1 PM ET | Model: claude-sonnet-4-20250514 | Architecture: JSON→HTML -->
+/**
+ * generate-daily-news.js
+ * 
+ * Called by GitHub Actions at 4 AM and 10 AM ET (Mon-Fri).
+ * Fetches the FREE ForexFactory JSON calendar feed and generates
+ * a styled daily-news.html — NO Claude API needed. $0/month.
+ * 
+ * Data source: https://nfs.faireconomy.media/ff_calendar_thisweek.json
+ * Rate limit: 2 requests per 5 minutes (we only call twice/day)
+ */
 
-<style>
+const fs = require('fs');
+const https = require('https');
+
+// ── DATE HELPERS ──────────────────────────────────────────────────────────
+const now = new Date();
+const etOptions = { timeZone: 'America/New_York' };
+const todayFormatted = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', ...etOptions });
+const hour = now.toLocaleString('en-US', { hour: 'numeric', hour12: true, ...etOptions });
+const etNow = new Date(now.toLocaleString('en-US', etOptions));
+const todayDateStr = etNow.toISOString().split('T')[0]; // YYYY-MM-DD in ET
+
+function getWeekDates(offsetWeeks = 0) {
+  const dow = etNow.getDay();
+  const daysToMonday = (dow === 0 ? 6 : dow - 1);
+  const mondayMs = etNow.getTime() - (daysToMonday * 86400000) + (offsetWeeks * 7 * 86400000);
+  const labels = ['MON','TUE','WED','THU','FRI'];
+  return labels.map((lbl, i) => {
+    const d = new Date(mondayMs + i * 86400000);
+    const etStr = d.toLocaleString('en-US', { ...etOptions, month: 'numeric', day: 'numeric' });
+    const [m, day] = etStr.split(',')[0].split('/');
+    return { label: lbl, date: `${m}/${day}`, fullDate: d.toISOString().split('T')[0], ms: mondayMs + i * 86400000 };
+  });
+}
+
+const thisWeek = getWeekDates(0);
+const nextWeek = getWeekDates(1);
+const todayDow = etNow.getDay(); // 0=Sun ... 6=Sat
+
+// ── FETCH HELPER ──────────────────────────────────────────────────────────
+function fetchJSON(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'TimelessPerspective/1.0' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error(`JSON parse failed: ${e.message} — raw: ${data.substring(0, 200)}`)); }
+      });
+    }).on('error', reject);
+  });
+}
+
+// ── FORMAT HELPERS ────────────────────────────────────────────────────────
+function formatTime(dateStr) {
+  const d = new Date(dateStr);
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return m === 0 ? `${h}:00 ${ampm} ET` : `${h}:${String(m).padStart(2,'0')} ${ampm} ET`;
+}
+
+function formatTimeShort(dateStr) {
+  const d = new Date(dateStr);
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? 'p' : 'a';
+  h = h % 12 || 12;
+  return m === 0 ? `${h}${ampm}` : `${h}:${String(m).padStart(2,'0')}${ampm}`;
+}
+
+function impactClass(impact) {
+  if (impact === 'High') return 'badge-critical';
+  if (impact === 'Medium') return 'badge-high';
+  return 'badge-low';
+}
+
+function impactLabel(impact) {
+  if (impact === 'High') return 'HIGH IMPACT';
+  if (impact === 'Medium') return 'MEDIUM';
+  return 'LOW';
+}
+
+// ── MAIN ──────────────────────────────────────────────────────────────────
+async function generateCalendar() {
+  console.log(`🗞️ Generating Daily News for ${todayFormatted} (${hour} ET run)...`);
+
+  // Fetch ForexFactory calendar
+  let allEvents;
+  try {
+    allEvents = await fetchJSON('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
+    console.log(`✅ Fetched ${allEvents.length} events from ForexFactory feed`);
+  } catch (err) {
+    // Fallback to CDN version
+    try {
+      allEvents = await fetchJSON('https://cdn-nfs.faireconomy.media/ff_calendar_thisweek.json');
+      console.log(`✅ Fetched ${allEvents.length} events from CDN fallback`);
+    } catch (err2) {
+      throw new Error(`Both FF feeds failed: ${err.message} / ${err2.message}`);
+    }
+  }
+
+  // Filter USD events with High or Medium impact
+  const usdEvents = allEvents.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
+  console.log(`📊 ${usdEvents.length} USD high/medium impact events this week`);
+
+  // Parse dates and group by day
+  const eventsByDate = {};
+  for (const e of usdEvents) {
+    const d = new Date(e.date);
+    const dateKey = d.toLocaleDateString('en-US', { ...etOptions, year: 'numeric', month: '2-digit', day: '2-digit' });
+    if (!eventsByDate[dateKey]) eventsByDate[dateKey] = [];
+    eventsByDate[dateKey].push({ ...e, parsedDate: d });
+  }
+
+  // Today's events
+  const todayKey = etNow.toLocaleDateString('en-US', { ...etOptions, year: 'numeric', month: '2-digit', day: '2-digit' });
+  const todayEvents = (eventsByDate[todayKey] || []).sort((a, b) => a.parsedDate - b.parsedDate);
+  console.log(`📅 ${todayEvents.length} USD events today`);
+
+  // Group today's events by time
+  const timeGroups = {};
+  for (const e of todayEvents) {
+    const timeKey = formatTime(e.date);
+    if (!timeGroups[timeKey]) timeGroups[timeKey] = [];
+    timeGroups[timeKey].push(e);
+  }
+
+  // Build week strip notes (red folder events with times for each day)
+  function getWeekDayNote(weekDay) {
+    const dayDate = new Date(weekDay.ms);
+    const dayKey = dayDate.toLocaleDateString('en-US', { ...etOptions, year: 'numeric', month: '2-digit', day: '2-digit' });
+    const dayEvents = (eventsByDate[dayKey] || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const highEvents = dayEvents.filter(e => e.impact === 'High');
+    const medEvents = dayEvents.filter(e => e.impact === 'Medium');
+    
+    if (highEvents.length > 0) {
+      return highEvents.map(e => {
+        const shortName = e.title.replace(/ m\/m| y\/y| q\/q| ytd\/y/gi, '').replace(/Preliminary |Final |Flash |Revised /gi, '').trim();
+        return `${shortName} ${formatTimeShort(e.date)}`;
+      }).join(' · ');
+    } else if (medEvents.length > 0) {
+      return medEvents.slice(0, 2).map(e => {
+        const shortName = e.title.replace(/ m\/m| y\/y| q\/q| ytd\/y/gi, '').replace(/Preliminary |Final |Flash |Revised /gi, '').trim();
+        return `${shortName} ${formatTimeShort(e.date)}`;
+      }).join(' · ');
+    }
+    return 'No high impact';
+  }
+
+  // ── BUILD HTML ────────────────────────────────────────────────────────
+  const isWeekend = todayDow === 0 || todayDow === 6;
+
+  // Today's time cards
+  let timeCardsHtml = '';
+  if (todayEvents.length === 0 && !isWeekend) {
+    timeCardsHtml = `
+      <div class="time-card">
+        <div class="time-header">
+          <span class="time-label">No High-Impact USD Events Today</span>
+        </div>
+        <div style="font-size:13px;color:#9e9e9e;padding:8px 0;">
+          Lower-volatility session expected. Focus on technicals and price action.
+        </div>
+      </div>`;
+  } else if (isWeekend) {
+    timeCardsHtml = `
+      <div class="time-card">
+        <div class="time-header">
+          <span class="time-label">Weekend — Markets Closed</span>
+        </div>
+        <div style="font-size:13px;color:#9e9e9e;padding:8px 0;">
+          Use this time to review your week, journal your trades, and prepare for next week's events below.
+        </div>
+      </div>`;
+  } else {
+    for (const [time, events] of Object.entries(timeGroups)) {
+      const maxImpact = events.some(e => e.impact === 'High') ? 'High' : 'Medium';
+      const dataRows = events.map(e => {
+        const hasActual = e.actual && e.actual.trim() !== '';
+        const actualClass = hasActual ? 'val-actual' : '';
+        return `
+          <div class="data-row">
+            <span class="data-name">${e.title}</span>
+            <span class="data-vals">
+              <span class="val-label">A:</span><span class="${actualClass}">${hasActual ? e.actual : 'Pending'}</span>
+              <span class="val-label">F:</span><span class="val-forecast">${e.forecast || '—'}</span>
+              <span class="val-label">P:</span><span class="val-prev">${e.previous || '—'}</span>
+            </span>
+          </div>`;
+      }).join('');
+
+      timeCardsHtml += `
+        <div class="time-card">
+          <div class="time-header">
+            <span class="time-label">${time}</span>
+            <span class="impact-badge ${impactClass(maxImpact)}">${impactLabel(maxImpact)}</span>
+          </div>
+          <div class="data-grid">${dataRows}</div>
+        </div>`;
+    }
+  }
+
+  // Week strip
+  const weekStripHtml = thisWeek.map(day => {
+    const isToday = day.date === `${etNow.getMonth()+1}/${etNow.getDate()}`;
+    const isPast = day.ms < (etNow.getTime() - 86400000);
+    return `
+      <div class="week-day${isToday ? ' today' : ''}">
+        <span class="day-label">${day.label} ${day.date}</span>
+        <span class="day-note">${isPast ? '✓ Done' : getWeekDayNote(day)}</span>
+      </div>`;
+  }).join('');
+
+  // Next week strip
+  const nextWeekHtml = nextWeek.map(day => `
+    <div class="nw-day">
+      <span class="nw-day-label">${day.label} ${day.date}</span>
+      <span class="nw-event">${getWeekDayNote(day)}</span>
+    </div>`).join('');
+
+  // Alert box
+  const highToday = todayEvents.filter(e => e.impact === 'High');
+  let alertHtml = '';
+  if (isWeekend) {
+    alertHtml = `<div class="alert-box alert-blue"><strong>📅 Weekend Preview</strong> — Markets reopen Sunday 6 PM ET. Review next week's calendar below.</div>`;
+  } else if (highToday.length > 0) {
+    const alertItems = highToday.map(e => `${e.title} at ${formatTimeShort(e.date)}`).join(', ');
+    alertHtml = `<div class="alert-box alert-red"><strong>🔴 RED FOLDER TODAY:</strong> ${alertItems}. Expect elevated volatility around these releases.</div>`;
+  } else if (todayEvents.length > 0) {
+    alertHtml = `<div class="alert-box alert-orange"><strong>🟠 MEDIUM IMPACT:</strong> ${todayEvents.length} scheduled USD release${todayEvents.length > 1 ? 's' : ''} today. Moderate volatility expected.</div>`;
+  } else {
+    alertHtml = `<div class="alert-box alert-green"><strong>✅ CLEAN SESSION:</strong> No high-impact USD events scheduled. Favorable for technical setups.</div>`;
+  }
+
+  // Count events
+  const totalHighThisWeek = usdEvents.filter(e => e.impact === 'High').length;
+  const totalMedThisWeek = usdEvents.filter(e => e.impact === 'Medium').length;
+
+  // Full HTML output
+  const html = `<style>
     .dn-container {
-        max-width: 980px;
-        margin: 0 auto;
-        background-color: #232323;
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        overflow: hidden;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-        color: #e0e0e0;
-        font-size: 14px;
+        max-width: 980px; margin: 0 auto; background-color: #232323;
+        border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        color: #e0e0e0; font-size: 14px;
     }
     .dn-container .header {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        color: white;
-        padding: 18px 24px;
-        text-align: center;
+        color: white; padding: 18px 24px; text-align: center;
     }
     .dn-container .header h1 { margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; }
     .dn-container .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.92; color: #ffffff; }
     .dn-container .alerts-section {
-        padding: 14px 18px 10px;
-        background-color: #2a2a2a;
-        border-bottom: 1px solid #3a3a3a;
+        padding: 14px 18px 10px; background-color: #2a2a2a; border-bottom: 1px solid #3a3a3a;
     }
     .dn-container .alert-box {
-        border-radius: 6px;
-        padding: 10px 14px;
-        margin-bottom: 8px;
-        font-size: 13px;
-        line-height: 1.45;
+        border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; line-height: 1.45;
     }
     .dn-container .alert-red { background-color: #3d1a1a; border: 2px solid #c62828; color: #ffcdd2; }
     .dn-container .alert-red strong { color: #ff5252; font-size: 14px; }
@@ -41,10 +266,7 @@
     .dn-container .alert-orange strong { color: #ffb74d; }
     .dn-container .alert-blue { background-color: #1a2a3d; border-radius: 6px; padding: 9px 14px; font-size: 13px; color: #90caf9; line-height: 1.45; }
     .dn-container .week-strip {
-        display: flex;
-        background-color: #2e2e2e;
-        border-bottom: 1px solid #3a3a3a;
-        overflow: hidden;
+        display: flex; background-color: #2e2e2e; border-bottom: 1px solid #3a3a3a; overflow: hidden;
     }
     .dn-container .week-day {
         flex: 1; text-align: center; padding: 8px 4px;
@@ -55,138 +277,97 @@
     .dn-container .week-day .day-label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 2px; }
     .dn-container .week-day .day-note { font-size: 10px; color: #bdbdbd; }
     .dn-container .week-day.today .day-note { color: #90caf9; }
-    .dn-container .earnings-strip {
-        display: flex; background-color: #252525; border-bottom: 1px solid #3a3a3a;
-        padding: 7px 14px; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 12px;
-    }
-    .dn-container .strip-label { color: #9e9e9e; font-weight: 600; font-size: 11px; white-space: nowrap; }
-    .dn-container .earnings-tag { padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .dn-container .tag-beat { background-color: #1b5e20; color: #a5d6a7; }
-    .dn-container .tag-miss { background-color: #b71c1c; color: #ffcdd2; }
-    .dn-container .tag-mixed { background-color: #4a3000; color: #ffe082; }
-    .dn-container .tag-upcoming { background-color: #1a2a3d; color: #90caf9; }
-    .dn-container .main-content { display: flex; padding: 14px; gap: 14px; }
-    .dn-container .left-column { display: flex; flex-direction: column; gap: 14px; width: 170px; flex-shrink: 0; }
-    .dn-container .side-box { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 11px; }
-    .dn-container .side-box h3 { margin: 0 0 9px 0; font-size: 13px; color: #90caf9; font-weight: 700; border-bottom: 1px solid #3a3a3a; padding-bottom: 5px; }
-    .dn-container .side-item { margin-bottom: 5px; font-size: 12px; line-height: 1.4; color: #e0e0e0; }
-    .dn-container .ticker { font-weight: 700; color: #64b5f6; }
-    .dn-container .beat-text { color: #69f0ae; }
-    .dn-container .miss-text { color: #ff5252; }
-    .dn-container .mixed-text { color: #ffb74d; }
-    .dn-container .data-box { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-    .dn-container .recap-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; font-size: 13px; }
-    .dn-container .recap-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
-    .dn-container .recap-row { margin-bottom: 5px; line-height: 1.4; color: #e0e0e0; }
-    .dn-container .up { color: #69f0ae; }
-    .dn-container .down { color: #ff5252; }
-    .dn-container .neutral { color: #ffb74d; }
-    .dn-container .time-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; }
+    .dn-container .main-content { padding: 14px; }
+    .dn-container .time-card { background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px; padding: 12px 14px; margin-bottom: 12px; }
     .dn-container .time-header { display: flex; align-items: center; margin-bottom: 9px; gap: 10px; }
     .dn-container .time-label { font-size: 15px; font-weight: 700; color: #ffffff; }
     .dn-container .impact-badge { padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .dn-container .badge-critical { background-color: #c62828; color: #ffffff; }
     .dn-container .badge-high { background-color: #e65100; color: #ffffff; }
-    .dn-container .badge-medium { background-color: #f57f17; color: #000000; }
     .dn-container .badge-low { background-color: #424242; color: #bdbdbd; }
-    .dn-container .badge-actual { background-color: #1b5e20; color: #a5d6a7; }
-    .dn-container .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px 16px; }
-    .dn-container .data-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #333; font-size: 13px; }
-    .dn-container .data-row:last-child { border-bottom: none; }
-    .dn-container .data-name { color: #e0e0e0; font-weight: 500; }
-    .dn-container .data-vals { display: flex; gap: 10px; font-size: 12px; }
+    .dn-container .data-grid { display: grid; grid-template-columns: 1fr; gap: 5px; }
+    .dn-container .data-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 6px 10px; background-color: #252525; border-radius: 4px; font-size: 13px;
+    }
+    .dn-container .data-name { font-weight: 600; color: #e0e0e0; flex: 1; }
+    .dn-container .data-vals { display: flex; gap: 8px; align-items: center; font-size: 12px; flex-shrink: 0; }
+    .dn-container .val-label { color: #757575; font-weight: 600; font-size: 10px; }
     .dn-container .val-actual { color: #69f0ae; font-weight: 700; }
-    .dn-container .val-actual-miss { color: #ff5252; font-weight: 700; }
-    .dn-container .val-forecast { color: #64b5f6; }
+    .dn-container .val-forecast { color: #90caf9; }
     .dn-container .val-prev { color: #9e9e9e; }
-    .dn-container .val-label { font-size: 10px; color: #757575; margin-right: 2px; }
-    .dn-container .section-note { margin-top: 8px; font-size: 11px; color: #9e9e9e; line-height: 1.4; border-top: 1px solid #333; padding-top: 6px; }
-    .dn-container .next-week-bar { background-color: #1a2a1a; border: 1px solid #2e5b2e; border-radius: 7px; padding: 10px 14px; font-size: 12px; color: #c8e6c9; }
-    .dn-container .next-week-bar h3 { margin: 0 0 7px 0; font-size: 13px; color: #81c784; font-weight: 700; }
+    .dn-container .summary-card {
+        background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px;
+        padding: 12px 14px; margin-bottom: 12px;
+    }
+    .dn-container .summary-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
+    .dn-container .summary-row { margin-bottom: 5px; line-height: 1.4; color: #e0e0e0; font-size: 13px; }
+    .dn-container .next-week-bar {
+        background-color: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 7px;
+        padding: 12px 14px; margin-bottom: 12px;
+    }
+    .dn-container .next-week-bar h3 { margin: 0 0 10px 0; font-size: 14px; color: #90caf9; font-weight: 700; }
     .dn-container .nw-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-    .dn-container .nw-day { background-color: #1e3320; border-radius: 5px; padding: 6px 8px; font-size: 11px; }
-    .dn-container .nw-day-label { font-weight: 700; color: #a5d6a7; display: block; margin-bottom: 3px; font-size: 12px; }
-    .dn-container .nw-event { color: #c8e6c9; line-height: 1.3; }
-    .dn-container .nw-event.hot { color: #ff5252; font-weight: 700; }
-    .dn-container .fed-card { background-color: #2a2200; border: 1px solid #5a4800; border-radius: 7px; padding: 11px 14px; font-size: 13px; }
-    .dn-container .fed-card h3 { margin: 0 0 8px 0; font-size: 13px; color: #ffd54f; font-weight: 700; }
-    .dn-container .dn-footer { background-color: #1e1e1e; padding: 10px 18px; text-align: center; font-size: 11px; color: #616161; border-top: 1px solid #2a2a2a; }
-    @media (max-width: 768px) {
-        .dn-container .main-content { flex-direction: column; }
-        .dn-container .left-column { width: 100%; }
+    .dn-container .nw-day {
+        background-color: #252525; border-radius: 5px; padding: 8px 6px; text-align: center;
+    }
+    .dn-container .nw-day-label { display: block; font-size: 11px; font-weight: 700; color: #64b5f6; margin-bottom: 4px; }
+    .dn-container .nw-event { font-size: 10px; color: #bdbdbd; line-height: 1.4; }
+    .dn-container .dn-footer {
+        padding: 10px 18px; background-color: #1e1e1e; border-top: 1px solid #3a3a3a;
+        font-size: 11px; color: #616161; text-align: center;
+    }
+    @media (max-width: 640px) {
+        .dn-container .week-strip { flex-wrap: wrap; }
+        .dn-container .week-day { flex: 0 0 33.33%; border-bottom: 1px solid #3a3a3a; }
         .dn-container .nw-grid { grid-template-columns: repeat(2, 1fr); }
-        .dn-container .data-grid { grid-template-columns: 1fr; }
+        .dn-container .data-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+        .dn-container .data-vals { flex-wrap: wrap; }
     }
 </style>
-
 <div class="dn-container">
     <div class="header">
-        <h1>USD Economic Calendar</h1>
-        <p>Tuesday, March 10, 2026 &bull; Oil shock reversal and Middle East tensions ease as markets recover from Monday's volatility</p>
+        <h1>📅 USD Economic Calendar</h1>
+        <p>${todayFormatted} — ${hour} ET</p>
     </div>
-    <div class="alerts-section">
-        <div class="alert-box alert-red"><strong>⚠️ FOMC MEETING NEXT WEEK:</strong> Fed meets March 17-18 with policy decision at 2:00p ET Tuesday</div>
-    </div>
-    <div class="week-strip">
-        <div class="week-day"><span class="day-label">MON 3/9</span><span class="day-note">No high impact</span></div>
-        <div class="week-day today"><span class="day-label">TUE 3/10</span><span class="day-note">No high impact</span></div>
-        <div class="week-day"><span class="day-label">WED 3/11</span><span class="day-note">Crude Oil Inventories 10:30a</span></div>
-        <div class="week-day"><span class="day-label">THU 3/12</span><span class="day-note">Jobless Claims 8:30a</span></div>
-        <div class="week-day"><span class="day-label">FRI 3/13</span><span class="day-note">No high impact</span></div>
-    </div>
-    <div class="earnings-strip">
-        <span class="strip-label">EARNINGS:</span>
-        <span class="earnings-tag tag-upcoming">Light earnings week ahead</span>
-    </div>
-    <div class="main-content">
-        <div class="left-column">
-            <div class="side-box">
-                <h3>📊 Pre-Mkt Movers</h3>
-                <div class="side-item"><span class="ticker">NVDA</span> <span class="beat-text">+1.25%</span><br><span style="font-size:11px;color:#9e9e9e;">Tech recovery premarket</span></div>
-                <div class="side-item"><span class="ticker">GOOGL</span> <span class="beat-text">+1.42%</span><br><span style="font-size:11px;color:#9e9e9e;">Search strength</span></div>
-                <div class="side-item"><span class="ticker">TSLA</span> <span class="miss-text">-1.00%</span><br><span style="font-size:11px;color:#9e9e9e;">Energy concerns</span></div>
-                <div class="side-item"><span class="ticker">META</span> <span class="miss-text">-1.30%</span><br><span style="font-size:11px;color:#9e9e9e;">Risk-off sentiment</span></div>
-            </div>
-            <div class="side-box">
-                <h3>📅 Key Events</h3>
-                <div class="side-item">FOMC meeting next Tuesday-Wednesday March 17-18</div>
-                <div class="side-item">Oil prices stabilized after Monday's $110+ spike</div>
-                <div class="side-item">Jobs claims Thursday as labor market watched</div>
-            </div>
-        </div>
-        <div class="data-box">
-            <div class="recap-card"><h3>📉 Monday's Session Recap</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px 20px;">
-                    <div class="recap-row"><strong>S&amp;P 500:</strong> <span class="down">Down -1.2% amid oil shock</span></div>
-                    <div class="recap-row"><strong>Nasdaq:</strong> <span class="down">Down -1.5% tech selloff</span></div>
-                    <div class="recap-row"><strong>Dow Jones:</strong> <span class="down">Down -0.8% defensive</span></div>
-                    <div class="recap-row"><strong>VIX:</strong> <span class="up">35.3 (+65% fear spike)</span></div>
-                    <div class="recap-row"><strong>10Y Yield:</strong> <span class="down">4.127% (from 4.15%)</span></div>
-                    <div class="recap-row"><strong>WTI Oil:</strong> <span class="down">$87 (fell from $110+)</span></div>
-                </div>
-                <div class="section-note">Markets rebounded from oil shock as crude fell from overnight highs above $110 back to mid-$80s</div>
-            </div>
 
-            <div class="time-card">
-                <div class="time-header"><span class="time-label">Light Data Day</span><span class="impact-badge badge-low">LOW IMPACT</span></div>
-                <div class="section-note">No major economic releases today. Markets focused on oil price volatility following US-Iran conflict escalation. Crude spiked above $110 overnight but retreated to $87 area by close. VIX hit highest since April at 35.3 as geopolitical tensions dominated trading.</div>
-            </div>
-            <div class="fed-card"><h3>🏛️ Fed Rate Path</h3>
-                <div class="recap-row"><strong>Current Rate:</strong> 3.50-3.75%</div>
-                <div class="recap-row"><strong>Next Meeting:</strong> March 17-18, 2026</div>
-                <div class="recap-row"><strong>Expected Action:</strong> Hold rates steady</div>
-                <div class="recap-row"><strong>Market Pricing:</strong> Pause expected amid inflation concerns</div>
-            </div>
-            <div class="next-week-bar"><h3>📅 Next Week — MON 3/16 – FRI 3/20</h3>
-                <div class="nw-grid">
-                    <div class="nw-day"><span class="nw-day-label">MON 3/16</span><span class="nw-event">No high impact</span></div>
-                    <div class="nw-day"><span class="nw-day-label">TUE 3/17</span><span class="nw-event hot">FOMC 2:00p</span></div>
-                    <div class="nw-day"><span class="nw-day-label">WED 3/18</span><span class="nw-event hot">FOMC Conclusion · Housing data</span></div>
-                    <div class="nw-day"><span class="nw-day-label">THU 3/19</span><span class="nw-event">Jobless Claims 8:30a</span></div>
-                    <div class="nw-day"><span class="nw-day-label">FRI 3/20</span><span class="nw-event">No high impact</span></div>
-                </div>
-            </div>
+    <div class="alerts-section">
+        ${alertHtml}
+        <div class="alert-blue"><strong>📊 This Week:</strong> ${totalHighThisWeek} red folder + ${totalMedThisWeek} orange folder USD events. Data sourced from ForexFactory.</div>
+    </div>
+
+    <div class="week-strip">${weekStripHtml}</div>
+
+    <div class="main-content">
+        ${timeCardsHtml}
+
+        <div class="next-week-bar">
+            <h3>📅 Next Week — ${nextWeek[0].label} ${nextWeek[0].date} – ${nextWeek[4].label} ${nextWeek[4].date}</h3>
+            <div class="nw-grid">${nextWeekHtml}</div>
         </div>
     </div>
-    <div class="dn-footer">USD Economic Calendar &bull; Tuesday, March 10, 2026 &bull; For informational purposes only — not investment advice</div>
-</div>
+
+    <div class="dn-footer">
+        USD Economic Calendar &bull; ${todayFormatted} &bull; Source: ForexFactory &bull; For informational purposes only — not investment advice
+    </div>
+</div>`;
+
+  // Write output
+  const output = `<!-- Daily News generated ${now.toISOString()} -->\n<!-- Run: ${hour} ET | Source: ForexFactory JSON (free) | Events: ${usdEvents.length} USD -->\n${html}`;
+  fs.writeFileSync('daily-news.html', output, 'utf-8');
+  console.log(`✅ Written daily-news.html (${(output.length / 1024).toFixed(1)} KB) — ${todayEvents.length} events today, ${usdEvents.length} this week`);
+}
+
+generateCalendar().catch(err => {
+  console.error('❌ Generation failed:', err.message);
+  const fallback = `<!-- Daily News generation failed ${now.toISOString()} -->
+<div style="max-width:980px;margin:0 auto;padding:40px 20px;text-align:center;color:#9e9e9e;font-family:-apple-system,sans-serif;">
+  <div style="font-size:48px;margin-bottom:16px;">📡</div>
+  <h2 style="color:#e0e0e0;font-size:20px;margin-bottom:8px;">Daily News Updating...</h2>
+  <p style="font-size:14px;">Calendar is being refreshed. Check back shortly.</p>
+  <p style="font-size:12px;margin-top:16px;color:#666;">Last attempt: ${todayFormatted} ${hour} ET</p>
+  <p style="font-size:11px;margin-top:8px;color:#555;">Error: ${err.message}</p>
+</div>`;
+  fs.writeFileSync('daily-news.html', fallback, 'utf-8');
+  process.exit(1);
+});
