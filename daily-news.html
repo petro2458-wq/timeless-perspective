@@ -5,311 +5,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Market Briefing — Thursday, March 19, 2026</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-    background: #0a0e1a; color: #e0e0e0; line-height: 1.5;
-    min-height: 100vh;
-  }
-  a { color: #5b9aff; text-decoration: none; }
-  .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
-  .header {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    border-bottom: 1px solid #1a2040; padding-bottom: 16px; margin-bottom: 24px;
-  }
-  .header-left h1 { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
-  .header-left .date { font-size: 13px; color: #6b7280; margin-top: 2px; }
-  .header-right { font-size: 11px; color: #4b5563; text-align: right; }
-  .header-right .gen-time { color: #6b7280; }
-  .mood-bar {
-    background: linear-gradient(135deg, #111832, #0f1629);
-    border: 1px solid #1e2a4a; border-radius: 10px;
-    padding: 18px 22px; margin-bottom: 20px;
-  }
-  .mood-bar h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #5b9aff; margin-bottom: 10px; font-weight: 600; }
-  .mood-bar ul { list-style: none; }
-  .mood-bar li { font-size: 14px; color: #c9d1d9; padding: 4px 0 4px 16px; position: relative; }
-  .mood-bar li::before { content: '›'; position: absolute; left: 0; color: #5b9aff; font-weight: 700; }
-  .quotes-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
-    gap: 10px; margin-bottom: 20px;
-  }
-  .quote-card {
-    background: #111832; border: 1px solid #1a2040; border-radius: 8px;
-    padding: 12px; text-align: center;
-  }
-  .quote-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-  .quote-price { font-size: 18px; font-weight: 700; color: #fff; margin: 4px 0 2px; }
-  .quote-change { font-size: 12px; font-weight: 600; }
-  .main-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; margin-bottom: 20px; }
-  @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
-  .headlines-box {
-    background: #111832; border: 1px solid #1a2040; border-radius: 10px;
-    padding: 18px 22px;
-  }
-  .headlines-box h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #ffab00; margin-bottom: 12px; font-weight: 600; }
-  .headline-item { font-size: 14px; color: #c9d1d9; padding: 8px 0; border-bottom: 1px solid #1a2040; }
-  .headline-item:last-child { border-bottom: none; }
-  .sidebar { display: flex; flex-direction: column; gap: 16px; }
-  .sidebar-box {
-    background: #111832; border: 1px solid #1a2040; border-radius: 10px;
-    padding: 16px 18px;
-  }
-  .sidebar-box h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 10px; font-weight: 600; }
-  .earning-item { padding: 6px 0; border-bottom: 1px solid #1a2040; }
-  .earning-item:last-child { border-bottom: none; }
-  .earning-ticker { font-weight: 700; color: #fff; font-size: 13px; margin-right: 8px; }
-  .earning-result { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-  .earning-result.beat { background: #0d3320; color: #00c853; }
-  .earning-result.miss { background: #3d0f0f; color: #ff1744; }
-  .earning-detail { font-size: 12px; color: #8b949e; margin-top: 2px; }
-  .earning-none { font-size: 12px; color: #4b5563; font-style: italic; }
-  .mover-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-  .mover-ticker { font-weight: 700; color: #fff; font-size: 12px; min-width: 50px; }
-  .mover-pct { color: #00c853; font-size: 12px; font-weight: 600; min-width: 55px; }
-  .mover-name { font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .week-section {
-    background: #111832; border: 1px solid #1a2040; border-radius: 10px;
-    padding: 18px 22px; margin-bottom: 20px;
-  }
-  .week-section > h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #5b9aff; margin-bottom: 14px; font-weight: 600; }
-  .week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  @media (max-width: 768px) { .week-strip { grid-template-columns: repeat(3, 1fr); } }
-  .week-day {
-    background: #0d1225; border: 1px solid #1a2040; border-radius: 8px;
-    padding: 10px; min-height: 80px;
-  }
-  .week-day.today { border-color: #5b9aff; background: #0f1832; }
-  .week-day-label { font-size: 11px; font-weight: 700; color: #8b949e; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .week-day.today .week-day-label { color: #5b9aff; }
-  .cal-event { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
-  .cal-time { font-size: 10px; color: #6b7280; min-width: 38px; }
-  .cal-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .cal-title { font-size: 11px; color: #c9d1d9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .cal-more { font-size: 10px; color: #5b9aff; margin-top: 2px; }
-  .cal-none { font-size: 11px; color: #333; }
-  .next-week { margin-bottom: 20px; }
-  .next-week h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 8px; font-weight: 600; }
-  .nw-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .nw-tag { font-size: 11px; background: #161d35; border: 1px solid #1e2a4a; color: #8b949e; padding: 4px 10px; border-radius: 20px; }
-  .nw-pending { color: #4b5563; font-style: italic; }
-  .fed-note {
-    background: #111420; border-left: 3px solid #ffab00; border-radius: 0 8px 8px 0;
-    padding: 14px 18px; margin-bottom: 20px;
-    font-size: 13px; color: #8b949e;
-  }
-  .fed-note strong { color: #ffab00; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .footer { text-align: center; padding: 20px 0; border-top: 1px solid #1a2040; font-size: 11px; color: #333; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif; background: #0a0e1a; color: #e0e0e0; line-height: 1.5; min-height: 100vh; }
+a { color: #5b9aff; text-decoration: none; }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+.header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #1a2040; padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 8px; }
+.header-left h1 { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.header-left .date { font-size: 13px; color: #6b7280; margin-top: 2px; }
+.header-right { font-size: 11px; color: #4b5563; text-align: right; }
+.header-right .gen-time { color: #6b7280; }
+.mood-bar { background: linear-gradient(135deg, #111832, #0f1629); border: 1px solid #1e2a4a; border-radius: 10px; padding: 18px 22px; margin-bottom: 20px; }
+.mood-bar h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #5b9aff; margin-bottom: 10px; font-weight: 600; }
+.mood-bar ul { list-style: none; }
+.mood-bar li { font-size: 14px; color: #c9d1d9; padding: 4px 0 4px 16px; position: relative; }
+.mood-bar li::before { content: "›"; position: absolute; left: 0; color: #5b9aff; font-weight: 700; }
+.quotes-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; }
+.quote-card { background: #111832; border: 1px solid #1a2040; border-radius: 8px; padding: 12px 8px; text-align: center; }
+.quote-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.quote-price { font-size: 17px; font-weight: 700; color: #fff; margin: 4px 0 2px; }
+.quote-change { font-size: 11px; font-weight: 600; }
+.main-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; margin-bottom: 20px; }
+.headlines-box { background: #111832; border: 1px solid #1a2040; border-radius: 10px; padding: 18px 22px; }
+.headlines-box h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #ffab00; margin-bottom: 12px; font-weight: 600; }
+.headline-item { font-size: 14px; color: #c9d1d9; padding: 8px 0; border-bottom: 1px solid #1a2040; }
+.headline-item:last-child { border-bottom: none; }
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+.sidebar-box { background: #111832; border: 1px solid #1a2040; border-radius: 10px; padding: 16px 18px; }
+.sidebar-box h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 10px; font-weight: 600; }
+.earning-item { padding: 6px 0; border-bottom: 1px solid #1a2040; }
+.earning-item:last-child { border-bottom: none; }
+.earning-ticker { font-weight: 700; color: #fff; font-size: 13px; margin-right: 8px; }
+.earning-result { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+.earning-result.beat { background: #0d3320; color: #00c853; }
+.earning-result.miss { background: #3d0f0f; color: #ff1744; }
+.earning-detail { font-size: 12px; color: #8b949e; margin-top: 2px; }
+.earning-none { font-size: 12px; color: #4b5563; font-style: italic; }
+.mover-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.mover-ticker { font-weight: 700; color: #fff; font-size: 12px; min-width: 50px; }
+.mover-pct { color: #00c853; font-size: 12px; font-weight: 600; min-width: 55px; }
+.mover-name { font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.week-section { background: #111832; border: 1px solid #1a2040; border-radius: 10px; padding: 18px 22px; margin-bottom: 20px; }
+.week-section > h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #5b9aff; margin-bottom: 14px; font-weight: 600; }
+.week-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.week-day { background: #0d1225; border: 1px solid #1a2040; border-radius: 8px; padding: 10px; min-height: 80px; }
+.week-day.today { border-color: #5b9aff; background: #0f1832; }
+.week-day-label { font-size: 11px; font-weight: 700; color: #8b949e; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.week-day.today .week-day-label { color: #5b9aff; }
+.cal-event { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
+.cal-time { font-size: 10px; color: #6b7280; min-width: 42px; }
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.cal-title { font-size: 11px; color: #c9d1d9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-more { font-size: 10px; color: #5b9aff; margin-top: 2px; }
+.cal-none { font-size: 11px; color: #333; }
+.next-week { margin-bottom: 20px; }
+.next-week h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 8px; font-weight: 600; }
+.nw-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.nw-tag { font-size: 11px; background: #161d35; border: 1px solid #1e2a4a; color: #8b949e; padding: 4px 10px; border-radius: 20px; }
+.nw-pending { color: #4b5563; font-style: italic; }
+.fed-note { background: #111420; border-left: 3px solid #ffab00; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #8b949e; }
+.fed-note strong { color: #ffab00; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.footer { text-align: center; padding: 20px 0; border-top: 1px solid #1a2040; font-size: 11px; color: #333; }
+@media (max-width: 768px) {
+  .container { padding: 16px 12px; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .header-right { text-align: left; }
+  .quotes-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .quote-card { padding: 10px 6px; }
+  .quote-price { font-size: 15px; }
+  .quote-change { font-size: 10px; }
+  .main-grid { grid-template-columns: 1fr; }
+  .week-strip { grid-template-columns: 1fr; gap: 6px; }
+  .week-day { min-height: auto; padding: 8px; }
+  .mood-bar { padding: 14px 16px; }
+  .mood-bar li { font-size: 13px; }
+  .headlines-box { padding: 14px 16px; }
+  .sidebar-box { padding: 14px 16px; }
+}
+@media (max-width: 420px) { .quotes-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <div class="header-left">
-      <h1>Daily Market Briefing</h1>
-      <div class="date">Thursday, March 19, 2026</div>
-    </div>
-    <div class="header-right">
-      <div class="gen-time">Generated 10:41 AM ET</div>
-      <div>Powered by Qwen 3.5 35B · Local AI</div>
-    </div>
-  </div>
-  <div class="mood-bar">
-    <h3>Market Mood</h3>
-    <ul><li>Markets open in a risk-off mode following a chaotic session where gold and silver suffered massive selloffs alongside equities.</li><li>The VIX has spiked over 4% to 26.18, signaling heightened fear as traders brace for potential volatility ahead of the unemployment claims data.</li><li>Energy and precious metals are diverging sharply, with crude oil gaining on supply concerns while gold drops nearly 6% on profit-taking or safe-haven rotation.</li><li>Small caps (/RTY) are underperforming large caps, reflecting sensitivity to rising rate fears or broader economic uncertainty.</li><li>Key focus today will be the Unemployment Claims report and Philly Fed Manufacturing Index for signs of labor market resilience or recession signals.</li><li>Individual stock volatility is extreme with DLocal and Venture Global surging over 12%, suggesting sector-specific rotation rather than broad market strength.</li></ul>
-  </div>
-  <div class="quotes-grid">
-      <div class="quote-card">
-        <div class="quote-label">/NQ</div>
-        <div class="quote-price">$24434.25</div>
-        <div class="quote-change" style="color:#ff1744">▼ -0.25 (-0.00%)</div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-label">/YM</div>
-        <div class="quote-price">$46093.00</div>
-        <div class="quote-change" style="color:#ff1744">▼ -141.00 (-0.30%)</div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-label">/RTY</div>
-        <div class="quote-price">$2474.90</div>
-        <div class="quote-change" style="color:#ff1744">▼ -4.50 (-0.18%)</div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-label">/CL</div>
-        <div class="quote-price">$97.06</div>
-        <div class="quote-change" style="color:#00c853">▲ 0.74 (0.77%)</div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-label">/GC</div>
-        <div class="quote-price">$4587.00</div>
-        <div class="quote-change" style="color:#ff1744">▼ -302.90 (-6.19%)</div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-label">/SI</div>
-        <div class="quote-price">$69.24</div>
-        <div class="quote-change" style="color:#ff1744">▼ -8.00 (-10.36%)</div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-label">VIX</div>
-        <div class="quote-price">$26.18</div>
-        <div class="quote-change" style="color:#00c853">▲ 1.09 (4.34%)</div>
-      </div></div>
-  <div class="main-grid">
-    <div class="main-col">
-      <div class="headlines-box">
-        <h3>Key Headlines</h3>
-        <div class="headline-item">Gold and Silver Plunge as Precious Metals Sector Faces Major Correction</div><div class="headline-item">Equities Mixed to Lower as VIX Spikes Ahead of Jobs Data</div><div class="headline-item">Oil Rallies on Supply Tightness While Energy Stocks Surge</div><div class="headline-item">Tech and Small Caps Lag as Economic Anxiety Mounts</div>
-      </div>
-    </div>
-    <div class="sidebar">
-      <div class="sidebar-box">
-        <h3>Earnings — Last Night</h3>
-        <div class="earning-none">No major earnings last night</div>
-      </div>
-      <div class="sidebar-box">
-        <h3>Earnings — After Close Today</h3>
-        <div class="earning-none">None notable today</div>
-      </div>
-      <div class="sidebar-box">
-        <h3>Top Movers</h3>
-        <div class="mover-item">
-      <span class="mover-ticker">DLO</span>
-      <span class="mover-pct">+16.07%</span>
-      <span class="mover-name">DLocal Limited</span>
-    </div><div class="mover-item">
-      <span class="mover-ticker">SIG</span>
-      <span class="mover-pct">+12.87%</span>
-      <span class="mover-name">Signet Jewelers Limited</span>
-    </div><div class="mover-item">
-      <span class="mover-ticker">VG</span>
-      <span class="mover-pct">+12.90%</span>
-      <span class="mover-name">Venture Global, Inc.</span>
-    </div><div class="mover-item">
-      <span class="mover-ticker">NEXT</span>
-      <span class="mover-pct">+12.54%</span>
-      <span class="mover-name">NextDecade Corporation</span>
-    </div><div class="mover-item">
-      <span class="mover-ticker">VET</span>
-      <span class="mover-pct">+11.38%</span>
-      <span class="mover-name">Vermilion Energy Inc.</span>
-    </div>
-      </div>
-    </div>
-  </div>
-  <div class="week-section">
-    <h3>Economic Calendar — This Week</h3>
-    <div class="week-strip">
-      <div class="week-day ">
-        <div class="week-day-label">Mon, Mar 16</div>
-        <div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ffab00"></span>
-        <span class="cal-title">Empire State Manufacturing Index</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">Capacity Utilization Rate</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">Industrial Production m/m</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">NAHB Housing Market Index</span>
-      </div><div class="cal-more">+1 more</div>
-        
-      </div>
-      <div class="week-day ">
-        <div class="week-day-label">Tue, Mar 17</div>
-        <div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">ADP Weekly Employment Change</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ffab00"></span>
-        <span class="cal-title">Pending Home Sales m/m</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">API Weekly Statistical Bulletin</span>
-      </div>
-        
-      </div>
-      <div class="week-day ">
-        <div class="week-day-label">Wed, Mar 18</div>
-        <div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ff1744"></span>
-        <span class="cal-title">Core PPI m/m</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ff1744"></span>
-        <span class="cal-title">PPI m/m</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">Factory Orders m/m</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">Crude Oil Inventories</span>
-      </div><div class="cal-more">+5 more</div>
-        
-      </div>
-      <div class="week-day today">
-        <div class="week-day-label">Thu, Mar 19</div>
-        <div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ff1744"></span>
-        <span class="cal-title">Unemployment Claims</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ffab00"></span>
-        <span class="cal-title">Philly Fed Manufacturing Index</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ffab00"></span>
-        <span class="cal-title">New Home Sales</span>
-      </div><div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#666"></span>
-        <span class="cal-title">CB Leading Index m/m</span>
-      </div><div class="cal-more">+2 more</div>
-        
-      </div>
-      <div class="week-day ">
-        <div class="week-day-label">Fri, Mar 20</div>
-        
-        <div class="cal-none">—</div>
-      </div>
-      <div class="week-day ">
-        <div class="week-day-label">Sat, Mar 21</div>
-        <div class="cal-event">
-        <span class="cal-time">TBD</span>
-        <span class="cal-dot" style="background:#ffab00"></span>
-        <span class="cal-title">Fed Chair Powell Speaks</span>
-      </div>
-        
-      </div>
-      <div class="week-day ">
-        <div class="week-day-label">Sun, Mar 22</div>
-        
-        <div class="cal-none">—</div>
-      </div></div>
-  </div>
-  <div class="next-week">
-    <h3>Next Week Preview</h3>
-    <div class="nw-tags"><span class="nw-tag nw-pending">Available Sunday</span></div>
-  </div>
-  <div class="fed-note">
-    <strong>Fed Watch</strong><br>
-    The market continues to price in a cautious Fed trajectory with rates likely holding steady near current levels while inflation data remains sticky. Investors are closely watching for any dovish pivots or signals of prolonged higher-for-longer rates as economic growth shows signs of slowing.
-  </div>
-  <div class="footer">
-    Timeless Perspective · david-market-briefing · Updated 10:41 AM ET
-  </div>
+  <div class="header"><div class="header-left"><h1>Daily Market Briefing</h1><div class="date">Thursday, March 19, 2026</div></div><div class="header-right"><div class="gen-time">Generated 10:52 AM ET</div><div>Powered by Qwen 3.5 35B · Local AI</div></div></div>
+  <div class="mood-bar"><h3>Market Mood</h3><ul><li>Gold and silver futures are experiencing a severe sell-off with spot metals down over 5% to 9%, signaling extreme risk aversion or a major macro shock.</li><li>Tech stocks (/NQ) and small caps (/RTY) are showing resilience with gains, diverging sharply from the precious metals crash.</li><li>The VIX has spiked to 25.52, indicating elevated fear levels despite mixed equity performance across sectors.</li><li>Energy markets remain supportive with crude oil up 0.56%, providing a counterbalance to the metal weakness.</li><li>Traders must closely watch the 8:30 AM unemployment claims and Philly Fed data for potential volatility triggers amid the current sentiment shift.</li></ul></div>
+  <div class="quotes-grid"><div class="quote-card"><div class="quote-label">/NQ</div><div class="quote-price">24488.75</div><div class="quote-change" style="color:#00c853">▲ 54.25 (0.22%)</div></div><div class="quote-card"><div class="quote-label">/YM</div><div class="quote-price">46196.00</div><div class="quote-change" style="color:#ff1744">▼ -38.00 (-0.08%)</div></div><div class="quote-card"><div class="quote-label">/RTY</div><div class="quote-price">2486.40</div><div class="quote-change" style="color:#00c853">▲ 7.00 (0.28%)</div></div><div class="quote-card"><div class="quote-label">/CL</div><div class="quote-price">96.86</div><div class="quote-change" style="color:#00c853">▲ 0.54 (0.56%)</div></div><div class="quote-card"><div class="quote-label">/GC</div><div class="quote-price">4620.00</div><div class="quote-change" style="color:#ff1744">▼ -269.90 (-5.52%)</div></div><div class="quote-card"><div class="quote-label">/SI</div><div class="quote-price">70.19</div><div class="quote-change" style="color:#ff1744">▼ -7.04 (-9.12%)</div></div><div class="quote-card"><div class="quote-label">VIX</div><div class="quote-price">25.52</div><div class="quote-change" style="color:#00c853">▲ 0.43 (1.71%)</div></div></div>
+  <div class="main-grid"><div class="main-col"><div class="headlines-box"><h3>Key Headlines</h3><div class="headline-item">Precious Metals Plunge as Risk Sentiment Wavers</div><div class="headline-item">Tech and Small Caps Defy Metal Selloff Gains</div><div class="headline-item">VIX Spikes Above 25 Amid Mixed Futures Action</div><div class="headline-item">Energy Sector Holds Ground While Gold Craters</div></div></div><div class="sidebar"><div class="sidebar-box"><h3>Earnings — Last Night</h3><div class="earning-none">No major earnings last night</div></div><div class="sidebar-box"><h3>Earnings — After Close Today</h3><div class="earning-none">None notable today</div></div><div class="sidebar-box"><h3>Top Movers</h3><div class="mover-item"><span class="mover-ticker">DLO</span><span class="mover-pct">+14.85%</span><span class="mover-name">DLocal Limited</span></div><div class="mover-item"><span class="mover-ticker">BTU</span><span class="mover-pct">+11.51%</span><span class="mover-name">Peabody Energy Corporation</span></div><div class="mover-item"><span class="mover-ticker">VET</span><span class="mover-pct">+11.60%</span><span class="mover-name">Vermilion Energy Inc.</span></div><div class="mover-item"><span class="mover-ticker">NEXT</span><span class="mover-pct">+11.23%</span><span class="mover-name">NextDecade Corporation</span></div><div class="mover-item"><span class="mover-ticker">SIG</span><span class="mover-pct">+9.73%</span><span class="mover-name">Signet Jewelers Limited</span></div></div></div></div>
+  <div class="week-section"><h3>Economic Calendar — This Week</h3><div class="week-strip"><div class="week-day "><div class="week-day-label">Mon, Mar 16</div><div class="cal-event"><span class="cal-time">8:30a</span><span class="cal-dot" style="background:#ffab00"></span><span class="cal-title">Empire State Manufacturing Index</span></div><div class="cal-event"><span class="cal-time">9:15a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">Capacity Utilization Rate</span></div><div class="cal-event"><span class="cal-time">9:15a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">Industrial Production m/m</span></div><div class="cal-event"><span class="cal-time">10:00a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">NAHB Housing Market Index</span></div><div class="cal-more">+1 more</div></div><div class="week-day "><div class="week-day-label">Tue, Mar 17</div><div class="cal-event"><span class="cal-time">8:15a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">ADP Weekly Employment Change</span></div><div class="cal-event"><span class="cal-time">10:00a</span><span class="cal-dot" style="background:#ffab00"></span><span class="cal-title">Pending Home Sales m/m</span></div><div class="cal-event"><span class="cal-time">4:30p</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">API Weekly Statistical Bulletin</span></div></div><div class="week-day "><div class="week-day-label">Wed, Mar 18</div><div class="cal-event"><span class="cal-time">8:30a</span><span class="cal-dot" style="background:#ff1744"></span><span class="cal-title">Core PPI m/m</span></div><div class="cal-event"><span class="cal-time">8:30a</span><span class="cal-dot" style="background:#ff1744"></span><span class="cal-title">PPI m/m</span></div><div class="cal-event"><span class="cal-time">10:00a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">Factory Orders m/m</span></div><div class="cal-event"><span class="cal-time">10:30a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">Crude Oil Inventories</span></div><div class="cal-more">+5 more</div></div><div class="week-day today"><div class="week-day-label">Thu, Mar 19</div><div class="cal-event"><span class="cal-time">8:30a</span><span class="cal-dot" style="background:#ff1744"></span><span class="cal-title">Unemployment Claims</span></div><div class="cal-event"><span class="cal-time">8:30a</span><span class="cal-dot" style="background:#ffab00"></span><span class="cal-title">Philly Fed Manufacturing Index</span></div><div class="cal-event"><span class="cal-time">10:00a</span><span class="cal-dot" style="background:#ffab00"></span><span class="cal-title">New Home Sales</span></div><div class="cal-event"><span class="cal-time">10:00a</span><span class="cal-dot" style="background:#666"></span><span class="cal-title">CB Leading Index m/m</span></div><div class="cal-more">+2 more</div></div><div class="week-day "><div class="week-day-label">Fri, Mar 20</div><div class="cal-none">—</div></div></div></div>
+  <div class="next-week"><h3>Next Week Preview</h3><div class="nw-tags"><span class="nw-tag"></span><span class="nw-tag">German Buba Monthly Report</span><span class="nw-tag"></span><span class="nw-tag">Construction Spending m/m</span><span class="nw-tag"></span><span class="nw-tag">Consumer Confidence</span><span class="nw-tag"></span><span class="nw-tag">Flash Manufacturing PMI</span></div></div>
+  <div class="fed-note"><strong>Fed Watch</strong><br>Current pricing implies a cautious Fed stance with markets likely anticipating potential rate cuts later in the year, though today's data will test the durability of this path. The divergence between strong equities and crashing metals suggests traders are re-evaluating inflation versus growth narratives.</div>
+  <div class="footer">Timeless Perspective · david-market-briefing · Updated 10:52 AM ET</div>
 </div>
 </body>
 </html>
