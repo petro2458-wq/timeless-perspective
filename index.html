@@ -108,7 +108,9 @@
       padding-top: 1.5rem; border-top: 1px solid var(--border);
       flex-wrap: wrap;
     }
-    .hero-stat-value { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 600; color: var(--accent); }
+    .hero-stat-value { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 600; color: var(--text-primary); }
+    .hero-stat-value a { color: #D4AE37; text-decoration: none; transition: opacity 0.2s; }
+    .hero-stat-value a:hover { opacity: 0.8; }
     .hero-stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem; }
     .hero-1pct {
       display: inline-flex; align-items: center; gap: 0.6rem;
@@ -722,17 +724,12 @@
             <div className="hero-tag">
               <span>FROM EXECUTIVE TO EDGE</span>
             </div>
-            <a className="hero-1pct" href="https://1percentclub.co/?el=affliate&htrafficsource=students" target="_blank" rel="noopener noreferrer">
-              <span className="hero-1pct-dot" />
-              1% Club Member
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-            </a>
             <h1>Master Position Sizing.<br/>Master <em>Your Mind</em>.</h1>
             <p className="hero-sub">
               Former petroleum engineering leader turned full-time futures trader.
               Building <strong>asymmetric returns</strong> through psychology-first position sizing.
             </p>
-            <p className="hero-sub" style={{fontFamily:'var(--font-display)',fontStyle:'italic',fontSize:'1.15rem',color:'var(--accent)',marginBottom:'1.5rem'}}>
+            <p className="hero-sub" style={{fontFamily:'var(--font-display)',fontStyle:'italic',fontSize:'1.15rem',color:'var(--text-secondary)',marginBottom:'1.5rem'}}>
               The Timeless Perspective is the psychological state where executing your edge becomes as effortless as breathing — no motivation required, no timeline pressure, just consistent process.
             </p>
 
@@ -748,6 +745,10 @@
               <div>
                 <div className="hero-stat-value">18 mo</div>
                 <div className="hero-stat-label">Elite Psych Coaching</div>
+              </div>
+              <div>
+                <div className="hero-stat-value"><a href="https://1percentclub.co/?el=affliate&htrafficsource=students" target="_blank" rel="noopener noreferrer">1% Club</a></div>
+                <div className="hero-stat-label">Member</div>
               </div>
             </div>
 
@@ -1014,6 +1015,7 @@
                   {TOOLS.map(tool => (
                     <div key={tool.id} className="tool-card" onClick={() => { setPage('tool-' + tool.id); window.scrollTo(0,0); }}>
                       <div className="tool-status live">LIVE</div>
+                      {tool.badge && <div className="tool-badge-1pct">{tool.badge}</div>}
                       <div className="tool-icon">{tool.icon}</div>
                       <h3 className="tool-name">{tool.name}</h3>
                       <p className="tool-desc">{tool.desc}</p>
