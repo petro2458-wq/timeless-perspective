@@ -67,10 +67,11 @@
     .nav-cta {
       background: transparent; border: 1px solid var(--accent); color: var(--accent);
       padding: 0.5rem 1.2rem; font-size: 0.8rem; font-weight: 600;
-      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
-      transition: all 0.3s; font-family: var(--font-body);
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: default;
+      transition: all 0.3s; font-family: var(--font-body); position: relative;
     }
-    .nav-cta:hover { background: var(--accent); color: var(--bg-primary); }
+    .nav-cta:hover { background: var(--accent); color: var(--bg-primary); font-size: 0; }
+    .nav-cta:hover::after { content: 'COMING SOON'; font-size: 0.8rem; letter-spacing: 0.08em; }
     .nav-x-link {
       color: var(--text-secondary); transition: color 0.2s; display: flex; align-items: center;
     }
