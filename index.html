@@ -11,27 +11,28 @@
   <meta name="twitter:site" content="@CandyCabin75" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-primary: #0a0b0d;
-      --bg-secondary: #111218;
-      --bg-card: #16171e;
-      --border: #222333;
-      --border-light: #2a2b3d;
-      --text-primary: #e8e6e1;
-      --text-secondary: #9b9aac;
-      --text-muted: #5f5e70;
-      --accent: #c9a55a;
-      --accent-dim: #a6863e;
-      --accent-glow: rgba(201, 165, 90, 0.15);
-      --green: #4ecb71;
-      --red: #e55b5b;
-      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --bg-primary: #0a0b0f;
+      --bg-secondary: #101118;
+      --bg-card: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.06);
+      --border-light: rgba(255,255,255,0.10);
+      --text-primary: #e8e6e3;
+      --text-secondary: #8a8d9b;
+      --text-muted: #565869;
+      --accent: #d4537e;
+      --accent-dim: #b8446b;
+      --accent-glow: rgba(212, 83, 126, 0.15);
+      --green: #34c77b;
+      --red: #e84057;
+      --teal: #1d9e75;
+      --font-display: 'Playfair Display', Georgia, serif;
       --font-body: 'DM Sans', -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', 'Courier New', monospace;
     }
@@ -109,6 +110,16 @@
     }
     .hero-stat-value { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 600; color: var(--accent); }
     .hero-stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem; }
+    .hero-1pct {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: #D4AE37; border: 1px solid rgba(212,174,55,0.3);
+      background: rgba(212,174,55,0.06); padding: 0.4rem 0.9rem;
+      margin-bottom: 1.5rem; text-decoration: none; transition: all 0.2s;
+    }
+    .hero-1pct:hover { background: rgba(212,174,55,0.12); border-color: rgba(212,174,55,0.5); }
+    .hero-1pct-dot { width: 6px; height: 6px; background: #D4AE37; border-radius: 50%; }
     .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
     .btn-primary {
       background: var(--accent); color: var(--bg-primary); padding: 0.9rem 2rem; border: none;
@@ -161,11 +172,18 @@
     .tool-icon {
       font-size: 1.5rem; margin-bottom: 1rem; width: 48px; height: 48px;
       display: flex; align-items: center; justify-content: center;
-      background: var(--accent-glow); border: 1px solid rgba(201,165,90,0.2);
+      background: var(--accent-glow); border: 1px solid rgba(212,83,126,0.2);
     }
     .tool-status { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.6rem; display: inline-block; margin-bottom: 0.75rem; }
     .tool-status.live { color: var(--green); border: 1px solid rgba(78,203,113,0.3); background: rgba(78,203,113,0.08); }
     .tool-status.coming { color: var(--text-muted); border: 1px solid var(--border); }
+    .tool-badge-1pct {
+      position: absolute; top: 12px; right: 12px;
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #D4AE37; border: 1px solid rgba(212,174,55,0.4);
+      background: rgba(212,174,55,0.1); padding: 0.2rem 0.6rem;
+    }
     .tool-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
     .tool-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
 
@@ -296,7 +314,7 @@
     .article-inner { max-width: 720px; margin: 0 auto; }
     .article-meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
     .article-h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 400; line-height: 1.15; margin-bottom: 1rem; }
-    .article-tag { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid rgba(201,165,90,0.3); padding: 0.2rem 0.6rem; display: inline-block; margin-bottom: 2rem; }
+    .article-tag { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid rgba(212,83,126,0.3); padding: 0.2rem 0.6rem; display: inline-block; margin-bottom: 2rem; }
     .article-hero-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; margin-bottom: 2.5rem; }
     .article-body { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.85; }
     .article-body p { margin-bottom: 1.4rem; }
@@ -562,7 +580,8 @@
       { id: 'streak-explorer', name: 'Streak Risk Explorer', icon: '📉', file: 'streak-explorer.html', desc: 'Calculate your expected worst losing streak. Input your win rate and trade count to prepare psychologically for rough patches.' },
       { id: 'position-sizer', name: 'Prop Firm Position Sizer', icon: '🎲', file: 'position-sizer.html', desc: 'See how position sizing drives your probability of passing — across favorable, typical, and unfavorable conditions simultaneously.' },
       { id: 'goal-calculator', name: 'Goal Calculator', icon: '📊', file: 'goal-calculator.html', desc: 'Set your trading goal, input your system stats, and see exactly what it takes to get there — with math, not hope.' },
-      { id: 'trade-tracker', name: 'Trade Tracker', icon: '📝', file: 'trade-tracker.html', desc: 'Log your trades and track your real performance over time. See your actual win rate, R-multiple, and equity curve.' }
+      { id: 'trade-tracker', name: 'Trade Tracker', icon: '📝', file: 'trade-tracker.html', desc: 'Log your trades and track your real performance over time. See your actual win rate, R-multiple, and equity curve.' },
+      { id: 'goal-reverse-engineer', name: 'Reverse Engineer Your Goals', icon: '🎯', file: 'goal-reverse-engineer.html', desc: 'Set your income goal, plug in your system stats, and reverse-engineer exactly how many trades per week you need. Built on the 1% Club\'s 20× capital multiplier framework.', badge: '1% Club' }
     ];
 
     const BLOG_POSTS = [
@@ -703,6 +722,11 @@
             <div className="hero-tag">
               <span>FROM EXECUTIVE TO EDGE</span>
             </div>
+            <a className="hero-1pct" href="https://1percentclub.co/?el=affliate&htrafficsource=students" target="_blank" rel="noopener noreferrer">
+              <span className="hero-1pct-dot" />
+              1% Club Member
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+            </a>
             <h1>Master Position Sizing.<br/>Master <em>Your Mind</em>.</h1>
             <p className="hero-sub">
               Former petroleum engineering leader turned full-time futures trader.
@@ -784,6 +808,7 @@
               {TOOLS.map(tool => (
                 <div key={tool.id} className="tool-card" onClick={() => { setPage('tool-' + tool.id); window.scrollTo(0,0); }}>
                   <div className="tool-status live">LIVE</div>
+                  {tool.badge && <div className="tool-badge-1pct">{tool.badge}</div>}
                   <div className="tool-icon">{tool.icon}</div>
                   <h3 className="tool-name">{tool.name}</h3>
                   <p className="tool-desc">{tool.desc}</p>

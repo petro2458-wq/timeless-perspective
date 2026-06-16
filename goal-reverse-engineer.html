@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Goal Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0e0f11;
+  --surface: #16181c;
+  --surface2: #1e2026;
+  --surface3: #252830;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f1f3;
+  --text2: #8b8f9a;
+  --text3: #555a66;
+  --accent: #7c6ff7;
+  --accent-dim: rgba(124,111,247,0.12);
+  --accent-border: rgba(124,111,247,0.35);
+  --teal: #2dd4a0;
+  --teal-dim: rgba(45,212,160,0.10);
+  --amber: #f5c842;
+  --amber-bright: #ffe066;
+  --amber-dim: rgba(245,200,66,0.10);
+  --amber-border: rgba(245,200,66,0.35);
+  --red: #f06060;
+  --red-dim: rgba(240,96,96,0.10);
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 40px 24px 80px;
+}
+.page { max-width: 880px; margin: 0 auto; }
+
+/* NORTH STAR HERO */
+.northstar-hero {
+  margin-bottom: 44px;
+}
+.ns-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ns-eyebrow::before { content: '★'; font-size: 12px; }
+.northstar-hero h1 {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.northstar-hero p {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 620px;
+  line-height: 1.7;
+}
+.northstar-hero p strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* NORTH STAR OUTPUT */
+.ns-output {
+  margin-bottom: 20px;
+}
+.ns-output-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ns-output-eyebrow::before { content: '★'; }
+.ns-output-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) { .ns-output-grid { grid-template-columns: 1fr 1fr; } }
+.ns-stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.ns-stat-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.ns-stat-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--amber);
+  line-height: 1.1;
+}
+.ns-stat-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.ns-narrative {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+  border-left: 2px solid var(--amber);
+}
+.ns-narrative strong { color: var(--amber); font-weight: 500; }
+
+/* SECTION LABEL */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 14px;
+}
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+/* INPUTS */
+.inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 600px) { .inputs-grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.field-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+.field-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 0 14px; height: 44px;
+}
+.field-row:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,111,247,0.15); }
+.field-prefix { font-size: 14px; color: var(--text3); font-family: 'DM Mono', monospace; flex-shrink: 0; }
+.field-row input {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Mono', monospace;
+  font-size: 15px; font-weight: 500; width: 100%;
+}
+.field-row input::placeholder { color: var(--text3); }
+.field-suffix { font-size: 13px; color: var(--text3); flex-shrink: 0; }
+
+/* SLIDERS */
+.slider-wrap { display: flex; flex-direction: column; gap: 6px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; }
+.slider-value { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--accent); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; background: var(--surface3);
+  border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; border: 2px solid var(--surface);
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; border: 2px solid var(--surface);
+}
+
+/* TOGGLE */
+.toggle-group {
+  display: flex; background: var(--surface2);
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 4px; gap: 4px;
+}
+.toggle-btn {
+  flex: 1; padding: 8px 12px; border-radius: 7px; border: none;
+  background: transparent; color: var(--text2);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: all 0.15s;
+  text-align: center; line-height: 1.3;
+}
+.toggle-btn.active { background: var(--accent); color: #fff; }
+.toggle-btn.active .rec-label { color: #a8ffdf; }
+.toggle-btn:not(.active):hover { background: var(--surface3); color: var(--text); }
+
+/* STORYLINES */
+.storyline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+@media (max-width: 600px) { .storyline-grid { grid-template-columns: 1fr; } }
+.story-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; transition: border-color 0.2s;
+}
+.story-card.active-story { border-color: var(--accent-border); background: var(--accent-dim); }
+.story-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 5px;
+  margin-bottom: 8px; display: inline-block;
+}
+.badge-conservative { background: var(--teal-dim); color: var(--teal); }
+.badge-moderate { background: var(--accent-dim); color: var(--accent); }
+.badge-aggressive { background: var(--amber-dim); color: var(--amber); }
+.story-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.story-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 10px; }
+.story-r { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: var(--text); }
+.story-r-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* FORMULA */
+.step-formula {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0; margin-bottom: 20px; overflow: hidden;
+}
+.formula-row {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 13px 20px;
+}
+.formula-row.highlight-row { background: rgba(245,200,66,0.06); }
+.formula-step {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text3); min-width: 52px; flex-shrink: 0;
+}
+.formula-expr { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); flex: 1; }
+.formula-result {
+  font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500;
+  color: var(--text); text-align: right; min-width: 120px;
+}
+.formula-result.accent { color: var(--accent); }
+.formula-result.teal { color: var(--teal); }
+.formula-result.amber { color: var(--amber-bright); font-size: 16px; }
+.formula-divider { height: 1px; background: var(--border); }
+
+/* FORMULA NARRATIVE */
+.formula-insight {
+  margin: 0; padding: 16px 20px;
+  background: rgba(245,200,66,0.05);
+  border-top: 1px solid var(--border);
+}
+.formula-insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .formula-insight-grid { grid-template-columns: 1fr; } }
+.fi-card {
+  background: var(--surface3); border-radius: var(--radius);
+  padding: 14px 16px; border: 1px solid var(--border);
+}
+.fi-card.amber-card { background: var(--amber-dim); border-color: var(--amber-border); }
+.fi-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+.fi-eyebrow.amber { color: var(--amber); }
+.fi-line { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 4px; }
+.fi-line:last-child { margin: 0; }
+.fi-line strong { font-weight: 500; }
+.fi-line.amber-text { color: var(--amber); }
+.fi-line.bright { color: var(--text); }
+
+/* GOAL BANNER */
+.goal-banner {
+  background: var(--accent-dim); border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg); padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px; margin-bottom: 20px;
+}
+.goal-banner-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+}
+.goal-banner-month {
+  font-family: 'DM Mono', monospace; font-size: 42px; font-weight: 500;
+  color: var(--text); line-height: 1; margin-bottom: 6px;
+}
+.goal-banner-sub { font-size: 14px; color: var(--text2); }
+.goal-banner-right { display: flex; flex-direction: column; gap: 8px; text-align: right; }
+.goal-stat-value { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; color: var(--text); }
+.goal-stat-label { font-size: 12px; color: var(--text3); }
+
+/* MILESTONES */
+.milestones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+@media (max-width: 640px) { .milestones { grid-template-columns: repeat(2, 1fr); } }
+.milestone {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+}
+.milestone.reached { border-color: var(--teal); background: var(--teal-dim); }
+.milestone-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.milestone-month { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; color: var(--text); }
+.milestone-income { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* CHART */
+.chart-legend { display: flex; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text2); }
+.legend-swatch { width: 12px; height: 3px; border-radius: 2px; }
+.legend-swatch.dashed {
+  background: repeating-linear-gradient(90deg,#f5c842 0,#f5c842 4px,transparent 4px,transparent 8px);
+  height: 2px; width: 18px;
+}
+.chart-wrap { position: relative; width: 100%; height: 300px; margin-bottom: 28px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text3); text-align: left;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 9px 12px; border-bottom: 1px solid var(--border);
+  color: var(--text2); font-family: 'DM Mono', monospace; font-size: 13px;
+}
+tr:last-child td { border-bottom: none; }
+tr.goal-row td { background: var(--amber-dim); color: var(--amber); font-weight: 500; }
+tr.goal-row td:first-child::after { content: ' ★'; }
+td.positive { color: var(--teal); }
+td.month-label { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text3); }
+
+.footnote {
+  font-size: 12px; color: var(--text3); line-height: 1.6;
+  padding: 14px 20px; border-top: 1px solid var(--border);
+}
+.divider { height: 1px; background: var(--border); margin: 28px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NORTH STAR HERO -->
+  <div class="northstar-hero">
+    <div class="ns-eyebrow">Your north star</div>
+    <h1>This is your North Star.</h1>
+    <p>
+      The goal of this calculator is simple: <strong>focus on executing a well-worked process to take X high-quality trades per week.</strong>
+      You cannot control outcomes — you cannot control which trades win or lose. What you <strong>can</strong> control is showing up
+      with discipline and taking the right number of quality setups every single week.
+      At a <strong>40% win rate</strong>, the math takes care of itself over time.
+      Your north star is the number of trades per week that your reverse-engineered goal demands. Execute that process — nothing more, nothing less.
+    </p>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="section-label">Your inputs</div>
+  <div class="card">
+    <div class="inputs-grid">
+
+      <div class="field">
+        <div class="field-label">Monthly income goal</div>
+        <div class="field-desc">The amount you want to earn from trading each month.</div>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="goal" value="10000" min="1000" step="1000">
+          <span class="field-suffix">/ mo</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Starting capital</div>
+        <div class="field-desc">Your current account size. Profits compound every month as you reinvest.</div>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="startCapital" value="50000" min="1000" step="1000">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Capital multiplier</div>
+        <div class="field-desc">
+          How much capital you need relative to your monthly goal. This sets your monthly ROI target and directly determines how many R your strategy must produce each month at 1% risk.
+        </div>
+        <div class="toggle-group" style="margin-top:8px">
+          <button class="toggle-btn active" id="btn20x" onclick="setMultiplier(20)" style="line-height:1.4;padding:10px 12px">
+            <span style="font-size:13px;font-weight:500">20× goal</span><br>
+            <span style="font-size:11px;opacity:0.75">5% / month · 5R at 1% risk</span><br>
+            <span class="rec-label" style="font-size:10px;color:var(--teal)">★ 1% Club recommendation</span>
+          </button>
+          <button class="toggle-btn" id="btn10x" onclick="setMultiplier(10)" style="line-height:1.4;padding:10px 12px">
+            <span style="font-size:13px;font-weight:500">10× goal</span><br>
+            <span style="font-size:11px;opacity:0.75">10% / month · 10R at 1% risk</span><br>
+            <span style="font-size:10px;opacity:0.6">higher strategy demand</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Win rate</div>
+        <div class="field-desc">% of trades that close in profit. Use 40% unless your trade journal proves otherwise — don't guess.</div>
+        <div class="slider-wrap" style="margin-top:8px">
+          <div class="slider-header">
+            <span style="font-size:13px;color:var(--text2)">Win rate</span>
+            <span class="slider-value" id="winRateVal">40%</span>
+          </div>
+          <input type="range" id="winRate" min="20" max="80" value="40" step="5">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)"><span>20%</span><span>80%</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Avg risk : reward ratio</div>
+        <div class="field-desc">How much you make on a winner relative to what you risk. 3:1 means a win returns 3× your risk.</div>
+        <div class="slider-wrap" style="margin-top:8px">
+          <div class="slider-header">
+            <span style="font-size:13px;color:var(--text2)">Risk : Reward</span>
+            <span class="slider-value" id="rrVal">3.0 : 1</span>
+          </div>
+          <input type="range" id="rr" min="1" max="10" value="3" step="0.5">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)"><span>1:1</span><span>10:1</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Risk per trade (RPT)</div>
+        <div class="field-desc">% of capital risked per trade. This is a key lever — it sets how much R your strategy must generate each month. Lower RPT = more R required.</div>
+        <div class="slider-wrap" style="margin-top:8px">
+          <div class="slider-header">
+            <span style="font-size:13px;color:var(--text2)">Risk per trade</span>
+            <span class="slider-value" id="rptVal">1.0%</span>
+          </div>
+          <input type="range" id="rpt" min="0.5" max="5" value="1" step="0.5">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)"><span>0.5%</span><span>5%</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STORYLINES -->
+  <div class="section-label">What your multiplier means for R-demand</div>
+  <div id="storylineGrid" class="storyline-grid"></div>
+
+  <!-- FORMULA -->
+  <div class="section-label">Reverse-engineered formula</div>
+  <div class="step-formula" id="formulaBox"></div>
+
+  <!-- ACTUAL TRADE FREQUENCY TOGGLE -->
+  <div class="section-label">Actual trade frequency</div>
+  <div class="card" id="tradeFreqCard" style="margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">How many trades are you actually taking?</div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.55;margin-bottom:16px">
+          The formula above shows the <em>minimum</em> trades/month needed to hit your ROI target.
+          If you're executing more quality setups, your compounding accelerates and your goal arrives sooner.
+          Toggle below to see the impact of your real trade cadence.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="toggle-btn active" id="btnMinTrades" onclick="setTradeMode('min')" style="flex:0 0 auto;padding:8px 16px">
+            Minimum only
+          </button>
+          <button class="toggle-btn" id="btnActualTrades" onclick="setTradeMode('actual')" style="flex:0 0 auto;padding:8px 16px">
+            Set actual trades
+          </button>
+        </div>
+      </div>
+      <div id="actualTradeSliderWrap" style="display:none">
+        <div class="slider-wrap">
+          <div class="slider-header">
+            <span style="font-size:13px;color:var(--text2)">Actual trades / month</span>
+            <span class="slider-value" id="actualTradesVal">12</span>
+          </div>
+          <input type="range" id="actualTrades" min="1" max="40" value="12" step="1">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)"><span>1</span><span>40</span></div>
+        </div>
+        <div id="actualTradeContext" style="margin-top:14px;font-size:12px;color:var(--text3);line-height:1.6"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NORTH STAR OUTPUT -->
+  <div id="northStarOutput"></div>
+
+  <div class="divider"></div>
+
+  <!-- COMPOUND GROWTH -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+    <div class="section-label" style="margin-bottom:0">Compound growth — reaching your goal</div>
+    <div class="toggle-group" id="growthToggleGroup" style="width:auto;padding:3px;gap:3px">
+      <button class="toggle-btn active" id="btnGrowthMin" onclick="setGrowthView('min')" style="padding:6px 14px;font-size:12px">
+        Min trade frequency
+      </button>
+      <button class="toggle-btn" id="btnGrowthAct" onclick="setGrowthView('actual')" style="padding:6px 14px;font-size:12px">
+        Actual trade frequency
+      </button>
+    </div>
+  </div>
+  <div id="growthActualWarning" style="display:none;font-size:12px;color:var(--text3);margin-bottom:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+    Set actual trade frequency above to compare scenarios.
+  </div>
+  <div class="goal-banner" id="goalBanner"></div>
+  <div class="milestones" id="milestonesRow"></div>
+  <div class="chart-legend" id="chartLegend"></div>
+  <div class="chart-wrap">
+    <canvas id="growthChart" role="img" aria-label="Compound growth chart showing capital over time.">Monthly capital growth toward goal.</canvas>
+  </div>
+
+  <!-- TABLE -->
+  <div class="section-label">Monthly ramp-up</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:80px">Month</th>
+            <th>Starting capital</th>
+            <th>Net profit</th>
+            <th>Ending capital</th>
+            <th>% of goal</th>
+            <th>W / L breakdown</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="footnote">
+      Net profit = starting capital × [(1 + win%)^W × (1 − RPT)^L − 1]. Ending capital = starting capital + net profit = next month's starting capital. ★ = goal month reached.
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let multiplier   = 20;
+let tradeMode    = 'min';
+let growthView   = 'min';
+let chartInstance = null;
+
+function setMultiplier(v) {
+  multiplier = v;
+  document.getElementById('btn20x').classList.toggle('active', v === 20);
+  document.getElementById('btn10x').classList.toggle('active', v === 10);
+  recalc();
+}
+
+function setTradeMode(mode) {
+  tradeMode = mode;
+  document.getElementById('btnMinTrades').classList.toggle('active', mode === 'min');
+  document.getElementById('btnActualTrades').classList.toggle('active', mode === 'actual');
+  document.getElementById('actualTradeSliderWrap').style.display = mode === 'actual' ? 'block' : 'none';
+  recalc();
+}
+
+function setGrowthView(view) {
+  growthView = view;
+  document.getElementById('btnGrowthMin').classList.toggle('active', view === 'min');
+  document.getElementById('btnGrowthAct').classList.toggle('active', view === 'actual');
+  recalc();
+}
+
+const fmtM = n => n >= 1000000 ? '$' + (n/1e6).toFixed(2) + 'M' : n >= 1000 ? '$' + Math.round(n/1000) + 'K' : '$' + Math.round(n);
+const fmtF = n => '$' + Math.round(n).toLocaleString();
+const pct  = n => n.toFixed(1) + '%';
+const r2   = n => Math.round(n * 100) / 100;
+
+function recalc() {
+  const goal       = parseFloat(document.getElementById('goal').value) || 10000;
+  const startCap   = parseFloat(document.getElementById('startCapital').value) || 50000;
+  const winRatePct = parseInt(document.getElementById('winRate').value);
+  const rrRatio    = parseFloat(document.getElementById('rr').value);
+  const rptPct     = parseFloat(document.getElementById('rpt').value);
+
+  document.getElementById('winRateVal').textContent = winRatePct + '%';
+  document.getElementById('rrVal').textContent      = rrRatio.toFixed(1) + ' : 1';
+  document.getElementById('rptVal').textContent     = rptPct.toFixed(1) + '%';
+
+  const monthlyROI    = 1 / multiplier;
+  const reqCapital    = goal * multiplier;
+  const weeklyROI     = monthlyROI / 4;
+  const winRate       = winRatePct / 100;
+  const rpt           = rptPct / 100;
+  const avgProfitPct  = rrRatio * rpt;
+  const winsNeededPW  = weeklyROI / avgProfitPct;
+  const tradesNeededPW = winsNeededPW / winRate;
+  const tradesNeededPM = tradesNeededPW * 4.33;
+  const winsPerMonthAtRate = tradesNeededPM * winRate;
+  const monthlyRNeeded = monthlyROI / rpt;
+
+  const winMult  = 1 + avgProfitPct;
+  const lossMult = 1 - rpt;
+
+  const tradesPerMonth_min  = Math.ceil(tradesNeededPM);
+  const winsPerMonth_min    = Math.round(tradesPerMonth_min * winRate);
+  const lossesPerMonth_min  = tradesPerMonth_min - winsPerMonth_min;
+  const netMonthlyROI_min   = Math.pow(winMult, winsPerMonth_min) * Math.pow(lossMult, lossesPerMonth_min) - 1;
+
+  const actualTradesPerMonth = tradeMode === 'actual'
+    ? parseInt(document.getElementById('actualTrades').value)
+    : Math.ceil(tradesNeededPM);
+  const winsPerMonth_act    = Math.round(actualTradesPerMonth * winRate);
+  const lossesPerMonth_act  = actualTradesPerMonth - winsPerMonth_act;
+  const netMonthlyROI_act   = Math.pow(winMult, winsPerMonth_act) * Math.pow(lossMult, lossesPerMonth_act) - 1;
+
+  const netMonthlyROI = tradeMode === 'actual' ? netMonthlyROI_act : netMonthlyROI_min;
+
+  if (tradeMode === 'actual') {
+    const extraROI = netMonthlyROI_act - netMonthlyROI_min;
+    const ctx = document.getElementById('actualTradeContext');
+    if (ctx) {
+      const minPM = Math.ceil(tradesNeededPM);
+      ctx.innerHTML = actualTradesPerMonth <= minPM
+        ? `<span style="color:var(--red)">Below or at minimum — set higher than ${minPM} to see acceleration.</span>`
+        : `<span style="color:var(--teal)">${actualTradesPerMonth} trades/month vs. minimum of ${minPM} — adds <strong>+${pct(extraROI*100)}</strong> net monthly ROI through compounding.</span>`;
+    }
+  }
+
+  // STORYLINES
+  const stories = [
+    { mult:20, rp:1,   badge:'conservative', bc:'badge-conservative',
+      title:'20× capital, 1% risk',
+      desc:'Course default. 5%/mo ROI at conservative position sizing. Maximum breathing room — only 5R needed per month.' },
+    { mult:20, rp:2,   badge:'moderate',     bc:'badge-moderate',
+      title:'20× capital, 2% risk',
+      desc:'Same 5%/mo target but larger positions halve the R demand to 2.5R/month. Fewer R, but each loss costs twice as much.' },
+    { mult:10, rp:1,   badge:'moderate',     bc:'badge-moderate',
+      title:'10× capital, 1% risk',
+      desc:'Less upfront capital needed. But 10%/mo ROI at 1% risk doubles the R demand — your strategy must produce 10R/month.' },
+    { mult:10, rp:2,   badge:'aggressive',   bc:'badge-aggressive',
+      title:'10× capital, 2% risk',
+      desc:'Larger position sizes bring R demand back to 5R/month — same as the conservative baseline — but with bigger drawdown on each loss.' }
+  ];
+  const sg = document.getElementById('storylineGrid');
+  sg.innerHTML = '';
+  stories.forEach(s => {
+    const sR = (1/s.mult) / (s.rp/100);
+    const isActive = s.mult === multiplier && Math.abs(s.rp - rptPct) < 0.01;
+    const d = document.createElement('div');
+    d.className = 'story-card' + (isActive ? ' active-story' : '');
+    d.innerHTML = `<span class="story-badge ${s.bc}">${s.badge}</span>
+      <div class="story-title">${s.title}</div>
+      <div class="story-desc">${s.desc}</div>
+      <div class="story-r">${sR.toFixed(1)}R</div>
+      <div class="story-r-label">net R needed per month</div>`;
+    sg.appendChild(d);
+  });
+
+  // FORMULA
+  const tradesNeededPW_ceil = Math.ceil(tradesNeededPW * 10) / 10;
+
+  const winsNeededPW_1pct    = weeklyROI / (rrRatio * 0.01);
+  const tradesNeededPW_1pct  = winsNeededPW_1pct / winRate;
+  const tradesNeededPM_1pct  = tradesNeededPW_1pct * 4.33;
+  const monthlyR_1pct        = monthlyROI / 0.01;
+
+  const fb = document.getElementById('formulaBox');
+  fb.innerHTML = `
+    <div class="formula-row" style="background:var(--surface3)">
+      <span class="formula-step" style="color:var(--text3)">Goal</span>
+      <span class="formula-expr" style="color:var(--text2)">Monthly income target</span>
+      <span class="formula-result" style="color:var(--text)">${fmtF(goal)} / month</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row" style="background:var(--surface3)">
+      <span class="formula-step" style="color:var(--text3)">Capital</span>
+      <span class="formula-expr" style="color:var(--text2)">Starting account balance — currently delivers <span style="color:${startCap * monthlyROI >= goal ? 'var(--teal)' : 'var(--red)'}">${fmtF(startCap * monthlyROI)}/month</span> vs. goal of <span style="color:var(--text)">${fmtF(goal)}/month</span></span>
+      <span class="formula-result" style="color:var(--text)">${fmtF(startCap)}</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row">
+      <span class="formula-step">Step 1</span>
+      <span class="formula-expr">${fmtF(goal)} × ${multiplier} = Required capital</span>
+      <span class="formula-result">${fmtM(reqCapital)}</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row">
+      <span class="formula-step">Step 2</span>
+      <span class="formula-expr">${fmtF(goal)} ÷ ${fmtM(reqCapital)} × 100 = Monthly ROI needed</span>
+      <span class="formula-result">${pct(monthlyROI * 100)}</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row">
+      <span class="formula-step">Step 3</span>
+      <span class="formula-expr">${pct(monthlyROI*100)} ÷ 4 weeks = Weekly ROI needed</span>
+      <span class="formula-result">${pct(weeklyROI * 100)}</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row">
+      <span class="formula-step">Step 4</span>
+      <span class="formula-expr">RPT ${pct(rptPct)} × RR ${rrRatio.toFixed(1)} = Avg profit per win</span>
+      <span class="formula-result">${pct(avgProfitPct * 100)}</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row">
+      <span class="formula-step">Step 5</span>
+      <span class="formula-expr">${pct(weeklyROI*100)} weekly ROI ÷ ${pct(avgProfitPct*100)} avg win = Wins needed / week</span>
+      <span class="formula-result">${r2(winsNeededPW).toFixed(2)} wins</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row highlight-row">
+      <span class="formula-step">Step 6</span>
+      <span class="formula-expr">${r2(winsNeededPW).toFixed(2)} wins ÷ ${winRatePct}% win rate = <strong>Trades needed / week</strong></span>
+      <span class="formula-result amber">${tradesNeededPW_ceil.toFixed(1)} trades / week</span>
+    </div>
+    <div class="formula-divider"></div>
+    <div class="formula-row">
+      <span class="formula-step">Step 7</span>
+      <span class="formula-expr">${pct(monthlyROI*100)} monthly ROI ÷ ${pct(rptPct)} RPT = R needed / month</span>
+      <span class="formula-result teal">${monthlyRNeeded.toFixed(1)}R / month</span>
+    </div>
+    <div class="formula-insight">
+      <div class="formula-insight-grid">
+        <div class="fi-card">
+          <div class="fi-eyebrow">At 1% risk per trade</div>
+          <div class="fi-line">R needed / month: <strong>${monthlyR_1pct.toFixed(0)}R</strong></div>
+          <div class="fi-line">Trades / month: <strong>${Math.ceil(tradesNeededPM_1pct)}</strong></div>
+          <div class="fi-line">Trades / week: <strong>${tradesNeededPW_1pct.toFixed(1)}</strong></div>
+          <div class="fi-line" style="margin-top:6px;font-size:11px;color:var(--text3)">Avg ${winsNeededPW_1pct.toFixed(1)} wins / week at ${winRatePct}% win rate</div>
+        </div>
+        <div class="fi-card amber-card">
+          <div class="fi-eyebrow amber">At ${pct(rptPct)} risk (your setting)</div>
+          <div class="fi-line amber-text">R needed / month: <strong>${monthlyRNeeded.toFixed(1)}R</strong></div>
+          <div class="fi-line amber-text">Trades / month: <strong>${Math.ceil(tradesNeededPM)}</strong></div>
+          <div class="fi-line amber-text">Trades / week: <strong>${tradesNeededPW_ceil.toFixed(1)}</strong></div>
+          <div class="fi-line" style="margin-top:6px;font-size:11px;color:rgba(245,200,66,0.45)">Avg ${r2(winsNeededPW).toFixed(1)} wins / week at ${winRatePct}% win rate</div>
+        </div>
+      </div>
+    </div>`;
+
+  // COMPOUND TABLE
+  const MAX = 120;
+  const tableData = [], tableDataAct = [];
+  let cap = startCap, capAct = startCap;
+  let gmCapital = null, gmIncome = null;
+  let gmCapitalAct = null, gmIncomeAct = null;
+
+  for (let m = 1; m <= MAX; m++) {
+    const netProfit = cap * netMonthlyROI_min;
+    const endCap    = cap + netProfit;
+    const pctGoal   = (endCap / reqCapital) * 100;
+    tableData.push({ month: m, startCap: cap, netProfit, endCap, pctGoal });
+    if (endCap >= reqCapital && gmCapital === null) gmCapital = m;
+    if (netProfit >= goal && gmIncome === null) gmIncome = m;
+
+    const netProfitAct = capAct * netMonthlyROI_act;
+    const endCapAct    = capAct + netProfitAct;
+    const pctGoalAct   = (endCapAct / reqCapital) * 100;
+    tableDataAct.push({ month: m, startCap: capAct, netProfit: netProfitAct, endCap: endCapAct, pctGoal: pctGoalAct });
+    if (endCapAct >= reqCapital && gmCapitalAct === null) gmCapitalAct = m;
+    if (netProfitAct >= goal && gmIncomeAct === null)     gmIncomeAct  = m;
+
+    cap    = endCap;
+    capAct = endCapAct;
+
+    const minDone = m > 6 && gmCapital !== null && gmIncome !== null;
+    const actDone = m > 6 && gmCapitalAct !== null && gmIncomeAct !== null;
+    if (minDone && actDone) break;
+  }
+
+  const goalMonthMin     = gmCapital    !== null ? gmCapital    : '120+';
+  const goalMonthAct     = gmCapitalAct !== null ? gmCapitalAct : '120+';
+  const incomeMonthMin   = (gmIncome !== null && gmIncome < (gmCapital ?? 9999))
+    ? gmIncome  : goalMonthMin;
+  const incomeMonthAct   = (gmIncomeAct !== null && gmIncomeAct < (gmCapitalAct ?? 9999))
+    ? gmIncomeAct : goalMonthAct;
+  const goalMonth        = goalMonthMin;
+
+  const goalMonthCalc    = tradeMode === 'actual' ? goalMonthAct   : goalMonthMin;
+  const incomeMonthCalc  = tradeMode === 'actual' ? incomeMonthAct : incomeMonthMin;
+  const monthsSaved      = (typeof goalMonthMin === 'number' && typeof goalMonthAct === 'number')
+    ? goalMonthMin - goalMonthAct : 0;
+  const incomeMonthsSaved = (typeof incomeMonthMin === 'number' && typeof incomeMonthAct === 'number')
+    ? incomeMonthMin - incomeMonthAct : 0;
+
+  // NORTH STAR OUTPUT
+  const nso = document.getElementById('northStarOutput');
+  nso.innerHTML = `
+    <div class="ns-output" style="margin-bottom:20px">
+      <div class="ns-output-eyebrow">North star — your process targets</div>
+      <div class="ns-output-grid">
+        <div class="ns-stat">
+          <div class="ns-stat-label">Min trades / week</div>
+          <div class="ns-stat-value">${tradesNeededPW_ceil.toFixed(1)}</div>
+          <div class="ns-stat-sub">required to hit ROI target</div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-label">${tradeMode === 'actual' ? 'Actual trades / month' : 'Min trades / month'}</div>
+          <div class="ns-stat-value">${tradeMode === 'actual' ? actualTradesPerMonth : Math.ceil(tradesNeededPM)}</div>
+          <div class="ns-stat-sub">win or lose — just execute</div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-label">Avg wins / week</div>
+          <div class="ns-stat-value">${(tradeMode === 'actual' ? (actualTradesPerMonth * winRate / 4.33) : r2(winsNeededPW)).toFixed(1)}</div>
+          <div class="ns-stat-sub">at ${winRatePct}% win rate over time</div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-label">R needed / month</div>
+          <div class="ns-stat-value">${monthlyRNeeded.toFixed(1)}R</div>
+          <div class="ns-stat-sub">at ${pct(rptPct)} risk per trade</div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-label">Required capital</div>
+          <div class="ns-stat-value">${fmtM(reqCapital)}</div>
+          <div class="ns-stat-sub">goal × ${multiplier}</div>
+        </div>
+        <div class="ns-stat" style="${tradeMode === 'actual' && monthsSaved > 0 ? 'border-color:var(--teal)' : ''}">
+          <div class="ns-stat-label">Income goal met</div>
+          <div class="ns-stat-value" style="font-size:18px;color:var(--amber)">In Month ${incomeMonthCalc}</div>
+          <div class="ns-stat-sub">profit first hits ${fmtF(goal)}/mo</div>
+        </div>
+        <div class="ns-stat" style="${tradeMode === 'actual' && monthsSaved > 0 ? 'border-color:var(--teal)' : ''}">
+          <div class="ns-stat-label">Capital goal met</div>
+          <div class="ns-stat-value" style="font-size:18px;color:var(--teal)">In Month ${goalMonthCalc}</div>
+          <div class="ns-stat-sub">${fmtM(reqCapital)} sustained capital</div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-label">Total trades to capital goal</div>
+          <div class="ns-stat-value">${typeof goalMonthCalc === 'number' ? (goalMonthCalc * (tradeMode === 'actual' ? actualTradesPerMonth : Math.ceil(tradesNeededPM))).toLocaleString() : '—'}</div>
+          <div class="ns-stat-sub">${typeof goalMonthCalc === 'number' ? goalMonthCalc + ' months × ' + (tradeMode === 'actual' ? actualTradesPerMonth : Math.ceil(tradesNeededPM)) + '/mo' : 'beyond 120 months'}</div>
+        </div>
+      </div>
+      <div class="ns-narrative">
+        ${tradeMode === 'actual' && actualTradesPerMonth > Math.ceil(tradesNeededPM)
+          ? `You're taking <strong>${actualTradesPerMonth} trades/month</strong> — ${actualTradesPerMonth - Math.ceil(tradesNeededPM)} more than the minimum of ${Math.ceil(tradesNeededPM)}.
+             At a <strong>${winRatePct}% win rate</strong> that averages <strong>${(actualTradesPerMonth * winRate / 4.33).toFixed(1)} wins/week</strong>, generating
+             <strong>${pct(netMonthlyROI_act * 100)} net monthly ROI</strong> vs. ${pct(netMonthlyROI_min * 100)} at minimum.
+             This moves your <strong>${fmtF(goal)}/month</strong> goal from in month ${goalMonthMin} to <strong>in month ${goalMonthAct}</strong> —
+             <strong>${monthsSaved} month${monthsSaved !== 1 ? 's' : ''} sooner</strong>. The process still drives the outcome — more quality setups compounds faster.`
+          : `Take <strong>${tradesNeededPW_ceil.toFixed(1)} quality trades every week</strong> — win or lose.
+             You cannot control which trades win, but at a <strong>${winRatePct}% win rate</strong> you will average
+             <strong>${r2(winsNeededPW).toFixed(1)} wins per week</strong> over time.
+             Do this consistently and you will reach your <strong>${fmtF(goal)}/month</strong> goal
+             in approximately <strong>in month ${goalMonthCalc}</strong> through the power of compounding.
+             The outcome is determined by the process — not the other way around.`
+        }
+      </div>
+    </div>`;
+
+  // GROWTH VIEW
+  const useActual = growthView === 'actual' && tradeMode === 'actual' && actualTradesPerMonth > Math.ceil(tradesNeededPM);
+  const viewROI   = useActual ? netMonthlyROI_act : netMonthlyROI_min;
+  const viewTrades = useActual ? actualTradesPerMonth : Math.ceil(tradesNeededPM);
+  const viewTradesPW = useActual ? (actualTradesPerMonth / 4.33) : tradesNeededPW_ceil;
+  const viewWinsPM = viewTrades * winRate;
+  const viewGoalMonth   = useActual ? goalMonthAct   : goalMonthMin;
+  const viewIncomeMonth = useActual ? incomeMonthAct : incomeMonthMin;
+
+  const warningEl = document.getElementById('growthActualWarning');
+  if (warningEl) {
+    const needsWarning = growthView === 'actual' && tradeMode !== 'actual';
+    warningEl.style.display = needsWarning ? 'block' : 'none';
+    warningEl.textContent = 'Enable "Set actual trades" above to use this view.';
+  }
+
+  // GOAL BANNER
+  const gb = document.getElementById('goalBanner');
+  const goalsAlign = viewIncomeMonth === viewGoalMonth;
+  const gapMonths  = (typeof viewIncomeMonth === 'number' && typeof viewGoalMonth === 'number')
+    ? viewGoalMonth - viewIncomeMonth : null;
+  gb.innerHTML = goalsAlign ? `
+    <div style="width:100%">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">
+        Taking <span style="color:var(--amber);font-weight:500;font-family:'DM Mono',monospace">${viewTrades} trades / month</span>
+        &nbsp;·&nbsp;
+        <span style="color:var(--amber);font-weight:500;font-family:'DM Mono',monospace">${viewTradesPW.toFixed(1)} trades / week</span>
+        &nbsp;·&nbsp; avg <span style="color:var(--teal);font-weight:500;font-family:'DM Mono',monospace">${viewWinsPM < 1 ? viewWinsPM.toFixed(1) : Math.round(viewWinsPM)} wins / month</span>
+        &nbsp;·&nbsp; <span style="color:var(--text3)">${winRatePct}% win rate</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:6px">Goal reached</div>
+          <div style="font-family:'DM Mono',monospace;font-size:40px;font-weight:500;color:var(--teal);line-height:1;margin-bottom:6px">In Month ${viewGoalMonth}</div>
+          <div style="font-size:13px;color:var(--text2)">Income goal and capital goal met simultaneously</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Capital reaches <strong style="color:var(--text)">${fmtM(reqCapital)}</strong> — generates <strong style="color:var(--text)">${fmtF(goal)}/month</strong></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;justify-content:center">
+          <div><div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)">${fmtF(goal)} / mo</div><div style="font-size:12px;color:var(--text3)">income at goal</div></div>
+          <div><div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)">${fmtF(goal*12)} / yr</div><div style="font-size:12px;color:var(--text3)">annualized</div></div>
+          <div><div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)">${pct(viewROI*100)}</div><div style="font-size:12px;color:var(--text3)">net compounding ROI</div></div>
+        </div>
+      </div>
+    </div>` : `
+    <div style="width:100%">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">
+        Taking <span style="color:var(--amber);font-weight:500;font-family:'DM Mono',monospace">${viewTrades} trades / month</span>
+        &nbsp;·&nbsp;
+        <span style="color:var(--amber);font-weight:500;font-family:'DM Mono',monospace">${viewTradesPW.toFixed(1)} trades / week</span>
+        &nbsp;·&nbsp; avg <span style="color:var(--teal);font-weight:500;font-family:'DM Mono',monospace">${viewWinsPM < 1 ? viewWinsPM.toFixed(1) : Math.round(viewWinsPM)} wins / month</span>
+        &nbsp;·&nbsp; <span style="color:var(--text3)">${winRatePct}% win rate</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start">
+        <div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:6px">Income goal met</div>
+          <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--amber);line-height:1;margin-bottom:4px">In Month ${viewIncomeMonth}</div>
+          <div style="font-size:13px;color:var(--text2)">Net profit first hits <strong style="color:var(--text)">${fmtF(goal)}/month</strong></div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">You can start withdrawing your target income</div>
+        </div>
+        <div style="border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 16px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:6px">Capital goal met</div>
+          <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--teal);line-height:1;margin-bottom:4px">In Month ${viewGoalMonth}</div>
+          <div style="font-size:13px;color:var(--text2)">Capital reaches <strong style="color:var(--text)">${fmtM(reqCapital)}</strong> (${multiplier}× goal)</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">System sustains ${fmtF(goal)}/month reliably at target ROI</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Transition window</div>
+          <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--text);line-height:1;margin-bottom:4px">${gapMonths !== null ? gapMonths + ' month' + (gapMonths !== 1 ? 's' : '') : '—'}</div>
+          <div style="font-size:13px;color:var(--text2)">Between first hitting income goal and sustaining it</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Keep compounding — don't withdraw early</div>
+        </div>
+      </div>
+    </div>`;
+
+  // MILESTONES
+  const viewTableData = useActual ? tableDataAct : tableData;
+  const currentIncome = startCap * monthlyROI;
+  const mVals = [
+    { label: 'Today',       income: currentIncome,   cap: startCap,                   isToday: true },
+    { label: 'Milestone 1', income: goal * (1/3),    cap: (goal * (1/3)) / monthlyROI               },
+    { label: 'Milestone 2', income: goal * (2/3),    cap: (goal * (2/3)) / monthlyROI               },
+    { label: 'Goal ★',      income: goal,            cap: reqCapital,                 isGoal: true  }
+  ];
+  const mr = document.getElementById('milestonesRow');
+  mr.innerHTML = '';
+  mVals.forEach((ms, idx) => {
+    const found = ms.isToday ? null : viewTableData.find(d => d.endCap >= ms.cap);
+    const mo = ms.isToday ? 0 : (found ? found.month : -1);
+    const reached = ms.isToday || mo >= 0;
+    const el = document.createElement('div');
+    el.className = 'milestone';
+    el.style.cssText = ms.isGoal ? 'border-color:var(--teal);background:var(--teal-dim)' : '';
+    el.style.position = 'relative';
+    const arrow = idx < mVals.length - 1
+      ? `<div style="position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;z-index:1">►</div>`
+      : '';
+    el.innerHTML = `
+      ${arrow}
+      <div class="milestone-label" style="${ms.isGoal ? 'color:var(--teal)' : ''}">${ms.label}</div>
+      <div class="milestone-month" style="${ms.isGoal ? 'color:var(--teal)' : ''}">${ms.isToday ? 'Now' : mo >= 0 ? 'In Month ' + mo : '120+'}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;margin-top:4px;color:${ms.isGoal ? 'var(--teal)' : 'var(--amber)'}">
+        ${fmtF(ms.income)}<span style="font-weight:400;font-size:11px;color:var(--text3)">/mo</span>
+      </div>`;
+    mr.appendChild(el);
+  });
+
+  // CHART
+  const labels      = viewTableData.map(d => 'M' + d.month);
+  const capitals    = viewTableData.map(d => d.endCap);
+  const netProfits  = viewTableData.map(d => d.netProfit);
+  const goalLine    = viewTableData.map(() => reqCapital);
+  const incomeLine  = viewTableData.map(() => goal);
+  const lineColor   = useActual ? '#2dd4a0' : '#7c6ff7';
+  const fillColor   = useActual ? 'rgba(45,212,160,0.06)' : 'rgba(124,111,247,0.06)';
+  const lineLabel   = useActual ? `Actual (${actualTradesPerMonth} trades/mo)` : `Minimum (${Math.ceil(tradesNeededPM)} trades/mo)`;
+
+  document.getElementById('chartLegend').innerHTML = `
+    <div class="legend-item"><span class="legend-swatch" style="background:${lineColor}"></span>${lineLabel} — capital</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:#f5c842;height:2px"></span>Monthly net profit</div>
+    <div class="legend-item"><span class="legend-swatch dashed"></span>Capital goal (${fmtM(reqCapital)})</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:repeating-linear-gradient(90deg,#f5a623 0,#f5a623 4px,transparent 4px,transparent 8px);height:2px;width:18px"></span>Income goal (${fmtF(goal)}/mo)</div>`;
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('growthChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: lineLabel, data: capitals, borderColor: lineColor, backgroundColor: fillColor,
+          fill: true, tension: 0.45, pointRadius: 0, borderWidth: 2 },
+        { label: 'Net profit', data: netProfits, borderColor: '#f5c842', backgroundColor: 'transparent',
+          fill: false, tension: 0.45, pointRadius: 0, borderWidth: 1.5, borderDash: [3,2] },
+        { label: 'Capital goal', data: goalLine, borderColor: '#2dd4a0', borderWidth: 1,
+          borderDash: [6,4], pointRadius: 0, fill: false },
+        { label: 'Income goal', data: incomeLine, borderColor: '#f5a623', borderWidth: 1,
+          borderDash: [3,3], pointRadius: 0, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e2026', titleColor: '#8b8f9a', bodyColor: '#f0f1f3',
+          borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.label === 'Capital goal') return ' Capital goal: ' + fmtF(reqCapital);
+              if (ctx.dataset.label === 'Income goal')  return ' Income goal: ' + fmtF(goal) + '/mo';
+              return ` ${ctx.dataset.label}: ` + fmtF(ctx.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#555a66', font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#555a66', font: { size: 11 }, callback: v => v >= 1e6 ? '$' + (v/1e6).toFixed(1) + 'M' : '$' + Math.round(v/1000) + 'K' }, grid: { color: 'rgba(255,255,255,0.04)' }, min: 0 }
+      }
+    }
+  });
+
+  // TABLE
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  viewTableData.slice(0, 36).forEach((d) => {
+    const isCapGoal  = typeof viewGoalMonth   === 'number' && d.month === viewGoalMonth;
+    const isIncGoal  = typeof viewIncomeMonth === 'number' && d.month === viewIncomeMonth;
+    const tr = document.createElement('tr');
+    if (isCapGoal)       tr.style.cssText = 'background:var(--teal-dim)';
+    else if (isIncGoal)  tr.style.cssText = 'background:var(--amber-dim)';
+
+    const wCount     = Math.round(viewTrades * winRate);
+    const lCount     = viewTrades - wCount;
+    const netProfit  = d.netProfit;
+    const endCapital = d.endCap;
+    const grossR = wCount * rrRatio;
+    const lossR  = lCount * 1;
+    const netR   = grossR - lossR;
+    const netRColor = isCapGoal ? 'var(--teal)' : isIncGoal ? 'var(--amber)' : netR >= 0 ? 'var(--amber)' : 'var(--red)';
+    const wlCell =
+        `<span style="color:var(--teal)">${wCount}W +${grossR.toFixed(0)}R</span>`
+      + ` <span style="color:var(--text3)">·</span> `
+      + `<span style="color:var(--red)">${lCount}L −${lossR.toFixed(0)}R</span>`
+      + ` <span style="color:var(--text3)">=</span> `
+      + `<span style="color:${netRColor};font-weight:500">${netR >= 0 ? '+' : ''}${netR.toFixed(0)}R</span>`;
+
+    const goalTag = isCapGoal
+      ? `<span style="display:block;font-size:10px;color:var(--teal);margin-top:2px">★ capital goal</span>`
+      : isIncGoal
+      ? `<span style="display:block;font-size:10px;color:var(--amber);margin-top:2px">★ income goal</span>`
+      : '';
+
+    tr.innerHTML = `
+      <td class="month-label">Month ${d.month}${goalTag}</td>
+      <td>${fmtF(d.startCap)}</td>
+      <td class="positive">+${fmtF(netProfit)}</td>
+      <td style="color:var(--text)">${fmtF(endCapital)}</td>
+      <td>${d.pctGoal>=100 ? '100%+' : Math.round(d.pctGoal)+'%'}</td>
+      <td style="font-size:12px;white-space:nowrap">${wlCell}</td>`;
+    tbody.appendChild(tr);
+
+    if (d.month === 1) {
+      const compound       = Math.pow(winMult, wCount) * Math.pow(lossMult, lCount);
+      const compoundProfit = d.startCap * (compound - 1);
+      const mathRow = document.createElement('tr');
+      mathRow.innerHTML = `
+        <td colspan="6" style="padding:10px 16px 14px;background:var(--surface3);border-bottom:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Month 1 compound trade math</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text2);line-height:1.9">
+            <span style="color:var(--teal)">(1 + ${pct(rrRatio * rptPct)})<sup>${wCount}</sup></span>
+            <span style="color:var(--text3)"> × </span>
+            <span style="color:var(--red)">(1 − ${pct(rptPct)})<sup>${lCount}</sup></span>
+            <span style="color:var(--text3)"> × </span>
+            <span style="color:var(--text)">${fmtF(d.startCap)}</span>
+            <span style="color:var(--text3)"> − ${fmtF(d.startCap)}</span>
+            <span style="color:var(--text3)"> = </span>
+            <span style="color:var(--amber);font-weight:500">+${fmtF(compoundProfit)}</span>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);margin-top:4px">
+            = ${winMult.toFixed(4)}<sup>${wCount}</sup> × ${lossMult.toFixed(4)}<sup>${lCount}</sup>
+            = ${compound.toFixed(6)}
+            — <span style="color:var(--amber)">+${((compound-1)*100).toFixed(2)}% on capital</span>
+          </div>
+        </td>`;
+      tbody.appendChild(mathRow);
+    }
+  });
+}
+
+document.getElementById('goal').addEventListener('input', recalc);
+document.getElementById('startCapital').addEventListener('input', recalc);
+document.getElementById('winRate').addEventListener('input', recalc);
+document.getElementById('rr').addEventListener('input', recalc);
+document.getElementById('rpt').addEventListener('input', recalc);
+document.getElementById('actualTrades').addEventListener('input', () => {
+  document.getElementById('actualTradesVal').textContent = document.getElementById('actualTrades').value;
+  recalc();
+});
+recalc();
+
+</script>
+</body>
+</html>
