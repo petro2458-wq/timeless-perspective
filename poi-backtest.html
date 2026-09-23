@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackTest — The Timeless Perspective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg-primary:#0a0b0f;--bg-secondary:#101118;--bg-card:rgba(255,255,255,0.03);
+    --bg-solid:#14151d;
+    --border:rgba(255,255,255,0.06);--border-light:rgba(255,255,255,0.10);
+    --text-primary:#e8e6e3;--text-secondary:#8a8d9b;--text-muted:#565869;
+    --accent:#d4537e;--accent-dim:#b8446b;--accent-glow:rgba(212,83,126,0.15);
+    --green:#34c77b;--green-dim:rgba(52,199,123,0.12);
+    --red:#e84057;--red-dim:rgba(232,64,87,0.12);
+    --amber:#e0a64b;--hi:rgba(255,255,255,0.09);--hi-line:rgba(255,255,255,0.35);
+    --font-display:'Playfair Display',Georgia,serif;
+    --font-body:'DM Sans',-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono','Courier New',monospace;
+  }
+  body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--accent);color:var(--bg-primary);}
+
+  .nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,11,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+  .nav-logo{font-family:var(--font-display);font-size:1.3rem;font-weight:600;color:var(--text-primary);text-decoration:none;letter-spacing:0.02em;}
+  .nav-logo span{color:var(--accent);}
+  .nav-back{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+  .nav-back:hover{color:var(--text-primary);}
+
+  .hero{padding:6rem 2rem 1.5rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+  .hero::before{content:'';position:absolute;top:-50%;right:-10%;width:60vw;height:60vw;background:radial-gradient(ellipse,rgba(212,83,126,0.07) 0%,transparent 65%);pointer-events:none;}
+  .hero-inner{max-width:1500px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow{font-family:var(--font-mono);font-size:0.7rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem;}
+  .eyebrow::before{content:'';width:28px;height:1px;background:var(--accent);}
+  h1{font-family:var(--font-display);font-size:clamp(2rem,4.5vw,3rem);font-weight:400;line-height:1.1;margin-bottom:0.5rem;}
+  h1 em{font-style:italic;color:var(--accent);}
+  .hero-sub{font-size:0.95rem;color:var(--text-secondary);max-width:680px;line-height:1.7;}
+  .strip{max-width:1500px;margin:1rem auto 0;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;}
+  .pill{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.65rem;border:1px solid var(--border-light);color:var(--text-muted);border-radius:2px;}
+  .pill.live{color:var(--green);border-color:rgba(52,199,123,0.35);}
+  .pill.local{color:var(--amber);border-color:rgba(224,166,75,0.35);}
+
+  .tabs{max-width:1500px;margin:1.25rem auto 0;padding:0 2rem;display:flex;border-bottom:1px solid var(--border);overflow-x:auto;}
+  .tab{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;padding:0.75rem 1.1rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+  .tab:hover{color:var(--text-secondary);}
+  .tab.active{color:var(--text-primary);border-bottom-color:var(--text-primary);}
+
+  .wrap{max-width:1500px;margin:0 auto;padding:1.5rem 2rem 4rem;}
+  .hidden{display:none !important;}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:1.25rem;}
+  .card-label{font-family:var(--font-mono);font-size:0.6rem;color:var(--text-secondary);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.85rem;display:flex;align-items:center;gap:0.5rem;}
+  .card-label::after{content:'';flex:1;height:1px;background:var(--border);}
+  .card-note{font-size:0.78rem;color:var(--text-muted);line-height:1.55;margin-top:0.6rem;}
+
+  .dictate{width:100%;min-height:96px;background:var(--bg-secondary);border:1px solid var(--border-light);border-radius:3px;color:var(--text-primary);font-family:var(--font-body);font-size:1rem;line-height:1.6;padding:0.8rem;outline:none;resize:vertical;}
+  .dictate:focus{border-color:var(--hi-line);}
+  .dictate::placeholder{color:var(--text-muted);}
+
+  .btn-row{display:flex;gap:0.5rem;flex-wrap:wrap;}
+  .btn{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.95rem;border:1px solid var(--border-light);background:transparent;color:var(--text-secondary);cursor:pointer;border-radius:2px;transition:all 0.2s;}
+  .btn:hover{color:var(--text-primary);border-color:var(--hi-line);background:var(--hi);}
+  .btn.primary{background:var(--text-primary);border-color:var(--text-primary);color:var(--bg-primary);font-weight:600;}
+  .btn.primary:hover{background:#ffffff;border-color:#ffffff;color:var(--bg-primary);}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+
+  select.mini{font-family:var(--font-mono);font-size:0.65rem;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:0.35rem 0.5rem;outline:none;border-radius:2px;}
+
+  /* ═══ SPREADSHEET ═══ */
+  .grid-wrap{margin-top:1.25rem;border:1px solid var(--border);border-radius:4px;overflow:auto;max-height:70vh;background:var(--bg-secondary);}
+  table.grid{border-collapse:separate;border-spacing:0;font-family:var(--font-mono);font-size:0.72rem;white-space:nowrap;}
+  table.grid th{position:sticky;top:0;z-index:5;background:var(--bg-solid);color:var(--text-muted);font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.55rem 0.5rem;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border);}
+  table.grid thead tr.grow th{top:0;z-index:6;}
+  table.grid thead tr.crow th{top:27px;}
+  table.grid th.gh{color:var(--text-primary);font-size:0.56rem;letter-spacing:0.18em;border-bottom:1px solid var(--border-light);background:var(--bg-solid);text-align:left;}
+  table.grid td{padding:0;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle;}
+  table.grid tr:hover td{background:rgba(255,255,255,0.015);}
+  .ci{width:100%;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.72rem;padding:0.45rem 0.5rem;}
+  .ci:focus{background:var(--hi);box-shadow:inset 0 0 0 1px var(--hi-line);}
+  .ci::placeholder{color:var(--text-muted);}
+  select.ci{cursor:pointer;-webkit-appearance:none;appearance:none;}
+  select.ci option{background:var(--bg-solid);color:var(--text-primary);}
+  .ci.n{text-align:right;}
+  .calc{padding:0.45rem 0.5rem;font-size:0.72rem;text-align:right;color:var(--text-secondary);}
+  .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
+  .rownum{padding:0.45rem 0.4rem;color:var(--text-muted);font-size:0.6rem;text-align:center;}
+  .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.75rem;padding:0.3rem 0.5rem;}
+  .row-x:hover{color:var(--red);}
+  .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.72rem;padding:0.45rem 0.5rem;cursor:pointer;text-align:left;}
+  .conf-btn:hover{color:var(--text-primary);}
+  .conf-btn.none{color:var(--text-muted);}
+  .grid-empty{padding:2.5rem 1rem;text-align:center;color:var(--text-muted);font-size:0.85rem;}
+
+  /* confluence popover */
+  .pop{position:fixed;z-index:400;background:var(--bg-solid);border:1px solid var(--border-light);border-radius:4px;padding:0.5rem;min-width:260px;box-shadow:0 12px 40px rgba(0,0,0,0.6);}
+  .pop-item{display:flex;align-items:center;gap:0.55rem;padding:0.4rem 0.5rem;cursor:pointer;border-radius:2px;font-size:0.8rem;color:var(--text-secondary);font-family:var(--font-body);}
+  .pop-item:hover{background:rgba(255,255,255,0.04);color:var(--text-primary);}
+  .pop-box{width:14px;height:14px;flex-shrink:0;border:1px solid var(--border-light);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--bg-primary);}
+  .pop-item.on .pop-box{background:var(--text-primary);border-color:var(--text-primary);}
+  .pop-item.on{color:var(--text-primary);}
+  .pop-foot{font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);padding:0.4rem 0.5rem 0.15rem;border-top:1px solid var(--border);margin-top:0.35rem;letter-spacing:0.08em;text-transform:uppercase;}
+
+  /* ═══ ANALYSIS ═══ */
+  .filters{display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;margin-bottom:1.25rem;}
+  .fld{display:flex;flex-direction:column;gap:0.25rem;min-width:130px;}
+  .fld span{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);}
+  .fld select{font-family:var(--font-body);font-size:0.85rem;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:0.5rem 0.6rem;outline:none;border-radius:2px;}
+  .fcount{margin-left:auto;font-family:var(--font-mono);font-size:0.7rem;color:var(--text-secondary);}
+  .fcount b{color:var(--text-primary);}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.25rem;}
+  .tile{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:1rem;}
+  .tile-v{font-family:var(--font-mono);font-size:1.6rem;font-weight:600;line-height:1.2;}
+  .tile-v.acc{color:var(--text-primary);} .tile-v.g{color:var(--green);} .tile-v.r{color:var(--red);}
+  .tile-l{font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;}
+  .bars{display:flex;flex-direction:column;gap:0.5rem;}
+  .bar{display:grid;grid-template-columns:52px 1fr 96px;align-items:center;gap:0.75rem;}
+  .bar-l{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-secondary);}
+  .bar-t{height:18px;background:var(--bg-secondary);border:1px solid var(--border);overflow:hidden;border-radius:2px;}
+  .bar-f{height:100%;background:var(--text-secondary);opacity:0.75;transition:width 0.3s;}
+  .bar.mark .bar-f{background:var(--green);}
+  .bar-v{font-family:var(--font-mono);font-size:0.7rem;text-align:right;color:var(--text-muted);}
+  .bar-v b{color:var(--text-primary);}
+  .atbl{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:0.75rem;}
+  .atbl th{color:var(--text-muted);font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.55rem 0.7rem;border-bottom:1px solid var(--border-light);}
+  .atbl td{padding:0.5rem 0.7rem;border-bottom:1px solid var(--border);color:var(--text-secondary);}
+  .atbl td.n,.atbl th.n{text-align:right;}
+  .atbl tr:last-child td{border-bottom:none;}
+  .pos{color:var(--green);} .neg{color:var(--red);} .acc{color:var(--text-primary);}
+  .chip{display:inline-block;font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.1rem 0.35rem;border:1px solid var(--border-light);color:var(--text-muted);margin-left:0.4rem;border-radius:2px;}
+  .chip.warn{color:var(--amber);border-color:rgba(224,166,75,0.4);}
+  .note-box{background:var(--bg-card);border:1px solid var(--border);border-left:2px solid var(--amber);border-radius:0 4px 4px 0;padding:0.9rem 1.1rem;font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+  h2.sec{font-family:var(--font-display);font-size:1.5rem;font-weight:400;margin-bottom:0.35rem;}
+  h2.sec em{font-style:italic;color:var(--text-primary);}
+  .sec-sub{font-size:0.85rem;color:var(--text-muted);margin-bottom:1.25rem;max-width:72ch;line-height:1.6;}
+  .stack{display:flex;flex-direction:column;gap:1.25rem;}
+  .def-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;}
+  .def{padding:0.65rem 0;border-bottom:1px solid var(--border);}
+  .def:last-child{border-bottom:none;}
+  .def-t{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-primary);margin-bottom:0.2rem;}
+  .def-b{font-size:0.85rem;color:var(--text-secondary);line-height:1.55;}
+  .def-b em{color:var(--text-primary);font-style:normal;font-weight:500;}
+  .pending{color:var(--amber);}
+
+  .tip{position:fixed;z-index:450;background:var(--bg-solid);border:1px solid var(--border-light);border-radius:4px;padding:0.6rem 0.75rem;max-width:300px;box-shadow:0 10px 34px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.12s;}
+  .tip.show{opacity:1;}
+  .tip-t{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-primary);margin-bottom:0.25rem;}
+  .tip-b{font-size:0.78rem;color:var(--text-secondary);line-height:1.5;white-space:normal;}
+  .gate{max-width:420px;}
+  .gate input{width:100%;background:var(--bg-secondary);border:1px solid var(--border-light);border-radius:3px;color:var(--text-primary);font-family:var(--font-body);font-size:1rem;padding:0.7rem 0.8rem;outline:none;margin-bottom:0.65rem;}
+  .gate input:focus{border-color:var(--hi-line);}
+  .who{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.65rem;border:1px solid var(--border-light);border-radius:2px;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;}
+  .who button{background:none;border:none;color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;padding:0;}
+  .who button:hover{color:var(--text-primary);}
+  .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(150%);background:var(--bg-solid);border:1px solid var(--hi-line);border-radius:3px;color:var(--text-primary);font-family:var(--font-mono);font-size:0.72rem;padding:0.8rem 1.4rem;z-index:500;transition:transform 0.25s;max-width:92vw;text-align:center;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .toast.err{border-color:var(--red);color:var(--red);}
+
+  @media(max-width:900px){
+    .nav{padding:0.85rem 1rem;}
+    .hero{padding:5rem 1rem 1.25rem;}
+    .tabs{padding:0 1rem;}
+    .wrap{padding:1.25rem 1rem 3rem;}
+    .tiles{grid-template-columns:1fr 1fr;}
+    .def-grid{grid-template-columns:1fr;}
+    .dictate{min-height:170px;font-size:1.05rem;}
+    .grid-wrap{max-height:60vh;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">The <span>Timeless</span> Perspective</a>
+  <a class="nav-back" href="index.html">← Back to tools</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Research Tool · Private</div>
+    <h1>Back<em>Test</em></h1>
+    <p class="hero-sub">One row per record — the POI, the entry model it produced and the prices inside it, all on one line. Dictate a row from your phone, correct it at the desk, and the analysis rebuilds itself as rows arrive.</p>
+  </div>
+  <div class="strip">
+    <span class="pill" id="storeStatus">Checking storage…</span>
+    <span class="who" id="whoPill"><span id="whoName">Not signed in</span><button id="whoChange">change</button></span>
+    <span class="pill" id="rowCount">0 rows</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="grid">Grid</button>
+  <button class="tab" data-tab="analysis">Analysis</button>
+  <button class="tab" data-tab="defs">Definitions</button>
+</div>
+
+<!-- ══════════ GRID ══════════ -->
+<div class="wrap" id="panel-grid">
+  <div class="card gate hidden" id="gate" style="margin-bottom:1.25rem">
+    <div class="card-label">Who is logging?</div>
+    <p class="card-note" id="gateNote" style="margin:0 0 0.75rem"></p>
+    <input type="text" id="gateInput" autocomplete="name">
+    <div class="btn-row"><button class="btn primary" id="gateBtn">Continue</button></div>
+  </div>
+
+  <div class="card" id="dictateCard">
+    <div class="card-label">Dictate a backtest</div>
+    <textarea class="dictate" id="dictation" placeholder="Tap your keyboard's microphone and read it out. For example:
+
+ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop one 5823.5, stop two 5818.5, target 5860. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
+    <div class="btn-row" style="margin-top:0.75rem">
+      <button class="btn primary" id="parseBtn">Create row from dictation</button>
+      <button class="btn" id="clearDictation">Clear</button>
+    </div>
+    <p class="card-note">Your phone keyboard's dictation is more accurate than in-browser speech recognition and needs no permissions. The new row lands at the top of the grid — check it and fix anything the parser misread.</p>
+  </div>
+
+  <div class="btn-row" style="margin-top:1.25rem">
+    <button class="btn primary" id="addRowBtn">+ Add blank row</button>
+    <button class="btn" id="exportBtn">Export CSV</button>
+    <button class="btn" id="refreshBtn">Refresh</button>
+  </div>
+
+  <div class="grid-wrap"><table class="grid" id="grid"></table></div>
+  <p class="card-note">Edits save as you type. Confluence definitions live on the Definitions tab — the grid only asks for the tick.</p>
+</div>
+
+<!-- ══════════ ANALYSIS ══════════ -->
+<div class="wrap hidden" id="panel-analysis">
+  <h2 class="sec">What the data <em>says</em></h2>
+  <p class="sec-sub">POI-level MFE is measured in POI-R — POI entry price to POI invalidation price — so instruments sit on one scale. Entry-level R is measured from the entry price against each stop.</p>
+
+  <div class="filters">
+    <div class="fld"><span>Trader</span><select id="a-trader"><option value="all">All traders</option><option>David</option><option>Partner</option></select></div>
+    <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>US100</option><option>Gold</option><option>EURUSD</option><option>GBPUSD</option></select></div>
+    <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
+    <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
+    <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>FZ Sweep</option></select></div>
+    <div class="fcount">Sample: <b id="a-count">0</b> rows</div>
+  </div>
+
+  <div class="tiles" id="a-tiles"></div>
+
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-label">POI MFE distribution</div>
+    <div class="bars" id="a-dist"></div>
+    <p class="card-note">The 2R line is the meaningful-reaction threshold. Where this falls away is where targets stop being realistic.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-label">Confluence lift — share reaching 2R, with vs without</div>
+    <div style="overflow-x:auto"><table class="atbl" id="a-conf"></table></div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-label">Entry models — both stops, same move</div>
+    <div style="overflow-x:auto"><table class="atbl" id="a-models"></table></div>
+    <p class="card-note">Expectancy assumes 1R risked at a flat 5R target. A stop that survives more often at a lower multiple can still lose to a tighter one — that is what this table settles.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-label">Outcomes — and what breakeven cost</div>
+    <div style="overflow-x:auto"><table class="atbl" id="a-outcome"></table></div>
+    <p class="card-note">Every breakeven row records what happened afterwards. If most of them would have worked, moving to breakeven is costing more than it saves.</p>
+  </div>
+
+  <div class="note-box" id="a-note">Log some rows and this fills in.</div>
+</div>
+
+<!-- ══════════ DEFINITIONS ══════════ -->
+<div class="wrap hidden" id="panel-defs">
+  <h2 class="sec">Column <em>definitions</em></h2>
+  <p class="sec-sub">One definition, both traders. If we disagree about how to log something, the definition gets settled and written here before any more rows go in.</p>
+  <div class="def-grid">
+    <div class="stack">
+      <div class="card">
+        <div class="card-label">Qualifying rules — not logged</div>
+        <div class="def"><div class="def-t">15m POI</div><div class="def-b">The zone is a 15m point of interest. Pro internal order flow is confirmed per row in the confluence list rather than assumed.</div></div>
+        <div class="def"><div class="def-t">Break of structure</div><div class="def-b">The POI must lead to a break in structure. A zone that doesn't is not a POI and doesn't get a row.</div></div>
+        <div class="def"><div class="def-t">Mitigated by price</div><div class="def-b">Price must have traded into the zone.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">The eight confluences</div>
+        <div id="defConf"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">POI level</div>
+        <div class="def"><div class="def-t">POI</div><div class="def-b"><em>Flip Zone</em> — a zone that caused a failed reaction and flipped. <em>Supply Zone</em> — sell-side origin. <em>Demand Zone</em> — buy-side origin.</div></div>
+        <div class="def"><div class="def-t">POI entry price</div><div class="def-b">The entry side of the zone — where price first engages it.</div></div>
+        <div class="def"><div class="def-t">POI invalidation price</div><div class="def-b">The far side of the zone.</div></div>
+        <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
+        <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
+        <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
+        <div class="def"><div class="def-t">H4 bias</div><div class="def-b">H4 directional bias at the time — long or short.</div></div>
+        <div class="def"><div class="def-t">H1 bias</div><div class="def-b">H1 directional bias at the time — long or short. Logged alongside H4 so alignment across timeframes becomes a filter rather than an assumption.</div></div>
+        <div class="def"><div class="def-t">15m bias</div><div class="def-b">Long or short — the direction the POI is traded in, and <em>the sign used for every R calculation on the row</em>.</div></div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="card-label">Entry level</div>
+        <div class="def"><div class="def-t">Entry timeframe</div><div class="def-b">The timeframe the entry trigger was read on — 1m, 3m, 5m or 15m.</div></div>
+        <div class="def"><div class="def-t">Entry price</div><div class="def-b">Where the entry filled. Entry R is measured from here, not from the POI edge.</div></div>
+        <div class="def"><div class="def-t">Stop 1 · aggressive</div><div class="def-b">EM3 Aggressive: below the liquidation candle. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
+        <div class="def"><div class="def-t">Stop 2 · conservative</div><div class="def-b">EM3 Aggressive: below the zone. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
+        <div class="def"><div class="def-t">Technical target</div><div class="def-b">The structural profit target for that entry, logged as a price.</div></div>
+        <div class="def"><div class="def-t">B/E trigger price</div><div class="def-b">The price at which the stop was moved to breakeven.</div></div>
+        <div class="def"><div class="def-t">MFE / MAE</div><div class="def-b">Best and worst excursion after entry, logged as prices. The grid converts them to R against both stops.</div></div>
+        <div class="def"><div class="def-t">Outcome</div><div class="def-b">Win, Loss or Breakeven.</div></div>
+        <div class="def"><div class="def-t">After B/E</div><div class="def-b">Only for breakeven rows: <em>Worked</em> means it went on to reach target, <em>Failed</em> means it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Entry models</div>
+        <div class="def"><div class="def-t">EM3 Aggressive</div><div class="def-b">Entry on the fMS-low sweep, taken immediately.</div></div>
+        <div class="def"><div class="def-t">Fake shift</div><div class="def-b">For EM3 entries: which structure the fake market shift broke — <em>fractal</em> or <em>strong</em>.</div></div>
+        <div class="def"><div class="def-t">EM3 Conservative</div><div class="def-b">The flip zone sweep following a working EM3 Aggressive — Entry 2, with Entry 1's stop moving to breakeven. The <em>Flip zone</em> column records whether that zone was already swept or still needed to be swept.</div></div>
+        <div class="def"><div class="def-t">FZ Sweep</div><div class="def-b">Flip zone swept with a clear sweep on 1m, taken alone. Terminal — no EM3 Aggressive or Conservative follows it.</div></div>
+        <div class="def"><div class="def-t">Push liquidity</div><div class="def-b">Whether pre-BOS liquidity existed to fuel the move into or through the POI. Drives the top branch of the decision tree.</div></div>
+        <div class="def"><div class="def-t">Entry-level failure</div><div class="def-b">A 3m close beyond the POI — different from the POI level, where a touch is enough.</div></div>
+        <div class="def"><div class="def-t">Attempt cap</div><div class="def-b">Maximum 2 attempts or 2 losses per POI.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Open decisions</div>
+        <div class="def"><div class="def-t">01 · FZ sweep stops</div><div class="def-b"><span class="pending">Unresolved.</span> An aggressive and a conservative stop for the flip zone sweep. One definition covers EM3 Conservative and FZ Sweep.</div></div>
+        <div class="def"><div class="def-t">02 · 3m or 15m liquidation candle</div><div class="def-b"><span class="pending">Unresolved.</span> Whether EM3 Aggressive should sometimes wait for the 15m candle rather than the 3m that liquidates.</div></div>
+        <div class="def"><div class="def-t">03 · Setups before push liquidity is taken</div><div class="def-b"><span class="pending">Unresolved.</span> When push liquidity is unswept and an FZ sweep or EM3 Aggressive presents anyway — skip it, or log it untraded?</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   CONFIG — fill these in to share data across devices and traders.
+   Leave blank and the tool runs on localStorage (this browser only).
+   ══════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://odghrcvqxjsvhojtsqjv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kZ2hyY3ZxeGpzdmhvanRzcWp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODExODgsImV4cCI6MjA5MDY1NzE4OH0.hTqHiQJpEkuiQ2wswyriG-Md6ZIashARjOiJdNyOazs';
+const TABLE = 'poi_backtest';
+const LS_KEY = 'ttp_backtest_v2';
+
+/* Initials are set by each trader on first sign-in per device — no mapping needed. */
+const TRADERS = {};
+
+const CONFLUENCES = [
+  { key:'conf_pro_internal', name:'Pro internal order flow', desc:'Aligned with the HTF narrative and 15m internal structure — who controls price, continuation or pullback.' },
+  { key:'conf_liquidity',    name:'Liquidity & inducement',  desc:'Swept liquidity, liquidity resting beyond it, where it was taken, high- vs low-resistance.' },
+  { key:'conf_flip',         name:'Flip',                    desc:'Caused a failed reaction and a supply/demand flip.' },
+  { key:'conf_pd',           name:'Within premium/discount', desc:'Well priced — demand in discount, supply in premium.' },
+  { key:'conf_unmitigated',  name:'Unmitigated',             desc:'Fresh, efficient when created, not already reacted to.' },
+  { key:'conf_chain',        name:'Part of an S&D chain',    desc:'Belongs to a chain of mitigations.' },
+  { key:'conf_htf_stack',    name:'Stacked in an HTF POI',   desc:'This MTF POI sits inside a higher-timeframe POI.' },
+  { key:'conf_push',         name:'Push liquidity',          desc:'Pre-BOS liquidity fuelling the move into or through the POI.' }
+];
+
+const PHASES   = ['—','P1b','P2','P3 START','P3 FIRM','P4','P1 START','P1 FIRM'];
+const TFS      = ['—','1m','3m','5m','15m'];
+const INSTS    = ['ES','US100','Gold','EURUSD','GBPUSD'];
+const POITYPES = ['—','Flip Zone','Supply Zone','Demand Zone'];
+const MODELS   = ['—','EM3 Aggressive','EM3 Conservative','FZ Sweep'];
+const FZSTATES = ['—','Already swept','Needed to be swept'];
+const FAKESHIFT = ['—','Fractal','Strong'];
+const YESNO    = ['—','Yes','No'];
+const OUTCOMES = ['—','Win','Loss','Breakeven'];
+const AFTERBE  = ['—','Worked','Failed'];
+const STEPS    = [1,2,3,5,10];
+
+/* Column model — drives header, cells, CSV */
+const COLS = [
+  /* ── CONTEXT ── */
+  { k:'trader',        h:'Trader',      t:'ro',     w:92,  g:'Context' },
+  { k:'date',          h:'Date',        t:'date',   w:128, g:'Context' },
+  { k:'entry_tf',      h:'Entry TF',    t:'select', o:TFS, w:78, g:'Context' },
+  { k:'entry_time',    h:'Entry time',  t:'time',   w:96,  g:'Context' },
+  { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:96, g:'Context' },
+  { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:84, g:'Context' },
+  { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:84, g:'Context' },
+  { k:'m15_bias',      h:'15m bias',    t:'select', o:['Long','Short'], w:86, g:'Context' },
+  { k:'h4_phase',      h:'H4 phase',    t:'select', o:PHASES, w:100, g:'Context' },
+  /* ── THE POI ── */
+  { k:'poi_ref',       h:'POI ref',     t:'ro',     w:104, g:'The POI' },
+  { k:'poi_type',      h:'POI',         t:'select', o:POITYPES, w:124, g:'The POI' },
+  { k:'conf',          h:'Confluence',  t:'conf',   w:92,  g:'The POI' },
+  { k:'poi_entry',     h:'POI entry',   t:'num',    w:92,  g:'The POI' },
+  { k:'poi_inval',     h:'POI inval.',  t:'num',    w:92,  g:'The POI' },
+  { k:'_poiR',         h:'POI 1R',      t:'calc',   w:76,  g:'The POI' },
+  /* ── THE TRADE ── */
+  { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:148, g:'The trade' },
+  { k:'fake_shift',    h:'Fake shift',  t:'select', o:FAKESHIFT, w:104, g:'The trade' },
+  { k:'fz_state',      h:'Flip zone',   t:'select', o:FZSTATES, w:150, g:'The trade' },
+  { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:80, g:'The trade' },
+  { k:'entry_price',   h:'Entry',       t:'num',    w:92,  g:'The trade' },
+  { k:'stop1',         h:'Stop 1',      t:'num',    w:92,  g:'The trade' },
+  { k:'stop2',         h:'Stop 2',      t:'num',    w:92,  g:'The trade' },
+  { k:'target_price',  h:'Target',      t:'num',    w:92,  g:'The trade' },
+  { k:'be_trigger',    h:'B/E trigger', t:'num',    w:92,  g:'The trade' },
+  /* ── OUTCOME ── */
+  { k:'mfe_price',     h:'MFE',         t:'num',    w:92,  g:'Outcome' },
+  { k:'mae_price',     h:'MAE',         t:'num',    w:92,  g:'Outcome' },
+  { k:'_mfePoiR',      h:'MFE · POI R', t:'calc',   w:88,  g:'Outcome' },
+  { k:'_r1',           h:'MFE · stop 1',t:'calc',   w:92,  g:'Outcome' },
+  { k:'_r2',           h:'MFE · stop 2',t:'calc',   w:92,  g:'Outcome' },
+  { k:'outcome',       h:'Outcome',     t:'select', o:OUTCOMES, w:104, g:'Outcome' },
+  { k:'after_be',      h:'After B/E',   t:'select', o:AFTERBE, w:96, g:'Outcome' },
+  /* ── REFERENCE ── */
+  { k:'tv_h4',         h:'TV H4',       t:'link',   w:72,  g:'Charts & notes' },
+  { k:'tv_h1',         h:'TV H1',       t:'link',   w:72,  g:'Charts & notes' },
+  { k:'tv_m15',        h:'TV 15m',      t:'link',   w:72,  g:'Charts & notes' },
+  { k:'tv_m3',         h:'TV 3m',       t:'link',   w:72,  g:'Charts & notes' },
+  { k:'tv_m1',         h:'TV 1m',       t:'link',   w:72,  g:'Charts & notes' },
+  { k:'notes',         h:'Notes',       t:'text',   w:220, g:'Charts & notes' }
+];
+
+const COL_DEFS = {
+  trader:'Who logged this row. Comes from sign-in, not editable in the grid.',
+  date:'Date the POI was mitigated.',
+  entry_tf:'The timeframe the entry trigger was read on.',
+  entry_time:'Time the entry filled.',
+  instrument:'Instrument traded.',
+  h4_bias:'H4 directional bias at the time — long or short.',
+  h1_bias:'H1 directional bias at the time — long or short.',
+  m15_bias:'15m bias, long or short. This is the one that sets the sign for every R calculation on the row.',
+  h4_phase:'H4 market phase at the time — the higher-timeframe context filter.',
+  poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
+  poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
+  conf:'The eight confluences present on this POI. Click to tick them; full definitions on the Definitions tab.',
+  entry_model:'EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. FZ Sweep — flip zone swept with a clear 1m sweep, taken alone.',
+  fake_shift:'For EM3 entries: which structure the fake market shift broke — fractal or strong.',
+  fz_state:'For the flip zone: was it already swept, or did it still need to be swept?',
+  push_liq:'Did pre-BOS push liquidity exist to fuel the move into or through the POI?',
+  poi_entry:'The entry side of the zone — where price first engages it.',
+  poi_inval:'The far side of the zone. Price touching it ends the POI measurement.',
+  _poiR:'POI 1R — the zone height, POI entry to POI invalidation. The yardstick that puts every instrument on one scale.',
+  entry_price:'Where the entry actually filled. Entry R is measured from here, not from the POI edge.',
+  stop1:'Stop 1, aggressive. EM3 Aggressive: below the liquidation candle. The other two models are pending agreement.',
+  stop2:'Stop 2, conservative. EM3 Aggressive: below the zone. The other two models are pending agreement.',
+  target_price:'The structural profit target for this entry, as a price.',
+  be_trigger:'The price at which the stop was moved to breakeven.',
+  mfe_price:'Maximum favorable excursion after entry, as a price.',
+  mae_price:'Maximum adverse excursion after entry, as a price.',
+  _mfePoiR:'MFE expressed in POI-R. 2R or better counts as a meaningful reaction.',
+  _r1:'MFE expressed in R against Stop 1.',
+  _r2:'MFE expressed in R against Stop 2. Same move, different stop — this is the comparison that picks the stop.',
+  outcome:'Win, Loss or Breakeven.',
+  after_be:'Breakeven rows only. Worked — it went on to reach target. Failed — it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.',
+  tv_h4:'TradingView chart link, H4.', tv_h1:'TradingView chart link, H1.',
+  tv_m15:'TradingView chart link, 15m.', tv_m3:'TradingView chart link, 3m.',
+  tv_m1:'TradingView chart link, 1m.',
+  notes:'Anything the columns do not capture.'
+};
+
+let rows = [], sb = null, storeMode = 'local', trader = '', pendingEmail = '';
+const saveTimers = {};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
+const pct = (a,b) => b ? Math.round(a/b*1000)/10 : 0;
+function median(a){ if(!a.length) return 0; const s=[...a].sort((x,y)=>x-y); const m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; }
+function toast(msg, err){
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
+  clearTimeout(t._t); t._t = setTimeout(() => { t.className = 'toast' + (err ? ' err' : ''); }, 3000);
+}
+
+/* ─── R maths (bias-aware) ─── */
+function calcs(r){
+  const long = (r.m15_bias || 'Long') === 'Long';
+  const pe = num(r.poi_entry), pi = num(r.poi_inval), mfe = num(r.mfe_price);
+  const en = num(r.entry_price), s1 = num(r.stop1), s2 = num(r.stop2);
+  const out = { poiR:null, mfePoiR:null, r1:null, r2:null };
+  if(pe !== null && pi !== null && Math.abs(pe - pi) > 0){
+    out.poiR = Math.abs(pe - pi);
+    if(mfe !== null) out.mfePoiR = (long ? mfe - pe : pe - mfe) / out.poiR;
+  }
+  if(en !== null && mfe !== null){
+    if(s1 !== null && Math.abs(en - s1) > 0) out.r1 = (long ? mfe - en : en - mfe) / Math.abs(en - s1);
+    if(s2 !== null && Math.abs(en - s2) > 0) out.r2 = (long ? mfe - en : en - mfe) / Math.abs(en - s2);
+  }
+  return out;
+}
+
+/* ─── Storage ─── */
+const store = {
+  async list(){
+    if(storeMode === 'supabase'){
+      const { data, error } = await sb.from(TABLE).select('*').order('date',{ascending:false}).order('created_at',{ascending:false});
+      if(error) throw error; return data || [];
+    }
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e){ return []; }
+  },
+  async add(row){
+    if(storeMode === 'supabase'){
+      const { data, error } = await sb.from(TABLE).insert(row).select();
+      if(error) throw error; return (data && data[0]) || row;
+    }
+    row.id = 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    row.created_at = new Date().toISOString();
+    const all = await store.list(); all.unshift(row);
+    localStorage.setItem(LS_KEY, JSON.stringify(all));
+    return row;
+  },
+  async update(id, patch){
+    if(storeMode === 'supabase'){
+      const { error } = await sb.from(TABLE).update(patch).eq('id', id);
+      if(error) throw error; return;
+    }
+    const all = await store.list(); const i = all.findIndex(r => String(r.id) === String(id));
+    if(i === -1) return;
+    all[i] = Object.assign({}, all[i], patch);
+    localStorage.setItem(LS_KEY, JSON.stringify(all));
+  },
+  async remove(id){
+    if(storeMode === 'supabase'){
+      const { error } = await sb.from(TABLE).delete().eq('id', id);
+      if(error) throw error; return;
+    }
+    const all = (await store.list()).filter(r => String(r.id) !== String(id));
+    localStorage.setItem(LS_KEY, JSON.stringify(all));
+  }
+};
+
+function blankRow(){
+  const r = { trader: trader, date: new Date().toISOString().slice(0,10),
+    entry_tf:'—', entry_time:'', instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_type:'—',
+    entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
+    poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
+    target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
+    outcome:'—', after_be:'—', tv_h4:'', tv_h1:'', tv_m15:'', tv_m3:'', tv_m1:'', notes:'', raw_dictation:'' };
+  CONFLUENCES.forEach(c => r[c.key] = false);
+  r.poi_ref = makeRef(r);
+  return r;
+}
+
+/* ─── POI reference ───
+   Scoped to instrument + day, because a POI is mitigated and finished inside a
+   session — two trades only ever share one when they are logged minutes apart. */
+function makeRef(row){
+  const d = (row.date || '').slice(5).replace('-', '');
+  const base = (row.instrument || 'X') + '-' + (d || '0000');
+  let n = 1;
+  rows.forEach(r => {
+    const m = (r.poi_ref || '').match(new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-(\\d+)$'));
+    if(m) n = Math.max(n, parseInt(m[1], 10) + 1);
+  });
+  return base + '-' + n;
+}
+
+/* Second attempt on the same POI: copy the context and POI half, leave the
+   trade and outcome blank, share the reference. */
+const POI_HALF = ['date','entry_tf','instrument','h4_bias','h1_bias','m15_bias','h4_phase',
+                  'poi_ref','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
+async function cloneRow(id){
+  const src = rows.find(r => String(r.id) === String(id));
+  if(!src) return;
+  const row = blankRow();
+  POI_HALF.forEach(k => row[k] = src[k]);
+  CONFLUENCES.forEach(c => row[c.key] = !!src[c.key]);
+  row.trader = trader || src.trader;
+  try {
+    const saved = await store.add(row);
+    const merged = Object.assign({}, row, saved && saved.id ? { id: saved.id } : {});
+    const i = rows.findIndex(r => String(r.id) === String(id));
+    rows.splice(i + 1, 0, merged);
+    renderGrid(); refreshCounts();
+    toast('Second attempt on ' + (row.poi_ref || 'this POI') + ' — POI details copied');
+  } catch(e){ toast('Could not add second attempt: ' + (e.message || e), true); }
+}
+
+/* ─── Grid ─── */
+function renderGrid(){
+  const t = $('grid');
+  let h = '<thead><tr class="grow"><th style="width:34px"></th>';
+  let gi = 0;
+  while(gi < COLS.length){
+    let span = 1;
+    while(gi + span < COLS.length && COLS[gi + span].g === COLS[gi].g) span++;
+    h += '<th class="gh" colspan="' + span + '">' + esc(COLS[gi].g) + '</th>';
+    gi += span;
+  }
+  h += '<th style="width:56px"></th></tr><tr class="crow"><th style="width:34px"></th>';
+  COLS.forEach(c => { h += '<th style="min-width:' + c.w + 'px">' + esc(c.h) + '</th>'; });
+  h += '<th style="width:56px"></th></tr></thead><tbody>';
+  if(!rows.length){
+    t.innerHTML = h + '<tr><td colspan="' + (COLS.length + 2) + '" class="grid-empty">No rows yet. Dictate one above, or add a blank row.</td></tr></tbody>';
+    return;
+  }
+  rows.forEach((r, i) => {
+    const c = calcs(r);
+    h += '<tr data-id="' + esc(r.id) + '"><td class="rownum">' + (i+1) + '</td>';
+    COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c) + '</td>'; });
+    h += '<td style="white-space:nowrap"><button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
+         '<button class="row-x" data-act="del" title="Delete row">✕</button></td></tr>';
+  });
+  t.innerHTML = h + '</tbody>';
+  wireGrid();
+}
+
+function cellHTML(col, r, c){
+  const v = r[col.k];
+  switch(col.t){
+    case 'select':
+      return '<select class="ci" data-k="' + col.k + '">' +
+        col.o.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+    case 'num':
+      return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '">';
+    case 'date':
+      return '<input class="ci" type="date" data-k="' + col.k + '" value="' + esc(v || '') + '">';
+    case 'time':
+      return '<input class="ci" type="time" data-k="' + col.k + '" value="' + esc((v || '').slice(0,5)) + '">';
+    case 'link':
+      return '<input class="ci" type="url" data-k="' + col.k + '" placeholder="link" value="' + esc(v || '') + '">';
+    case 'text':
+      return '<input class="ci" type="text" data-k="' + col.k + '" value="' + esc(v || '') + '">';
+    case 'conf': {
+      const n = CONFLUENCES.filter(x => r[x.key]).length;
+      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf">' + n + ' / ' + CONFLUENCES.length + '</button>';
+    }
+    case 'ro':
+      return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
+    case 'calc': {
+      const map = { _poiR:'poiR', _mfePoiR:'mfePoiR', _r1:'r1', _r2:'r2' };
+      const val = c[map[col.k]];
+      if(val === null) return '<div class="calc">—</div>';
+      if(col.k === '_poiR') return '<div class="calc acc">' + val.toFixed(2) + '</div>';
+      return '<div class="calc ' + (val >= 2 ? 'pos' : val < 0 ? 'neg' : '') + '">' + val.toFixed(2) + 'R</div>';
+    }
+  }
+  return '';
+}
+
+function wireGrid(){
+  $('grid').querySelectorAll('tbody tr[data-id]').forEach(tr => {
+    const id = tr.dataset.id;
+    tr.querySelectorAll('[data-k]').forEach(el => {
+      const ev = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time') ? 'change' : 'input';
+      el.addEventListener(ev, () => {
+        const row = rows.find(x => String(x.id) === String(id));
+        if(!row) return;
+        row[el.dataset.k] = (el.type === 'number') ? num(el.value) : el.value;
+        refreshCalcCells(tr, row);
+        queueSave(id, row);
+      });
+    });
+    const del = tr.querySelector('[data-act="del"]');
+    if(del) del.addEventListener('click', async () => {
+      if(!confirm('Delete this row?')) return;
+      try { await store.remove(id); rows = rows.filter(x => String(x.id) !== String(id)); renderGrid(); refreshCounts(); toast('Row deleted'); }
+      catch(e){ toast('Delete failed: ' + (e.message || e), true); }
+    });
+    const cl = tr.querySelector('[data-act="clone"]');
+    if(cl) cl.addEventListener('click', () => cloneRow(id));
+    const cb = tr.querySelector('[data-act="conf"]');
+    if(cb) cb.addEventListener('click', ev => { ev.stopPropagation(); openConfPop(cb, id); });
+  });
+}
+
+function refreshCalcCells(tr, row){
+  const c = calcs(row);
+  const map = ['_poiR','_mfePoiR','_r1','_r2'];
+  const idxs = COLS.map((col, i) => map.includes(col.k) ? i : -1).filter(i => i >= 0);
+  idxs.forEach(i => {
+    const td = tr.children[i + 1];
+    if(td) td.innerHTML = cellHTML(COLS[i], row, c);
+  });
+}
+
+function queueSave(id, row){
+  clearTimeout(saveTimers[id]);
+  saveTimers[id] = setTimeout(async () => {
+    const patch = Object.assign({}, row);
+    delete patch.id; delete patch.created_at;
+    try { await store.update(id, patch); } catch(e){ toast('Save failed: ' + (e.message || e), true); }
+  }, 600);
+}
+
+/* ─── Confluence popover ─── */
+let popEl = null;
+function closePop(){ if(popEl){ popEl.remove(); popEl = null; document.removeEventListener('click', closePop); } }
+function openConfPop(btn, id){
+  closePop();
+  const row = rows.find(x => String(x.id) === String(id));
+  if(!row) return;
+  const rect = btn.getBoundingClientRect();
+  popEl = document.createElement('div');
+  popEl.className = 'pop';
+  popEl.innerHTML = CONFLUENCES.map(c =>
+    '<div class="pop-item' + (row[c.key] ? ' on' : '') + '" data-k="' + c.key + '">' +
+      '<span class="pop-box">' + (row[c.key] ? '✓' : '') + '</span><span>' + esc(c.name) + '</span></div>').join('') +
+    '<div class="pop-foot">Definitions on the Definitions tab</div>';
+  document.body.appendChild(popEl);
+  const top = Math.min(rect.bottom + 4, window.innerHeight - popEl.offsetHeight - 10);
+  const left = Math.min(rect.left, window.innerWidth - popEl.offsetWidth - 10);
+  popEl.style.top = Math.max(10, top) + 'px';
+  popEl.style.left = Math.max(10, left) + 'px';
+  popEl.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const item = ev.target.closest('.pop-item');
+    if(!item) return;
+    const k = item.dataset.k;
+    row[k] = !row[k];
+    item.classList.toggle('on', row[k]);
+    item.querySelector('.pop-box').textContent = row[k] ? '✓' : '';
+    const n = CONFLUENCES.filter(x => row[x.key]).length;
+    btn.textContent = n + ' / ' + CONFLUENCES.length;
+    btn.classList.toggle('none', !n);
+    queueSave(id, row);
+  });
+  setTimeout(() => document.addEventListener('click', closePop), 0);
+}
+
+/* ─── Dictation → new row ─── */
+function parseDictation(text){
+  const t = ' ' + text.toLowerCase().replace(/[,;]/g,' ') + ' ';
+  const o = {};
+  const inst = t.match(/\b(es|us100|nasdaq|nq|gold|xauusd|eurusd|gbpusd)\b/);
+  if(inst){ const m = { es:'ES', us100:'US100', nasdaq:'US100', nq:'US100', gold:'Gold', xauusd:'Gold', eurusd:'EURUSD', gbpusd:'GBPUSD' }; o.instrument = m[inst[1]]; }
+  const biasAt = re => { const m = t.match(re); return m ? (m[1] === 'long' ? 'Long' : 'Short') : null; };
+  o.h4_bias  = biasAt(/\bh4\D{0,16}?\b(long|short)\b/);
+  o.h1_bias  = biasAt(/\bh1\D{0,16}?\b(long|short)\b/);
+  o.m15_bias = biasAt(/\b(?:15 ?m|15 ?min|fifteen)\D{0,16}?\b(long|short)\b/);
+  if(!o.m15_bias){
+    if(/\b(short|sell|bearish)\b/.test(t)) o.m15_bias = 'Short';
+    if(/\b(long|buy|bullish)\b/.test(t))   o.m15_bias = 'Long';
+  }
+  if(/\bflip zone\b/.test(t))    o.poi_type = 'Flip Zone';
+  if(/\bsupply\b/.test(t))       o.poi_type = 'Supply Zone';
+  if(/\bdemand\b/.test(t))       o.poi_type = 'Demand Zone';
+  const tf = t.match(/\b(1|3|5|15) ?(?:m|min|minute)\b/); if(tf) o.entry_tf = tf[1] + 'm';
+  if(/\b(flip zone sweep|fz sweep)\b/.test(t))        o.entry_model = 'FZ Sweep';
+  if(/\b(conservative|em ?3 ?c)\b/.test(t))           o.entry_model = 'EM3 Conservative';
+  if(/\b(aggressive|aggr|em ?3 ?a)\b/.test(t))        o.entry_model = 'EM3 Aggressive';
+  const fs = t.match(/(?:fake shift|fms|shift)\D{0,14}?\b(fractal|strong)\b/) || t.match(/\b(fractal|strong)\b\D{0,14}?(?:fake shift|fms|shift)/);
+  if(fs) o.fake_shift = fs[1] === 'fractal' ? 'Fractal' : 'Strong';
+  if(/\balready swept\b/.test(t))                     o.fz_state = 'Already swept';
+  if(/\bneeded to be swept|not yet swept\b/.test(t))  o.fz_state = 'Needed to be swept';
+  if(/\bpush (?:liquidity )?(?:is )?yes\b|\bpush liquidity\b(?![^.]*\bno\b)/.test(t)) o.push_liq = 'Yes';
+  if(/\bno push\b|\bpush (?:liquidity )?(?:is )?no\b/.test(t))                        o.push_liq = 'No';
+  const g = re => { const m = t.match(re); return m ? parseFloat(m[1]) : null; };
+  o.poi_entry    = g(/poi entr\w*\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.poi_inval    = g(/poi invalid\w*\D{0,12}?(\d+(?:\.\d+)?)/);
+  /* strip the POI phrases first so "entry" below can't match "POI entry" */
+  const tE = t.replace(/poi entr\w*\D{0,12}?\d+(?:\.\d+)?/g, ' ').replace(/poi invalid\w*\D{0,12}?\d+(?:\.\d+)?/g, ' ');
+  const mE = tE.match(/\bentry(?: price| at)?\D{0,10}?(\d+(?:\.\d+)?)/);
+  o.entry_price  = mE ? parseFloat(mE[1]) : null;
+  o.stop1        = g(/stop (?:1|one|aggressive)\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.stop2        = g(/stop (?:2|two|conservative)\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.target_price = g(/(?:technical )?target\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.be_trigger   = g(/(?:b\/?e|breakeven|break even)(?: trigger)?\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.mfe_price    = g(/(?:mfe|max favou?rable|ran to|best)\D{0,14}?(\d+(?:\.\d+)?)/);
+  o.mae_price    = g(/(?:mae|max adverse|drew down to|worst)\D{0,14}?(\d+(?:\.\d+)?)/);
+  const time = t.match(/\b(\d{1,2}:\d{2})\b/); if(time) o.entry_time = time[1].padStart(5,'0');
+  const ph = t.match(/h4\D{0,14}?(?:phase\s*)?(1b|1|2|3|4)\s*(firm|start)?/);
+  if(ph){ o.h4_phase = ph[1] === '1b' ? 'P1b' : ('P' + ph[1] + (ph[2] ? ' ' + ph[2].toUpperCase() : ''));
+          if(!PHASES.includes(o.h4_phase)) o.h4_phase = PHASES.find(p => p.startsWith('P' + ph[1])) || '—'; }
+  if(/\bwin\b|\bwinner\b|\bwon\b/.test(t))            o.outcome = 'Win';
+  if(/\bloss\b|\blost\b|\bstopped out\b/.test(t))     o.outcome = 'Loss';
+  if(/\bbreakeven\b|\bbreak even\b|\bb\/?e\b/.test(t))o.outcome = 'Breakeven';
+  o.conf = {};
+  if(/\b(pro.?internal|aligned|continuation)\b/.test(t))      o.conf.conf_pro_internal = true;
+  if(/\b(liquidity|inducement|swept|sweep)\b/.test(t))        o.conf.conf_liquidity = true;
+  if(/\bflip\b/.test(t))                                      o.conf.conf_flip = true;
+  if(/\b(discount|premium|well priced)\b/.test(t))            o.conf.conf_pd = true;
+  if(/\b(unmitigated|fresh|virgin)\b/.test(t))                o.conf.conf_unmitigated = true;
+  if(/\bchain\b/.test(t))                                     o.conf.conf_chain = true;
+  if(/\b(stacked|htf poi)\b/.test(t))                         o.conf.conf_htf_stack = true;
+  if(/\bpush\b/.test(t))                                      o.conf.conf_push = true;
+  return o;
+}
+
+async function createFromDictation(){
+  const txt = $('dictation').value.trim();
+  if(!txt) return toast('Dictate or type something first', true);
+  const p = parseDictation(txt);
+  const row = blankRow();
+  let n = 0;
+  Object.keys(p).forEach(k => {
+    if(k === 'conf'){ Object.keys(p.conf).forEach(ck => { row[ck] = true; n++; }); return; }
+    if(p[k] !== null && p[k] !== undefined){ row[k] = p[k]; n++; }
+  });
+  row.raw_dictation = txt;
+  try {
+    const saved = await store.add(row);
+    rows.unshift(Object.assign({}, row, saved && saved.id ? { id: saved.id } : {}));
+    renderGrid(); refreshCounts(); renderAnalysis();
+    $('dictation').value = '';
+    toast(n ? ('Row created — ' + n + ' field' + (n===1?'':'s') + ' filled, check them') : 'Row created, nothing recognised');
+  } catch(e){ toast('Could not create row: ' + (e.message || e), true); }
+}
+
+/* ─── CSV ─── */
+function exportCSV(){
+  if(!rows.length) return toast('Nothing to export yet', true);
+  const keys = COLS.filter(c => c.t !== 'calc' && c.t !== 'conf').map(c => c.k);
+  const head = [...keys, ...CONFLUENCES.map(c => c.key), 'poi_1r','mfe_poi_r','mfe_r_stop1','mfe_r_stop2'];
+  const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
+  const lines = [head.join(',')];
+  rows.forEach(r => {
+    const c = calcs(r);
+    const f = v => v === null ? '' : v.toFixed(4);
+    lines.push([...keys.map(k => r[k]), ...CONFLUENCES.map(x => r[x.key]), f(c.poiR), f(c.mfePoiR), f(c.r1), f(c.r2)].map(q).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'backtest-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Exported ' + rows.length + ' rows');
+}
+
+/* ─── Analysis ─── */
+function filtered(){
+  const tr = $('a-trader').value, inst = $('a-inst').value, yr = $('a-year').value, poi = $('a-poi').value, mod = $('a-model').value;
+  return rows.filter(r =>
+    (tr === 'all' || r.trader === tr) &&
+    (inst === 'all' || r.instrument === inst) &&
+    (yr === 'all' || (r.date || '').slice(0,4) === yr) &&
+    (poi === 'all' || r.poi_type === poi) &&
+    (mod === 'all' || r.entry_model === mod));
+}
+/* POI-level reads collapse rows that share a POI ref — a zone that produced two
+   trades is still one zone, and must not carry twice the weight. */
+function byPoi(rs){
+  const seen = {}, out = [];
+  rs.forEach(r => { const k = r.poi_ref || r.id; if(!seen[k]){ seen[k] = 1; out.push(r); } });
+  return out;
+}
+const mfeVals = rs => rs.map(r => calcs(r).mfePoiR).filter(v => v !== null);
+
+function renderAnalysis(){
+  const rs = filtered(); $('a-count').textContent = rs.length;
+  const pois = byPoi(rs);
+  const ms = mfeVals(pois), over2 = ms.filter(v => v >= 2);
+  const avg2 = over2.length ? over2.reduce((a,b) => a+b, 0) / over2.length : 0;
+  const wins = rs.filter(r => r.outcome === 'Win').length, decided = rs.filter(r => ['Win','Loss','Breakeven'].includes(r.outcome)).length;
+
+  $('a-tiles').innerHTML =
+    tile(pois.length, 'POIs', '') +
+    tile(pct(ms.filter(v => v >= 2).length, ms.length) + '%', 'Meaningful reaction (≥2R)', 'acc') +
+    tile(avg2 ? avg2.toFixed(1) + 'R' : '—', 'Avg POI MFE of those', 'g') +
+    tile(decided ? pct(wins, decided) + '%' : '—', 'Win rate · ' + rs.length + ' trades', 'g');
+
+  $('a-dist').innerHTML = STEPS.map(s => {
+    const c = ms.filter(v => v >= s).length, p = pct(c, ms.length);
+    return '<div class="bar' + (s === 2 ? ' mark' : '') + '"><span class="bar-l">≥ ' + s + 'R</span>' +
+      '<span class="bar-t"><span class="bar-f" style="width:' + Math.max(p, 0.5) + '%"></span></span>' +
+      '<span class="bar-v"><b>' + p + '%</b> · ' + c + '</span></div>';
+  }).join('');
+
+  const conf = CONFLUENCES.map(c => {
+    const on = pois.filter(r => r[c.key]), off = pois.filter(r => !r[c.key]);
+    const onM = mfeVals(on), offM = mfeVals(off);
+    const pOn = pct(onM.filter(v => v >= 2).length, onM.length), pOff = pct(offM.filter(v => v >= 2).length, offM.length);
+    return { name:c.name, n:on.length, pOn, pOff, lift:Math.round((pOn - pOff) * 10) / 10, med: onM.length ? median(onM) : null };
+  }).sort((a,b) => b.lift - a.lift);
+  $('a-conf').innerHTML = '<thead><tr><th>Confluence</th><th class="n">POIs with it</th><th class="n">≥2R with</th><th class="n">≥2R without</th><th class="n">Lift</th><th class="n">Median MFE</th></tr></thead><tbody>' +
+    conf.map(r => '<tr><td>' + esc(r.name) + (r.n && r.n < 30 ? '<span class="chip warn">low n</span>' : '') + '</td>' +
+      '<td class="n">' + r.n + '</td><td class="n">' + r.pOn + '%</td><td class="n">' + r.pOff + '%</td>' +
+      '<td class="n ' + (r.lift >= 0 ? 'pos' : 'neg') + '">' + (r.lift >= 0 ? '+' : '') + r.lift + ' pp</td>' +
+      '<td class="n">' + (r.med === null ? '—' : r.med.toFixed(1) + 'R') + '</td></tr>').join('') + '</tbody>';
+
+  let mh = '<thead><tr><th>Entry model</th><th>Stop</th><th class="n">n</th><th class="n">Avg MFE</th><th class="n">≥3R</th><th class="n">≥5R</th><th class="n">Exp. @5R</th></tr></thead><tbody>';
+  let any = false;
+  MODELS.filter(m => m !== '—').forEach(m => {
+    const set = rs.filter(r => r.entry_model === m);
+    if(!set.length) return;
+    any = true;
+    [['Stop 1 · aggressive','r1'],['Stop 2 · conservative','r2']].forEach(([lbl, key], idx) => {
+      const vals = set.map(r => calcs(r)[key]).filter(v => v !== null);
+      const avg = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+      const h5 = vals.length ? vals.filter(v => v >= 5).length / vals.length : null;
+      const exp = h5 === null ? null : h5 * 5 - (1 - h5);
+      mh += '<tr><td>' + (idx === 0 ? esc(m) : '') + '</td><td>' + lbl + '</td>' +
+        '<td class="n">' + vals.length + (vals.length && vals.length < 30 ? '<span class="chip warn">low n</span>' : '') + '</td>' +
+        '<td class="n">' + (avg === null ? '—' : avg.toFixed(2) + 'R') + '</td>' +
+        '<td class="n">' + (vals.length ? pct(vals.filter(v => v >= 3).length, vals.length) + '%' : '—') + '</td>' +
+        '<td class="n">' + (vals.length ? pct(vals.filter(v => v >= 5).length, vals.length) + '%' : '—') + '</td>' +
+        '<td class="n ' + (exp !== null && exp >= 0 ? 'pos' : 'neg') + '">' + (exp === null ? '—' : (exp >= 0 ? '+' : '') + exp.toFixed(2)) + '</td></tr>';
+    });
+  });
+  $('a-models').innerHTML = any ? mh + '</tbody>' : '<tbody><tr><td class="grid-empty">No entry models logged in this slice yet.</td></tr></tbody>';
+
+  const be = rs.filter(r => r.outcome === 'Breakeven');
+  const worked = be.filter(r => r.after_be === 'Worked').length, failed = be.filter(r => r.after_be === 'Failed').length;
+  $('a-outcome').innerHTML = '<thead><tr><th>Outcome</th><th class="n">Rows</th><th class="n">Share</th><th>Note</th></tr></thead><tbody>' +
+    ['Win','Loss','Breakeven'].map(o => {
+      const c = rs.filter(r => r.outcome === o).length;
+      let note = '';
+      if(o === 'Breakeven' && be.length) note = worked + ' would have worked · ' + failed + ' would have failed';
+      return '<tr><td class="' + (o === 'Win' ? 'pos' : o === 'Loss' ? 'neg' : '') + '">' + o + '</td>' +
+        '<td class="n">' + c + '</td><td class="n">' + pct(c, decided) + '%</td><td>' + note + '</td></tr>';
+    }).join('') +
+    (be.length ? '<tr><td class="acc">B/E cost</td><td class="n">' + worked + '</td><td class="n">' + pct(worked, be.length) + '%</td><td>of breakeven rows would have reached target — the cost of moving the stop</td></tr>' : '') +
+    '</tbody>';
+
+  const n = pois.length, extra = rs.length - pois.length;
+  const tail = extra ? ' (' + rs.length + ' trades — ' + extra + ' second attempt' + (extra === 1 ? '' : 's') + ')' : '';
+  $('a-note').textContent = n === 0 ? 'No rows in this slice yet.'
+    : n < 60 ? 'This slice holds ' + n + ' POIs' + tail + '. Too few to separate one confluence from another — directional only.'
+    : n < 150 ? 'This slice holds ' + n + ' POIs' + tail + '. Enough for a first read on the strongest confluences, not enough to trust differences under about 8 points.'
+    : 'This slice holds ' + n + ' POIs' + tail + '. Differences of 5 points or more in the confluence table are starting to mean something.';
+}
+const tile = (v, l, c) => '<div class="tile"><div class="tile-v ' + c + '">' + v + '</div><div class="tile-l">' + l + '</div></div>';
+
+/* ─── Load ─── */
+function refreshCounts(){ $('rowCount').textContent = rows.length + (rows.length === 1 ? ' row' : ' rows'); }
+async function loadRows(){
+  try { rows = await store.list(); }
+  catch(e){ rows = []; toast('Could not load rows: ' + (e.message || e), true); }
+  refreshCounts();
+  const years = [...new Set(rows.map(r => (r.date || '').slice(0,4)).filter(Boolean))].sort().reverse();
+  const ys = $('a-year'), cur = ys.value;
+  ys.innerHTML = '<option value="all">All years</option>' + years.map(y => '<option>' + y + '</option>').join('');
+  if([...ys.options].some(o => o.value === cur)) ys.value = cur;
+  renderGrid(); renderAnalysis();
+}
+
+/* ─── Hover definitions ─── */
+function wireTips(){
+  const tip = $('tip'), tbl = $('grid');
+  let hideT = null;
+  tbl.addEventListener('mouseover', ev => {
+    const cell = ev.target.closest('th, td');
+    if(!cell || !tbl.contains(cell)) return;
+    const idx = cell.cellIndex - 1;            // first column is the row number
+    const col = COLS[idx];
+    if(!col || !COL_DEFS[col.k]){ tip.classList.remove('show'); return; }
+    clearTimeout(hideT);
+    tip.innerHTML = '<div class="tip-t">' + esc(col.h) + '</div><div class="tip-b">' + esc(COL_DEFS[col.k]) + '</div>';
+    tip.classList.add('show');
+    const r = cell.getBoundingClientRect();
+    const top = r.bottom + 8 + tip.offsetHeight > window.innerHeight ? r.top - tip.offsetHeight - 8 : r.bottom + 8;
+    tip.style.top = Math.max(8, top) + 'px';
+    tip.style.left = Math.max(8, Math.min(r.left, window.innerWidth - tip.offsetWidth - 12)) + 'px';
+  });
+  tbl.addEventListener('mouseleave', () => { hideT = setTimeout(() => tip.classList.remove('show'), 80); });
+}
+
+/* ─── Trader identity ─── */
+function setTrader(name){
+  trader = name || '';
+  $('whoName').textContent = trader ? 'Trader · ' + trader : 'Not signed in';
+  try { localStorage.setItem('ttp_bt_trader', trader); } catch(e){}
+  $('gate').classList.toggle('hidden', !!trader);
+  $('dictateCard').classList.toggle('hidden', !trader);
+}
+
+function showGate(){
+  const g = $('gate'), note = $('gateNote'), input = $('gateInput');
+  if(storeMode === 'supabase'){
+    note.textContent = 'Sign in with your email. You will get a one-click link — do it once per device and the session persists.';
+    input.type = 'email'; input.placeholder = 'you@example.com';
+    $('gateBtn').textContent = 'Send sign-in link';
+  } else {
+    note.textContent = 'Running on local storage, so this is just a label on your rows. Wire Supabase in the config block for real sign-in shared with your partner.';
+    input.type = 'text'; input.placeholder = 'Your name';
+    $('gateBtn').textContent = 'Continue';
+  }
+  g.classList.remove('hidden');
+  $('dictateCard').classList.add('hidden');
+}
+
+async function gateSubmit(){
+  const v = $('gateInput').value.trim();
+  if(pendingEmail){
+    const ini = v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+    if(ini.length < 2) return toast('Two to four letters, please', true);
+    try { localStorage.setItem(initialsKey(pendingEmail), ini); } catch(e){}
+    pendingEmail = '';
+    setTrader(ini);
+    loadRows();
+    toast('Logging as ' + ini);
+    return;
+  }
+  if(!v) return toast('Enter ' + (storeMode === 'supabase' ? 'your email' : 'a name'), true);
+  if(storeMode === 'supabase'){
+    try {
+      const { error } = await sb.auth.signInWithOtp({
+        email: v,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
+      });
+      if(error) throw error;
+      $('gateNote').textContent = 'Link sent to ' + v + '. Click it, then come back to this page.';
+      toast('Sign-in link sent');
+    } catch(e){ toast('Sign-in failed: ' + (e.message || e), true); }
+    return;
+  }
+  setTrader(v);
+  toast('Logging as ' + v);
+}
+
+function initialsKey(email){ return 'ttp_bt_initials_' + (email || '').toLowerCase(); }
+function savedInitials(email){
+  try { return localStorage.getItem(initialsKey(email)) || ''; } catch(e){ return ''; }
+}
+function nameFor(email){
+  if(!email) return '';
+  return TRADERS[email.toLowerCase()] || savedInitials(email);
+}
+
+/* Signed in, but this device has no initials for that address yet. */
+function askInitials(email){
+  pendingEmail = email;
+  $('gateNote').textContent = 'Signed in as ' + email + '. What initials should go on your rows? Two or three letters — they are written to every row you log.';
+  $('gateInput').type = 'text';
+  $('gateInput').placeholder = 'e.g. DC';
+  $('gateInput').value = '';
+  $('gateBtn').textContent = 'Use these initials';
+  $('gate').classList.remove('hidden');
+  $('dictateCard').classList.add('hidden');
+  $('whoName').textContent = 'Signed in · initials needed';
+}
+
+function resolveSignedIn(email){
+  const who = nameFor(email);
+  if(who){ setTrader(who); return true; }
+  askInitials(email);
+  return false;
+}
+
+async function resolveIdentity(){
+  if(storeMode === 'supabase'){
+    /* A magic-link return lands here with tokens in the URL hash; supabase-js
+       consumes them, then we tidy the address bar. */
+    sb.auth.onAuthStateChange((evt, session) => {
+      const email = session && session.user && session.user.email;
+      if(email){
+        const ok = resolveSignedIn(email);
+        if(window.location.hash.indexOf('access_token') > -1){
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        if(ok) loadRows();
+      } else if(evt === 'SIGNED_OUT'){
+        rows = []; renderGrid(); refreshCounts(); setTrader(''); showGate();
+      }
+    });
+    try {
+      const { data } = await sb.auth.getSession();
+      const email = data && data.session && data.session.user && data.session.user.email;
+      if(email){ if(resolveSignedIn(email)) return; return; }
+    } catch(e){}
+    showGate();
+    return;
+  }
+  let saved = '';
+  try { saved = localStorage.getItem('ttp_bt_trader') || ''; } catch(e){}
+  if(saved) setTrader(saved); else showGate();
+}
+
+function init(){
+  $('gateBtn').addEventListener('click', gateSubmit);
+  $('gateInput').addEventListener('keydown', e => { if(e.key === 'Enter') gateSubmit(); });
+  $('whoChange').addEventListener('click', async () => {
+    if(storeMode === 'supabase'){
+      try { await sb.auth.signOut(); } catch(e){}
+      rows = []; renderGrid(); refreshCounts();
+    }
+    pendingEmail = ''; setTrader(''); showGate();
+  });
+
+  if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      storeMode = 'supabase';
+      $('storeStatus').textContent = 'Shared · Supabase';
+      $('storeStatus').className = 'pill live';
+      $('whoChange').textContent = 'sign out';
+    } catch(e){
+      $('storeStatus').textContent = 'Local only — Supabase failed';
+      $('storeStatus').className = 'pill local';
+    }
+  } else {
+    $('storeStatus').textContent = 'Local only — this browser';
+    $('storeStatus').className = 'pill local';
+    $('storeStatus').title = 'Add SUPABASE_URL and SUPABASE_ANON_KEY in the config block to share across devices and traders.';
+  }
+
+  $('defConf').innerHTML = CONFLUENCES.map(c => '<div class="def"><div class="def-t">' + esc(c.name) + '</div><div class="def-b">' + esc(c.desc) + '</div></div>').join('');
+
+  $('parseBtn').addEventListener('click', createFromDictation);
+  $('clearDictation').addEventListener('click', () => { $('dictation').value = ''; });
+  $('addRowBtn').addEventListener('click', async () => {
+    try {
+      const row = blankRow();
+      const saved = await store.add(row);
+      rows.unshift(Object.assign({}, row, saved && saved.id ? { id: saved.id } : {}));
+      renderGrid(); refreshCounts(); toast('Row added');
+    } catch(e){ toast('Could not add row: ' + (e.message || e), true); }
+  });
+  $('exportBtn').addEventListener('click', exportCSV);
+  $('refreshBtn').addEventListener('click', async () => { await loadRows(); toast('Refreshed'); });
+  ['a-trader','a-inst','a-year','a-poi','a-model'].forEach(id => $(id).addEventListener('change', renderAnalysis));
+
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
+      ['grid','analysis','defs'].forEach(p => $('panel-' + p).classList.toggle('hidden', p !== btn.dataset.tab));
+      if(btn.dataset.tab === 'analysis') renderAnalysis();
+    });
+  });
+
+  wireTips();
+  window.addEventListener('scroll', closePop, true);
+  resolveIdentity().then(() => { if(trader || storeMode !== 'supabase') loadRows(); });
+}
+init();
+</script>
+</body>
+</html>
