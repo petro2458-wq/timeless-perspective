@@ -381,8 +381,6 @@ const COLS = [
   /* ── CONTEXT ── */
   { k:'trader',        h:'Trader',      t:'ro',     w:110, g:'Context' },
   { k:'date',          h:'Date',        t:'date',   w:150, g:'Context' },
-  { k:'entry_tf',      h:'Entry TF',    t:'select', o:TFS, w:94, g:'Context' },
-  { k:'entry_time',    h:'Entry time',  t:'time',   w:114, g:'Context' },
   { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:114, g:'Context' },
   { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
   { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
@@ -397,6 +395,8 @@ const COLS = [
   { k:'poi_inval',     h:'POI inval.',  t:'num',    w:110, g:'The POI' },
   { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:96, g:'The POI' },
   /* ── THE TRADE ── */
+  { k:'entry_tf',      h:'Entry TF',    t:'select', o:TFS, w:94, g:'The trade' },
+  { k:'entry_time',    h:'Entry time',  t:'time',   w:114, g:'The trade' },
   { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:196, g:'The trade' },
   { k:'fake_shift',    h:'Fake shift',  t:'select', o:FAKESHIFT, w:124, g:'The trade' },
   { k:'fz_state',      h:'Flip zone',   t:'select', o:FZSTATES, w:180, g:'The trade' },
