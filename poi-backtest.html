@@ -395,7 +395,6 @@ const COLS = [
   { k:'conf',          h:'Confluence',  t:'conf',   w:110, g:'The POI' },
   { k:'poi_entry',     h:'POI entry',   t:'num',    w:110, g:'The POI' },
   { k:'poi_inval',     h:'POI inval.',  t:'num',    w:110, g:'The POI' },
-  { k:'_poiR',         h:'POI 1R',      t:'calc',   w:92,  g:'The POI' },
   { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:96, g:'The POI' },
   /* ── THE TRADE ── */
   { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:196, g:'The trade' },
@@ -409,9 +408,6 @@ const COLS = [
   /* ── OUTCOME ── */
   { k:'mfe_price',     h:'MFE',         t:'num',    w:110, g:'Outcome' },
   { k:'mae_price',     h:'MAE',         t:'num',    w:110, g:'Outcome' },
-  { k:'_mfePoiR',      h:'MFE · POI R', t:'calc',   w:106, g:'Outcome' },
-  { k:'_r1',           h:'MFE · stop 1',t:'calc',   w:110, g:'Outcome' },
-  { k:'_r2',           h:'MFE · stop 2',t:'calc',   w:110, g:'Outcome' },
   { k:'outcome',       h:'Outcome',     t:'select', o:OUTCOMES, w:124, g:'Outcome' },
   { k:'after_be',      h:'After B/E',   t:'select', o:AFTERBE, w:114, g:'Outcome' },
   /* ── REFERENCE ── */
@@ -815,13 +811,11 @@ async function createFromDictation(){
 function exportCSV(){
   if(!rows.length) return toast('Nothing to export yet', true);
   const keys = COLS.filter(c => c.t !== 'calc' && c.t !== 'conf').map(c => c.k);
-  const head = [...keys, ...CONFLUENCES.map(c => c.key), 'poi_1r','mfe_poi_r','mfe_r_stop1','mfe_r_stop2'];
+  const head = [...keys, ...CONFLUENCES.map(c => c.key)];
   const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
   const lines = [head.join(',')];
   rows.forEach(r => {
-    const c = calcs(r);
-    const f = v => v === null ? '' : v.toFixed(4);
-    lines.push([...keys.map(k => r[k]), ...CONFLUENCES.map(x => r[x.key]), f(c.poiR), f(c.mfePoiR), f(c.r1), f(c.r2)].map(q).join(','));
+    lines.push([...keys.map(k => r[k]), ...CONFLUENCES.map(x => r[x.key])].map(q).join(','));
   });
   const blob = new Blob([lines.join('\n')], { type:'text/csv' });
   const a = document.createElement('a');
