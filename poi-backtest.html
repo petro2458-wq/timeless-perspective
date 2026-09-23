@@ -424,7 +424,7 @@ const COL_DEFS = {
   trader:'Who logged this row. Comes from sign-in, not editable in the grid.',
   date:'Date the POI was mitigated.',
   entry_tf:'The timeframe the entry trigger was read on.',
-  entry_time:'Time the entry filled.',
+  entry_time:'Time the entry filled — New York time (Eastern).',
   instrument:'Instrument traded.',
   h4_bias:'H4 directional bias at the time — long or short.',
   h1_bias:'H1 directional bias at the time — long or short.',
@@ -530,7 +530,7 @@ const store = {
 };
 
 function blankRow(){
-  const r = { trader: trader, date: new Date().toISOString().slice(0,10),
+  const r = { trader: trader, date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
     entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
