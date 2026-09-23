@@ -656,10 +656,9 @@ function wireGrid(){
         row[el.dataset.k] = (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
         if(el.dataset.k === 'entry_model'){
           const m = row.entry_model;
-          let needRender = false;
-          if(m !== 'EM3 Conservative' && row.fz_state !== '—'){ row.fz_state = '—'; needRender = true; }
-          if(m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—'){ row.fake_shift = '—'; needRender = true; }
-          if(needRender){ queueSave(id, row); renderGrid(); return; }
+          if(m !== 'EM3 Conservative' && row.fz_state !== '—') row.fz_state = '—';
+          if(m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
+          queueSave(id, row); renderGrid(); return;
         }
         refreshCalcCells(tr, row);
         queueSave(id, row);
