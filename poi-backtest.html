@@ -85,6 +85,10 @@
   select.ci{cursor:pointer;-webkit-appearance:none;appearance:none;}
   select.ci option{background:var(--bg-solid);color:var(--text-primary);}
   select.ci:disabled{opacity:0.35;cursor:not-allowed;}
+  .link-cell{display:flex;align-items:center;}
+  .link-cell .ci{flex:1;min-width:0;}
+  .tv-open{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;color:var(--text-muted);font-size:0.78rem;text-decoration:none;transition:color 0.15s;}
+  .tv-open:hover{color:var(--accent);}
   .ci.n{text-align:right;}
   .calc{padding:0.55rem 0.6rem;font-size:0.88rem;text-align:right;color:var(--text-secondary);}
   .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
@@ -621,8 +625,11 @@ function cellHTML(col, r, c){
       return '<input class="ci" type="date" data-k="' + col.k + '" value="' + esc(v || '') + '">';
     case 'time':
       return '<input class="ci" type="time" data-k="' + col.k + '" value="' + esc((v || '').slice(0,5)) + '">';
-    case 'link':
-      return '<input class="ci" type="url" data-k="' + col.k + '" placeholder="link" value="' + esc(v || '') + '">';
+    case 'link': {
+      const href = (v || '').trim();
+      const btn = href ? '<a class="tv-open" href="' + esc(href) + '" target="_blank" rel="noopener" title="Open chart">&#8599;</a>' : '<span class="tv-open" style="opacity:0.2">&#8599;</span>';
+      return '<div class="link-cell"><input class="ci" type="url" data-k="' + col.k + '" placeholder="paste link" value="' + esc(v || '') + '">' + btn + '</div>';
+    }
     case 'text':
       return '<input class="ci" type="text" data-k="' + col.k + '" value="' + esc(v || '') + '">';
     case 'conf': {
@@ -656,6 +663,11 @@ function wireGrid(){
           if(m !== 'EM3 Conservative' && row.fz_state !== '—') row.fz_state = '—';
           if(m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
           queueSave(id, row); renderGrid(); return;
+        }
+        if(el.type === 'url'){
+          const cell = el.closest('.link-cell');
+          if(cell){ const href = el.value.trim(); const old = cell.querySelector('a.tv-open, span.tv-open');
+            if(old) old.outerHTML = href ? '<a class="tv-open" href="' + esc(href) + '" target="_blank" rel="noopener" title="Open chart">&#8599;</a>' : '<span class="tv-open" style="opacity:0.2">&#8599;</span>'; }
         }
         refreshCalcCells(tr, row);
         queueSave(id, row);
