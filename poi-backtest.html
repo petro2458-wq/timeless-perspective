@@ -665,10 +665,13 @@ function wireGrid(){
     if(del) del.addEventListener('click', async () => {
       if(!del.classList.contains('armed')){
         del.classList.add('armed'); del.textContent = 'del?';
-        del._armT = setTimeout(() => { del.classList.remove('armed'); del.textContent = '✕'; }, 3000);
-        return;
+        del._armT = setTimeout(() => { del.classList.remove('armed'); del._step = 0; del.textContent = '✕'; }, 3000);
+        del._step = 1; return;
       }
-      clearTimeout(del._armT);
+      if(del._step === 1){
+        del.textContent = 'sure?'; del._step = 2; return;
+      }
+      clearTimeout(del._armT); del._step = 0;
       try { await store.remove(id); rows = rows.filter(x => String(x.id) !== String(id)); renderGrid(); refreshCounts(); toast('Row deleted'); }
       catch(e){ toast('Delete failed: ' + (e.message || e), true); }
     });
