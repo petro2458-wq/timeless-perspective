@@ -36,7 +36,8 @@ create table if not exists public.poi_backtest (
   conf_push           boolean not null default false,
 
   -- entry model
-  entry_model         text,          -- EM3 Aggressive / EM3 Conservative / FZ Sweep
+  poi_tf              text,          -- 1m / 3m / 5m / 15m (the timeframe the POI was identified on)
+  entry_model         text,          -- No Entry Model / EM3 Aggressive / EM3 Conservative / Flip Zone - Swept / Flip Zone - Unswept
   fake_shift          text,          -- Fractal / Strong — which structure the fMS broke (EM3)
   fz_state            text,          -- Already swept / Needed to be swept
   push_liq            text,          -- Yes / No
@@ -104,7 +105,8 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists after_be     text,
 --   add column if not exists tv_m3        text,
 --   add column if not exists tv_m1        text,
---   add column if not exists date         date;
+--   add column if not exists date         date,
+--   add column if not exists poi_tf       text;
 
 
 -- ════════════════════════════════════════════════════════════════════

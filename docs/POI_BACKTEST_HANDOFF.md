@@ -107,26 +107,29 @@ analytical variable.
 
 ## 3 · Layer 2 — entry models (capture built)
 
-Captured as a `jsonb` array on the POI row: 0..2 entries per POI, each with its
-own dictation box, prices and both stops. The *field structure* is settled; the
-written *stop definitions* for two of the three models are not (§6), so those
-fields exist but the rule for filling them is still pending.
+All fields are flat on the one row (no jsonb). The *field structure* is settled;
+the written *stop definitions* for EM3 Conservative and the Flip Zone entries are
+not (§6), so those fields exist but the rule for filling them is still pending.
 
-Per entry: model, entry time, entry price, stop 1, stop 2, MFE, MAE, technical
-target, 3R / 5R / target reached, result, notes. R is computed against both
-stops from the same move.
+Fields per row: model, entry time, entry price, stop 1, stop 2, MFE, MAE,
+technical target, outcome. R is computed against both stops from the same move.
 
-**Three entry types, two stops each. Every entry produces two R readings from one
-move, so the data picks the stop.**
+**Five entry values, including "No Entry Model" for a mitigated POI where no trade
+was taken. Every logged entry produces two R readings from one move.**
 
 | Model | Entry | Stop 1 (aggressive) | Stop 2 (conservative) |
 |---|---|---|---|
-| **EM3 Aggr.** | The fMS-low sweep, taken immediately | Below the liquidation candle | Below the zone |
-| **EM3 Cons.** | The flip zone sweep following a working EM3 Aggr. (Entry 2; Entry 1 → breakeven) | **PENDING** | **PENDING** |
-| **FZ Sweep** | Flip zone swept with a clear sweep on 1m, taken alone. Terminal — no EM3 Aggr./Cons. follows | **PENDING** | **PENDING** |
+| **No Entry Model** | POI mitigated, no trade taken | — | — |
+| **EM3 Aggressive** | The fMS-low sweep, taken immediately | Below the liquidation candle | Below the zone |
+| **EM3 Conservative** | The flip zone sweep following a working EM3 Aggr. (Entry 2; Entry 1 → breakeven) | **PENDING** | **PENDING** |
+| **Flip Zone - Swept** | Flip zone was already swept before entry | **PENDING** | **PENDING** |
+| **Flip Zone - Unswept** | Flip zone had not yet been swept at entry | **PENDING** | **PENDING** |
 
-One FZ sweep stop definition covers two models, since EM3 Cons. *is* a flip zone
-sweep entry.
+**push_liq is a POI-level field** (logged in The POI column group, not The trade).
+It drives the top branch of the decision tree and belongs to the zone, not the entry.
+
+**poi_tf** is also in The POI group — the timeframe the POI was identified on.
+Expected to be 15m for this study; logged to verify.
 
 **Layer 2 rules:**
 - Failure = a **3m close beyond the POI** (different from layer 1, where a touch

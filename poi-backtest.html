@@ -12,8 +12,8 @@
   :root{
     --bg-primary:#0a0b0f;--bg-secondary:#101118;--bg-card:rgba(255,255,255,0.03);
     --bg-solid:#14151d;
-    --border:rgba(255,255,255,0.06);--border-light:rgba(255,255,255,0.10);
-    --text-primary:#e8e6e3;--text-secondary:#8a8d9b;--text-muted:#565869;
+    --border:rgba(255,255,255,0.14);--border-light:rgba(255,255,255,0.20);
+    --text-primary:#f5f5f4;--text-secondary:#b8bac2;--text-muted:#7a7d8c;
     --accent:#d4537e;--accent-dim:#b8446b;--accent-glow:rgba(212,83,126,0.15);
     --green:#34c77b;--green-dim:rgba(52,199,123,0.12);
     --red:#e84057;--red-dim:rgba(232,64,87,0.12);
@@ -84,6 +84,7 @@
   .ci::placeholder{color:var(--text-muted);}
   select.ci{cursor:pointer;-webkit-appearance:none;appearance:none;}
   select.ci option{background:var(--bg-solid);color:var(--text-primary);}
+  select.ci:disabled{opacity:0.35;cursor:not-allowed;}
   .ci.n{text-align:right;}
   .calc{padding:0.55rem 0.6rem;font-size:0.88rem;text-align:right;color:var(--text-secondary);}
   .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
@@ -166,8 +167,10 @@
     .wrap{padding:1.25rem 1rem 3rem;}
     .tiles{grid-template-columns:1fr 1fr;}
     .def-grid{grid-template-columns:1fr;}
-    .dictate{min-height:170px;font-size:1.05rem;}
+    .dictate{min-height:300px;font-size:1.15rem;line-height:1.55;padding:1rem;border-width:2px;}
     .grid-wrap{max-height:60vh;}
+    #dictateCard{border:2px solid var(--border-light);}
+    #dictateCard .card-label{color:var(--text-primary);}
   }
 </style>
 </head>
@@ -235,10 +238,10 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
 
   <div class="filters">
     <div class="fld"><span>Trader</span><select id="a-trader"><option value="all">All traders</option><option>David</option><option>Partner</option></select></div>
-    <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>US100</option><option>Gold</option><option>EURUSD</option><option>GBPUSD</option></select></div>
+    <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>NQ</option><option>YM</option><option>GC</option><option>XAUUSD</option><option>US100</option><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option></select></div>
     <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
     <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
-    <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>FZ Sweep</option></select></div>
+    <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>Flip Zone - Swept</option><option>Flip Zone - Unswept</option></select></div>
     <div class="fcount">Sample: <b id="a-count">0</b> rows</div>
   </div>
 
@@ -362,9 +365,9 @@ const CONFLUENCES = [
 
 const PHASES   = ['—','P1b','P2','P3 START','P3 FIRM','P4','P1 START','P1 FIRM'];
 const TFS      = ['—','1m','3m','5m','15m'];
-const INSTS    = ['ES','US100','Gold','EURUSD','GBPUSD'];
+const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
 const POITYPES = ['—','Flip Zone','Supply Zone','Demand Zone'];
-const MODELS   = ['—','EM3 Aggressive','EM3 Conservative','FZ Sweep'];
+const MODELS   = ['—','No Entry Model','EM3 Aggressive','EM3 Conservative','Flip Zone - Swept','Flip Zone - Unswept'];
 const FZSTATES = ['—','Already swept','Needed to be swept'];
 const FAKESHIFT = ['—','Fractal','Strong'];
 const YESNO    = ['—','Yes','No'];
@@ -386,16 +389,17 @@ const COLS = [
   { k:'h4_phase',      h:'H4 phase',    t:'select', o:PHASES, w:120, g:'Context' },
   /* ── THE POI ── */
   { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
+  { k:'poi_tf',        h:'POI TF',      t:'select', o:TFS, w:94,  g:'The POI' },
   { k:'poi_type',      h:'POI',         t:'select', o:POITYPES, w:148, g:'The POI' },
   { k:'conf',          h:'Confluence',  t:'conf',   w:110, g:'The POI' },
   { k:'poi_entry',     h:'POI entry',   t:'num',    w:110, g:'The POI' },
   { k:'poi_inval',     h:'POI inval.',  t:'num',    w:110, g:'The POI' },
   { k:'_poiR',         h:'POI 1R',      t:'calc',   w:92,  g:'The POI' },
+  { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:96, g:'The POI' },
   /* ── THE TRADE ── */
-  { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:178, g:'The trade' },
+  { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:196, g:'The trade' },
   { k:'fake_shift',    h:'Fake shift',  t:'select', o:FAKESHIFT, w:124, g:'The trade' },
   { k:'fz_state',      h:'Flip zone',   t:'select', o:FZSTATES, w:180, g:'The trade' },
-  { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:96, g:'The trade' },
   { k:'entry_price',   h:'Entry',       t:'num',    w:110, g:'The trade' },
   { k:'stop1',         h:'Stop 1',      t:'num',    w:110, g:'The trade' },
   { k:'stop2',         h:'Stop 2',      t:'num',    w:110, g:'The trade' },
@@ -429,9 +433,10 @@ const COL_DEFS = {
   m15_bias:'15m bias, long or short. This is the one that sets the sign for every R calculation on the row.',
   h4_phase:'H4 market phase at the time — the higher-timeframe context filter.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
+  poi_tf:'The timeframe the POI was identified on. Expected to be 15m for this study; logged to verify.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
   conf:'The eight confluences present on this POI. Click to tick them; full definitions on the Definitions tab.',
-  entry_model:'EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. FZ Sweep — flip zone swept with a clear 1m sweep, taken alone.',
+  entry_model:'No Entry Model — POI mitigated, no trade taken. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. Flip Zone - Swept — zone was already swept before entry. Flip Zone - Unswept — zone had not yet been swept at entry.',
   fake_shift:'For EM3 entries: which structure the fake market shift broke — fractal or strong.',
   fz_state:'For the flip zone: was it already swept, or did it still need to be swept?',
   push_liq:'Did pre-BOS push liquidity exist to fuel the move into or through the POI?',
@@ -528,7 +533,7 @@ const store = {
 
 function blankRow(){
   const r = { trader: trader, date: new Date().toISOString().slice(0,10),
-    entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_type:'—',
+    entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
     target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
@@ -555,7 +560,7 @@ function makeRef(row){
 /* Second attempt on the same POI: copy the context and POI half, leave the
    trade and outcome blank, share the reference. */
 const POI_HALF = ['date','entry_tf','instrument','h4_bias','h1_bias','m15_bias','h4_phase',
-                  'poi_ref','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
+                  'poi_ref','poi_tf','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
 async function cloneRow(id){
   const src = rows.find(r => String(r.id) === String(id));
   if(!src) return;
@@ -605,9 +610,13 @@ function renderGrid(){
 function cellHTML(col, r, c){
   const v = r[col.k];
   switch(col.t){
-    case 'select':
-      return '<select class="ci" data-k="' + col.k + '">' +
+    case 'select': {
+      const dis = (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
+                  (col.k === 'fake_shift' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
+      const disAttr = dis ? ' disabled title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
+      return '<select class="ci" data-k="' + col.k + '"' + disAttr + '>' +
         col.o.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+    }
     case 'num':
       return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '">';
     case 'date':
@@ -644,6 +653,13 @@ function wireGrid(){
         const row = rows.find(x => String(x.id) === String(id));
         if(!row) return;
         row[el.dataset.k] = (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
+        if(el.dataset.k === 'entry_model'){
+          const m = row.entry_model;
+          let needRender = false;
+          if(m !== 'EM3 Conservative' && row.fz_state !== '—'){ row.fz_state = '—'; needRender = true; }
+          if(m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—'){ row.fake_shift = '—'; needRender = true; }
+          if(needRender){ queueSave(id, row); renderGrid(); return; }
+        }
         refreshCalcCells(tr, row);
         queueSave(id, row);
       });
@@ -719,8 +735,8 @@ function openConfPop(btn, id){
 function parseDictation(text){
   const t = ' ' + text.toLowerCase().replace(/[,;]/g,' ') + ' ';
   const o = {};
-  const inst = t.match(/\b(es|us100|nasdaq|nq|gold|xauusd|eurusd|gbpusd)\b/);
-  if(inst){ const m = { es:'ES', us100:'US100', nasdaq:'US100', nq:'US100', gold:'Gold', xauusd:'Gold', eurusd:'EURUSD', gbpusd:'GBPUSD' }; o.instrument = m[inst[1]]; }
+  const inst = t.match(/\b(es|nq|ym|gc|xauusd|gold|us100|nasdaq|eurusd|gbpusd|usdjpy)\b/);
+  if(inst){ const m = { es:'ES', nq:'NQ', ym:'YM', gc:'GC', xauusd:'XAUUSD', gold:'GC', us100:'US100', nasdaq:'US100', eurusd:'EURUSD', gbpusd:'GBPUSD', usdjpy:'USDJPY' }; o.instrument = m[inst[1]]; }
   const biasAt = re => { const m = t.match(re); return m ? (m[1] === 'long' ? 'Long' : 'Short') : null; };
   o.h4_bias  = biasAt(/\bh4\D{0,16}?\b(long|short)\b/);
   o.h1_bias  = biasAt(/\bh1\D{0,16}?\b(long|short)\b/);
@@ -733,7 +749,8 @@ function parseDictation(text){
   if(/\bsupply\b/.test(t))       o.poi_type = 'Supply Zone';
   if(/\bdemand\b/.test(t))       o.poi_type = 'Demand Zone';
   const tf = t.match(/\b(1|3|5|15) ?(?:m|min|minute)\b/); if(tf) o.entry_tf = tf[1] + 'm';
-  if(/\b(flip zone sweep|fz sweep)\b/.test(t))        o.entry_model = 'FZ Sweep';
+  if(/\bflip zone.{0,10}unswept\b|\bfz unswept\b|\bflip zone not swept\b/.test(t)) o.entry_model = 'Flip Zone - Unswept';
+  else if(/\b(flip zone.{0,10}swept|fz sweep|flip zone sweep)\b/.test(t))           o.entry_model = 'Flip Zone - Swept';
   if(/\b(conservative|em ?3 ?c)\b/.test(t))           o.entry_model = 'EM3 Conservative';
   if(/\b(aggressive|aggr|em ?3 ?a)\b/.test(t))        o.entry_model = 'EM3 Aggressive';
   const fs = t.match(/(?:fake shift|fms|shift)\D{0,14}?\b(fractal|strong)\b/) || t.match(/\b(fractal|strong)\b\D{0,14}?(?:fake shift|fms|shift)/);
