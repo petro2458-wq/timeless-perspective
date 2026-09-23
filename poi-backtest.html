@@ -71,26 +71,26 @@
   select.mini{font-family:var(--font-mono);font-size:0.65rem;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:0.35rem 0.5rem;outline:none;border-radius:2px;}
 
   /* ═══ SPREADSHEET ═══ */
-  .grid-wrap{margin-top:1.25rem;border:1px solid var(--border);border-radius:4px;overflow:auto;max-height:70vh;background:var(--bg-secondary);}
-  table.grid{border-collapse:separate;border-spacing:0;font-family:var(--font-mono);font-size:0.72rem;white-space:nowrap;}
-  table.grid th{position:sticky;top:0;z-index:5;background:var(--bg-solid);color:var(--text-muted);font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.55rem 0.5rem;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border);}
+  .grid-wrap{margin-top:1.25rem;border:1px solid var(--border);border-radius:4px;overflow:auto;max-height:80vh;background:var(--bg-secondary);}
+  table.grid{border-collapse:separate;border-spacing:0;font-family:var(--font-mono);font-size:0.88rem;white-space:nowrap;}
+  table.grid th{position:sticky;top:0;z-index:5;background:var(--bg-solid);color:var(--text-muted);font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.6rem 0.6rem;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border);}
   table.grid thead tr.grow th{top:0;z-index:6;}
-  table.grid thead tr.crow th{top:27px;}
-  table.grid th.gh{color:var(--text-primary);font-size:0.56rem;letter-spacing:0.18em;border-bottom:1px solid var(--border-light);background:var(--bg-solid);text-align:left;}
+  table.grid thead tr.crow th{top:30px;}
+  table.grid th.gh{color:var(--text-primary);font-size:0.68rem;letter-spacing:0.18em;border-bottom:1px solid var(--border-light);background:var(--bg-solid);text-align:left;}
   table.grid td{padding:0;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle;}
   table.grid tr:hover td{background:rgba(255,255,255,0.015);}
-  .ci{width:100%;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.72rem;padding:0.45rem 0.5rem;}
+  .ci{width:100%;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;}
   .ci:focus{background:var(--hi);box-shadow:inset 0 0 0 1px var(--hi-line);}
   .ci::placeholder{color:var(--text-muted);}
   select.ci{cursor:pointer;-webkit-appearance:none;appearance:none;}
   select.ci option{background:var(--bg-solid);color:var(--text-primary);}
   .ci.n{text-align:right;}
-  .calc{padding:0.45rem 0.5rem;font-size:0.72rem;text-align:right;color:var(--text-secondary);}
+  .calc{padding:0.55rem 0.6rem;font-size:0.88rem;text-align:right;color:var(--text-secondary);}
   .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
-  .rownum{padding:0.45rem 0.4rem;color:var(--text-muted);font-size:0.6rem;text-align:center;}
-  .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.75rem;padding:0.3rem 0.5rem;}
+  .rownum{padding:0.55rem 0.5rem;color:var(--text-muted);font-size:0.72rem;text-align:center;}
+  .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.88rem;padding:0.4rem 0.55rem;}
   .row-x:hover{color:var(--red);}
-  .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.72rem;padding:0.45rem 0.5rem;cursor:pointer;text-align:left;}
+  .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;cursor:pointer;text-align:left;}
   .conf-btn:hover{color:var(--text-primary);}
   .conf-btn.none{color:var(--text-muted);}
   .grid-empty{padding:2.5rem 1rem;text-align:center;color:var(--text-muted);font-size:0.85rem;}
@@ -375,47 +375,47 @@ const STEPS    = [1,2,3,5,10];
 /* Column model — drives header, cells, CSV */
 const COLS = [
   /* ── CONTEXT ── */
-  { k:'trader',        h:'Trader',      t:'ro',     w:92,  g:'Context' },
-  { k:'date',          h:'Date',        t:'date',   w:128, g:'Context' },
-  { k:'entry_tf',      h:'Entry TF',    t:'select', o:TFS, w:78, g:'Context' },
-  { k:'entry_time',    h:'Entry time',  t:'time',   w:96,  g:'Context' },
-  { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:96, g:'Context' },
-  { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:84, g:'Context' },
-  { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:84, g:'Context' },
-  { k:'m15_bias',      h:'15m bias',    t:'select', o:['Long','Short'], w:86, g:'Context' },
-  { k:'h4_phase',      h:'H4 phase',    t:'select', o:PHASES, w:100, g:'Context' },
+  { k:'trader',        h:'Trader',      t:'ro',     w:110, g:'Context' },
+  { k:'date',          h:'Date',        t:'date',   w:150, g:'Context' },
+  { k:'entry_tf',      h:'Entry TF',    t:'select', o:TFS, w:94, g:'Context' },
+  { k:'entry_time',    h:'Entry time',  t:'time',   w:114, g:'Context' },
+  { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:114, g:'Context' },
+  { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
+  { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
+  { k:'m15_bias',      h:'15m bias',    t:'select', o:['Long','Short'], w:102, g:'Context' },
+  { k:'h4_phase',      h:'H4 phase',    t:'select', o:PHASES, w:120, g:'Context' },
   /* ── THE POI ── */
-  { k:'poi_ref',       h:'POI ref',     t:'ro',     w:104, g:'The POI' },
-  { k:'poi_type',      h:'POI',         t:'select', o:POITYPES, w:124, g:'The POI' },
-  { k:'conf',          h:'Confluence',  t:'conf',   w:92,  g:'The POI' },
-  { k:'poi_entry',     h:'POI entry',   t:'num',    w:92,  g:'The POI' },
-  { k:'poi_inval',     h:'POI inval.',  t:'num',    w:92,  g:'The POI' },
-  { k:'_poiR',         h:'POI 1R',      t:'calc',   w:76,  g:'The POI' },
+  { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
+  { k:'poi_type',      h:'POI',         t:'select', o:POITYPES, w:148, g:'The POI' },
+  { k:'conf',          h:'Confluence',  t:'conf',   w:110, g:'The POI' },
+  { k:'poi_entry',     h:'POI entry',   t:'num',    w:110, g:'The POI' },
+  { k:'poi_inval',     h:'POI inval.',  t:'num',    w:110, g:'The POI' },
+  { k:'_poiR',         h:'POI 1R',      t:'calc',   w:92,  g:'The POI' },
   /* ── THE TRADE ── */
-  { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:148, g:'The trade' },
-  { k:'fake_shift',    h:'Fake shift',  t:'select', o:FAKESHIFT, w:104, g:'The trade' },
-  { k:'fz_state',      h:'Flip zone',   t:'select', o:FZSTATES, w:150, g:'The trade' },
-  { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:80, g:'The trade' },
-  { k:'entry_price',   h:'Entry',       t:'num',    w:92,  g:'The trade' },
-  { k:'stop1',         h:'Stop 1',      t:'num',    w:92,  g:'The trade' },
-  { k:'stop2',         h:'Stop 2',      t:'num',    w:92,  g:'The trade' },
-  { k:'target_price',  h:'Target',      t:'num',    w:92,  g:'The trade' },
-  { k:'be_trigger',    h:'B/E trigger', t:'num',    w:92,  g:'The trade' },
+  { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:178, g:'The trade' },
+  { k:'fake_shift',    h:'Fake shift',  t:'select', o:FAKESHIFT, w:124, g:'The trade' },
+  { k:'fz_state',      h:'Flip zone',   t:'select', o:FZSTATES, w:180, g:'The trade' },
+  { k:'push_liq',      h:'Push liq.',   t:'select', o:YESNO, w:96, g:'The trade' },
+  { k:'entry_price',   h:'Entry',       t:'num',    w:110, g:'The trade' },
+  { k:'stop1',         h:'Stop 1',      t:'num',    w:110, g:'The trade' },
+  { k:'stop2',         h:'Stop 2',      t:'num',    w:110, g:'The trade' },
+  { k:'target_price',  h:'Target',      t:'num',    w:110, g:'The trade' },
+  { k:'be_trigger',    h:'B/E trigger', t:'num',    w:110, g:'The trade' },
   /* ── OUTCOME ── */
-  { k:'mfe_price',     h:'MFE',         t:'num',    w:92,  g:'Outcome' },
-  { k:'mae_price',     h:'MAE',         t:'num',    w:92,  g:'Outcome' },
-  { k:'_mfePoiR',      h:'MFE · POI R', t:'calc',   w:88,  g:'Outcome' },
-  { k:'_r1',           h:'MFE · stop 1',t:'calc',   w:92,  g:'Outcome' },
-  { k:'_r2',           h:'MFE · stop 2',t:'calc',   w:92,  g:'Outcome' },
-  { k:'outcome',       h:'Outcome',     t:'select', o:OUTCOMES, w:104, g:'Outcome' },
-  { k:'after_be',      h:'After B/E',   t:'select', o:AFTERBE, w:96, g:'Outcome' },
+  { k:'mfe_price',     h:'MFE',         t:'num',    w:110, g:'Outcome' },
+  { k:'mae_price',     h:'MAE',         t:'num',    w:110, g:'Outcome' },
+  { k:'_mfePoiR',      h:'MFE · POI R', t:'calc',   w:106, g:'Outcome' },
+  { k:'_r1',           h:'MFE · stop 1',t:'calc',   w:110, g:'Outcome' },
+  { k:'_r2',           h:'MFE · stop 2',t:'calc',   w:110, g:'Outcome' },
+  { k:'outcome',       h:'Outcome',     t:'select', o:OUTCOMES, w:124, g:'Outcome' },
+  { k:'after_be',      h:'After B/E',   t:'select', o:AFTERBE, w:114, g:'Outcome' },
   /* ── REFERENCE ── */
-  { k:'tv_h4',         h:'TV H4',       t:'link',   w:72,  g:'Charts & notes' },
-  { k:'tv_h1',         h:'TV H1',       t:'link',   w:72,  g:'Charts & notes' },
-  { k:'tv_m15',        h:'TV 15m',      t:'link',   w:72,  g:'Charts & notes' },
-  { k:'tv_m3',         h:'TV 3m',       t:'link',   w:72,  g:'Charts & notes' },
-  { k:'tv_m1',         h:'TV 1m',       t:'link',   w:72,  g:'Charts & notes' },
-  { k:'notes',         h:'Notes',       t:'text',   w:220, g:'Charts & notes' }
+  { k:'tv_h4',         h:'TV H4',       t:'link',   w:86,  g:'Charts & notes' },
+  { k:'tv_h1',         h:'TV H1',       t:'link',   w:86,  g:'Charts & notes' },
+  { k:'tv_m15',        h:'TV 15m',      t:'link',   w:86,  g:'Charts & notes' },
+  { k:'tv_m3',         h:'TV 3m',       t:'link',   w:86,  g:'Charts & notes' },
+  { k:'tv_m1',         h:'TV 1m',       t:'link',   w:86,  g:'Charts & notes' },
+  { k:'notes',         h:'Notes',       t:'text',   w:260, g:'Charts & notes' }
 ];
 
 const COL_DEFS = {
