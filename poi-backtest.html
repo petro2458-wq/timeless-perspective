@@ -237,7 +237,7 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
   <p class="sec-sub">POI-level MFE is measured in POI-R — POI entry price to POI invalidation price — so instruments sit on one scale. Entry-level R is measured from the entry price against each stop.</p>
 
   <div class="filters">
-    <div class="fld"><span>Trader</span><select id="a-trader"><option value="all">All traders</option><option>David</option><option>Partner</option></select></div>
+    <div class="fld"><span>Trader</span><select id="a-trader"><option value="all">All traders</option></select></div>
     <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>NQ</option><option>YM</option><option>GC</option><option>XAUUSD</option><option>US100</option><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option></select></div>
     <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
     <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
@@ -929,6 +929,10 @@ async function loadRows(){
   const ys = $('a-year'), cur = ys.value;
   ys.innerHTML = '<option value="all">All years</option>' + years.map(y => '<option>' + y + '</option>').join('');
   if([...ys.options].some(o => o.value === cur)) ys.value = cur;
+  const traders = [...new Set(rows.map(r => r.trader).filter(Boolean))].sort();
+  const ts = $('a-trader'), tcur = ts.value;
+  ts.innerHTML = '<option value="all">All traders</option>' + traders.map(t => '<option>' + esc(t) + '</option>').join('');
+  if([...ts.options].some(o => o.value === tcur)) ts.value = tcur;
   renderGrid(); renderAnalysis();
 }
 
