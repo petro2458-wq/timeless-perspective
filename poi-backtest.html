@@ -365,6 +365,7 @@ const CONFLUENCES = [
 
 const PHASES   = ['—','P1b','P2','P3 START','P3 FIRM','P4','P1 START','P1 FIRM'];
 const TFS      = ['—','1m','3m','5m','15m'];
+const POITFS   = ['—','H1','M15'];
 const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
 const POITYPES = ['—','Flip Zone','Supply Zone','Demand Zone'];
 const MODELS   = ['—','No Entry Model','EM3 Aggressive','EM3 Conservative','Flip Zone - Swept','Flip Zone - Unswept'];
@@ -389,7 +390,7 @@ const COLS = [
   { k:'h4_phase',      h:'H4 phase',    t:'select', o:PHASES, w:120, g:'Context' },
   /* ── THE POI ── */
   { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
-  { k:'poi_tf',        h:'POI TF',      t:'select', o:TFS, w:94,  g:'The POI' },
+  { k:'poi_tf',        h:'POI TF',      t:'select', o:POITFS, w:80, g:'The POI' },
   { k:'poi_type',      h:'POI',         t:'select', o:POITYPES, w:148, g:'The POI' },
   { k:'conf',          h:'Confluence',  t:'conf',   w:110, g:'The POI' },
   { k:'poi_entry',     h:'POI entry',   t:'num',    w:110, g:'The POI' },
@@ -433,7 +434,7 @@ const COL_DEFS = {
   m15_bias:'15m bias, long or short. This is the one that sets the sign for every R calculation on the row.',
   h4_phase:'H4 market phase at the time — the higher-timeframe context filter.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
-  poi_tf:'The timeframe the POI was identified on. Expected to be 15m for this study; logged to verify.',
+  poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
   conf:'The eight confluences present on this POI. Click to tick them; full definitions on the Definitions tab.',
   entry_model:'No Entry Model — POI mitigated, no trade taken. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. Flip Zone - Swept — zone was already swept before entry. Flip Zone - Unswept — zone had not yet been swept at entry.',
