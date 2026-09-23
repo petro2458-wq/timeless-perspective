@@ -390,7 +390,7 @@ const COLS = [
   { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
   { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
   { k:'m15_bias',      h:'15m bias',    t:'select', o:['Long','Short'], w:102, g:'Context' },
-  { k:'h4_phase',      h:'H4 phase',    t:'select', o:PHASES, w:120, g:'Context' },
+  { k:'h4_phase',      h:'MTF Phase',   t:'select', o:PHASES, w:120, g:'Context' },
   /* ── THE POI ── */
   { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
   { k:'poi_tf',        h:'POI TF',      t:'select', o:POITFS, w:80, g:'The POI' },
@@ -433,7 +433,7 @@ const COL_DEFS = {
   h4_bias:'H4 directional bias at the time — long or short.',
   h1_bias:'H1 directional bias at the time — long or short.',
   m15_bias:'15m bias, long or short. This is the one that sets the sign for every R calculation on the row.',
-  h4_phase:'H4 market phase at the time — the higher-timeframe context filter.',
+  h4_phase:'MTF phase at the time — the higher-timeframe context filter.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
@@ -790,7 +790,7 @@ function parseDictation(text){
   o.mfe_price    = g(/(?:mfe|max favou?rable|ran to|best)\D{0,14}?(\d+(?:\.\d+)?)/);
   o.mae_price    = g(/(?:mae|max adverse|drew down to|worst)\D{0,14}?(\d+(?:\.\d+)?)/);
   const time = t.match(/\b(\d{1,2}:\d{2})\b/); if(time) o.entry_time = time[1].padStart(5,'0');
-  const ph = t.match(/h4\D{0,14}?(?:phase\s*)?(1b|1|2|3|4)\s*(firm|start)?/);
+  const ph = t.match(/(?:h4|mtf)\D{0,14}?(?:phase\s*)?(1b|1|2|3|4)\s*(firm|start)?/);
   if(ph){ o.h4_phase = ph[1] === '1b' ? 'P1b' : ('P' + ph[1] + (ph[2] ? ' ' + ph[2].toUpperCase() : ''));
           if(!PHASES.includes(o.h4_phase)) o.h4_phase = PHASES.find(p => p.startsWith('P' + ph[1])) || '—'; }
   if(/\bwin\b|\bwinner\b|\bwon\b/.test(t))            o.outcome = 'Win';
