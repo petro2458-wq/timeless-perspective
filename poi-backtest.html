@@ -91,6 +91,7 @@
   .rownum{padding:0.55rem 0.5rem;color:var(--text-muted);font-size:0.72rem;text-align:center;}
   .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.88rem;padding:0.4rem 0.55rem;}
   .row-x:hover{color:var(--red);}
+  .row-x.armed{color:var(--red);font-weight:600;}
   .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;cursor:pointer;text-align:left;}
   .conf-btn:hover{color:var(--text-primary);}
   .conf-btn.none{color:var(--text-muted);}
@@ -662,7 +663,12 @@ function wireGrid(){
     });
     const del = tr.querySelector('[data-act="del"]');
     if(del) del.addEventListener('click', async () => {
-      if(!confirm('Delete this row?')) return;
+      if(!del.classList.contains('armed')){
+        del.classList.add('armed'); del.textContent = 'del?';
+        del._armT = setTimeout(() => { del.classList.remove('armed'); del.textContent = '✕'; }, 3000);
+        return;
+      }
+      clearTimeout(del._armT);
       try { await store.remove(id); rows = rows.filter(x => String(x.id) !== String(id)); renderGrid(); refreshCounts(); toast('Row deleted'); }
       catch(e){ toast('Delete failed: ' + (e.message || e), true); }
     });
