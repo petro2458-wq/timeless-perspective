@@ -528,7 +528,7 @@ const store = {
 
 function blankRow(){
   const r = { trader: trader, date: new Date().toISOString().slice(0,10),
-    entry_tf:'—', entry_time:'', instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_type:'—',
+    entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
     target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
@@ -643,7 +643,7 @@ function wireGrid(){
       el.addEventListener(ev, () => {
         const row = rows.find(x => String(x.id) === String(id));
         if(!row) return;
-        row[el.dataset.k] = (el.type === 'number') ? num(el.value) : el.value;
+        row[el.dataset.k] = (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
         refreshCalcCells(tr, row);
         queueSave(id, row);
       });
