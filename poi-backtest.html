@@ -411,6 +411,7 @@ const COLS = [
   { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
   { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
   { k:'m15_bias',      h:'15m bias',    t:'select', o:['Long','Short'], w:102, g:'Context' },
+  { k:'htf_phase',     h:'HTF Phase',   t:'select', o:PHASES, w:120, g:'Context' },
   { k:'h4_phase',      h:'MTF Phase',   t:'select', o:PHASES, w:120, g:'Context' },
   /* ── THE POI ── */
   { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
@@ -455,7 +456,8 @@ const COL_DEFS = {
   h4_bias:'H4 directional bias at the time — long or short.',
   h1_bias:'H1 directional bias at the time — long or short.',
   m15_bias:'15m bias, long or short. This is the one that sets the sign for every R calculation on the row.',
-  h4_phase:'MTF phase at the time — the higher-timeframe context filter.',
+  htf_phase:'HTF phase at the time — the highest-timeframe context filter.',
+  h4_phase:'MTF phase at the time — the mid-timeframe context filter.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
@@ -564,7 +566,7 @@ const store = {
 function blankRow(){
   const r = { trader: trader, pr_reviewer:'—', pr_notes:'', pr_complete:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
-    entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_tf:'—', poi_type:'—',
+    entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', htf_phase:'—', h4_phase:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
     target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
@@ -590,7 +592,7 @@ function makeRef(row){
 
 /* Second attempt on the same POI: copy the context and POI half, leave the
    trade and outcome blank, share the reference. */
-const POI_HALF = ['date','entry_tf','instrument','h4_bias','h1_bias','m15_bias','h4_phase',
+const POI_HALF = ['date','entry_tf','instrument','h4_bias','h1_bias','m15_bias','htf_phase','h4_phase',
                   'poi_ref','poi_tf','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
 async function cloneRow(id){
   const src = rows.find(r => String(r.id) === String(id));

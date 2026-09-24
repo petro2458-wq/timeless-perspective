@@ -20,6 +20,7 @@ create table if not exists public.poi_backtest (
   h4_bias             text,          -- Long / Short
   h1_bias             text,          -- Long / Short
   m15_bias            text,          -- Long / Short (drives every R sign)
+  htf_phase           text,
   h4_phase            text,
   poi_type            text,          -- Flip Zone / Supply Zone / Demand Zone
   poi_ref             text,          -- e.g. ES-0923-1. Two trades on one POI share it,
@@ -112,6 +113,7 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists tv_m1        text,
 --   add column if not exists date         date,
 --   add column if not exists poi_tf       text,
+--   add column if not exists htf_phase    text,
 --   add column if not exists pr_reviewer  text,
 --   add column if not exists pr_notes     text,
 --   add column if not exists pr_complete  boolean not null default false;
