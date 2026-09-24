@@ -617,7 +617,9 @@ function renderGrid(){
     const locked = isLocked(r);
     h += '<tr data-id="' + esc(r.id) + '" class="' + oc + (locked ? ' locked' : '') + '"><td class="rownum">' + (i+1) + '</td>';
     COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c, locked) + '</td>'; });
-    const lockBtn = locked ? '<button class="row-x lock" data-act="unlock" title="Unlock row for editing">&#128274;</button>' : '';
+    const canLock = r.date && r.date < new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const lockBtn = locked ? '<button class="row-x lock" data-act="unlock" title="Unlock row for editing">&#128274;</button>'
+                 : canLock ? '<button class="row-x lock" data-act="relock" title="Lock row again">&#128275;</button>' : '';
     h += '<td style="white-space:nowrap">' + lockBtn + '<button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
          '<button class="row-x" data-act="del" title="Delete row">&#10005;</button></td></tr>';
   });
@@ -706,6 +708,8 @@ function wireGrid(){
     });
     const ul = tr.querySelector('[data-act="unlock"]');
     if(ul) ul.addEventListener('click', () => { unlockedIds.add(id); renderGrid(); toast('Row unlocked for editing'); });
+    const rl = tr.querySelector('[data-act="relock"]');
+    if(rl) rl.addEventListener('click', () => { unlockedIds.delete(id); renderGrid(); toast('Row locked'); });
     const cl = tr.querySelector('[data-act="clone"]');
     if(cl) cl.addEventListener('click', () => cloneRow(id));
     const cb = tr.querySelector('[data-act="conf"]');
