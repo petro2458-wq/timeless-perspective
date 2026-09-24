@@ -58,6 +58,11 @@ create table if not exists public.poi_backtest (
   outcome             text,          -- Win / Loss / Breakeven
   after_be            text,          -- Worked / Failed — only for Breakeven rows
 
+  -- peer review
+  pr_reviewer         text,
+  pr_notes            text,
+  pr_complete         boolean not null default false,
+
   -- reference
   tv_h4               text,
   tv_h1               text,
@@ -106,7 +111,10 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists tv_m3        text,
 --   add column if not exists tv_m1        text,
 --   add column if not exists date         date,
---   add column if not exists poi_tf       text;
+--   add column if not exists poi_tf       text,
+--   add column if not exists pr_reviewer  text,
+--   add column if not exists pr_notes     text,
+--   add column if not exists pr_complete  boolean not null default false;
 
 
 -- ════════════════════════════════════════════════════════════════════

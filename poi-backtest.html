@@ -172,6 +172,16 @@
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast.err{border-color:var(--red);color:var(--red);}
 
+  .pr-head{font-family:var(--font-display);font-size:1.05rem;font-weight:500;color:var(--accent);margin-bottom:0.75rem;}
+  .pr-card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 4px 4px 0;padding:1rem 1.15rem;margin-bottom:0.75rem;}
+  .pr-card.done{border-left-color:var(--green);}
+  .pr-meta{font-family:var(--font-mono);font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem;}
+  .pr-meta b{color:var(--text-primary);}
+  .pr-notes{width:100%;min-height:80px;background:var(--bg-secondary);border:1px solid var(--border-light);border-radius:3px;color:var(--text-primary);font-family:var(--font-body);font-size:0.9rem;line-height:1.55;padding:0.65rem;outline:none;resize:vertical;margin-top:0.5rem;}
+  .pr-notes:focus{border-color:var(--hi-line);}
+  .pr-notes[readonly]{opacity:0.85;cursor:default;}
+  .pr-done-label{font-family:var(--font-mono);font-size:0.65rem;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.5rem;}
+
   @media(max-width:900px){
     .nav{padding:0.85rem 1rem;}
     .hero{padding:5rem 1rem 1.25rem;}
@@ -241,6 +251,8 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
 
   <div class="grid-wrap"><table class="grid" id="grid"></table></div>
   <p class="card-note">Edits save as you type. Confluence definitions live on the Definitions tab — the grid only asks for the tick.</p>
+
+  <div id="prSection" style="margin-top:1.5rem"></div>
 </div>
 
 <!-- ══════════ ANALYSIS ══════════ -->
@@ -386,12 +398,14 @@ const FAKESHIFT = ['—','Fractal','Strong'];
 const YESNO    = ['—','Yes','No'];
 const OUTCOMES = ['—','Win','Loss','Breakeven'];
 const AFTERBE  = ['—','Worked','Failed'];
+const PR_OPTIONS = ['—'];
 const STEPS    = [1,2,3,5,10];
 
 /* Column model — drives header, cells, CSV */
 const COLS = [
   /* ── CONTEXT ── */
   { k:'trader',        h:'Trader',      t:'ro',     w:110, g:'Context' },
+  { k:'pr_reviewer',   h:'Request PR',  t:'select', o:PR_OPTIONS, w:120, g:'Context' },
   { k:'date',          h:'Date',        t:'date',   w:150, g:'Context' },
   { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:114, g:'Context' },
   { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
@@ -433,6 +447,7 @@ const COLS = [
 
 const COL_DEFS = {
   trader:'Who logged this row. Comes from sign-in, not editable in the grid.',
+  pr_reviewer:'Request a peer review from another trader. Select their initials and they will see it in the Peer Review section below the grid.',
   date:'Date the POI was mitigated.',
   entry_tf:'The timeframe the entry trigger was read on.',
   entry_time:'Time the entry filled — New York time (Eastern).',
@@ -547,7 +562,8 @@ const store = {
 };
 
 function blankRow(){
-  const r = { trader: trader, date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
+  const r = { trader: trader, pr_reviewer:'—', pr_notes:'', pr_complete:false,
+    date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
     entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', h4_phase:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
@@ -963,6 +979,60 @@ function renderAnalysis(){
 }
 const tile = (v, l, c) => '<div class="tile"><div class="tile-v ' + c + '">' + v + '</div><div class="tile-l">' + l + '</div></div>';
 
+/* ─── Peer Review ─── */
+function renderPeerReview(){
+  const el = $('prSection');
+  if(!trader){ el.innerHTML = ''; return; }
+  const pending = rows.filter(r => r.pr_reviewer === trader && !r.pr_complete);
+  const feedback = rows.filter(r => r.trader === trader && r.pr_complete && r.pr_notes);
+  if(!pending.length && !feedback.length){ el.innerHTML = ''; return; }
+  let h = '';
+  if(pending.length){
+    h += '<div class="pr-head">Peer reviews assigned to you</div>';
+    pending.forEach(r => {
+      h += '<div class="pr-card" data-prid="' + esc(r.id) + '">' +
+        '<div class="pr-meta">From <b>' + esc(r.trader) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.entry_model || '—') + ' &middot; ' + esc(r.outcome || '—') + '</div>' +
+        '<div class="pr-meta">POI: ' + esc(r.poi_type || '—') + ' &middot; ' + esc(r.poi_ref || '') + '</div>' +
+        '<textarea class="pr-notes" data-prid="' + esc(r.id) + '" placeholder="Your review notes...">' + esc(r.pr_notes || '') + '</textarea>' +
+        '<div class="btn-row" style="margin-top:0.5rem"><button class="btn primary" data-prcomplete="' + esc(r.id) + '">Mark review complete</button></div>' +
+        '</div>';
+    });
+  }
+  if(feedback.length){
+    h += '<div class="pr-head" style="margin-top:1rem">Feedback on your trades</div>';
+    feedback.forEach(r => {
+      h += '<div class="pr-card done">' +
+        '<div class="pr-meta">Reviewed by <b>' + esc(r.pr_reviewer) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.entry_model || '—') + ' &middot; ' + esc(r.outcome || '—') + '</div>' +
+        '<div class="pr-meta">' + esc(r.poi_ref || '') + '</div>' +
+        '<div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.55;margin-top:0.35rem;white-space:pre-wrap">' + esc(r.pr_notes) + '</div>' +
+        '<div class="pr-done-label">Review complete</div>' +
+        '</div>';
+    });
+  }
+  el.innerHTML = h;
+  /* wire notes autosave */
+  el.querySelectorAll('textarea.pr-notes').forEach(ta => {
+    let t = null;
+    ta.addEventListener('input', () => {
+      clearTimeout(t);
+      const id = ta.dataset.prid, row = rows.find(x => String(x.id) === String(id));
+      if(row){ row.pr_notes = ta.value; t = setTimeout(() => {
+        const patch = { pr_notes: ta.value }; store.update(id, patch).catch(e => toast('Save failed: ' + (e.message||e), true));
+      }, 600); }
+    });
+  });
+  /* wire complete button */
+  el.querySelectorAll('[data-prcomplete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.prcomplete, row = rows.find(x => String(x.id) === String(id));
+      if(!row) return;
+      row.pr_complete = true;
+      try { await store.update(id, { pr_complete: true, pr_notes: row.pr_notes || '' }); renderPeerReview(); toast('Review marked complete'); }
+      catch(e){ toast('Could not complete review: ' + (e.message||e), true); }
+    });
+  });
+}
+
 /* ─── Load ─── */
 function refreshCounts(){ $('rowCount').textContent = rows.length + (rows.length === 1 ? ' row' : ' rows'); }
 async function loadRows(){
@@ -977,7 +1047,9 @@ async function loadRows(){
   const ts = $('a-trader'), tcur = ts.value;
   ts.innerHTML = '<option value="all">All traders</option>' + traders.map(t => '<option>' + esc(t) + '</option>').join('');
   if([...ts.options].some(o => o.value === tcur)) ts.value = tcur;
-  renderGrid(); renderAnalysis();
+  PR_OPTIONS.length = 1;
+  traders.forEach(t => PR_OPTIONS.push(t));
+  renderGrid(); renderAnalysis(); renderPeerReview();
 }
 
 /* ─── Hover definitions ─── */
