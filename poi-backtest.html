@@ -182,6 +182,48 @@
   .pr-notes[readonly]{opacity:0.85;cursor:default;}
   .pr-done-label{font-family:var(--font-mono);font-size:0.65rem;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.5rem;}
 
+  /* ═══ TRADE SUMMARY CARD ═══ */
+  .tsc{position:fixed;z-index:460;background:var(--bg-solid);border:1px solid var(--border-light);border-radius:6px;padding:0;max-width:420px;min-width:340px;box-shadow:0 14px 44px rgba(0,0,0,0.65);opacity:0;transition:opacity 0.12s;overflow:hidden;}
+  .tsc.show{opacity:1;}
+  .tsc-head{padding:0.85rem 1rem 0.7rem;border-bottom:1px solid var(--border);position:relative;}
+  .tsc-inst{font-family:var(--font-display);font-size:1.35rem;font-weight:500;color:var(--text-primary);line-height:1.1;}
+  .tsc-sub{font-family:var(--font-mono);font-size:0.62rem;color:var(--text-muted);letter-spacing:0.08em;margin-top:0.2rem;}
+  .tsc-trader{position:absolute;top:0.75rem;right:0.85rem;font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.45rem;border:1px solid var(--border-light);border-radius:2px;color:var(--text-secondary);}
+  .tsc-outcome{display:inline-block;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.15rem 0.4rem;border-radius:2px;margin-top:0.35rem;}
+  .tsc-outcome.w{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,199,123,0.35);}
+  .tsc-outcome.l{background:var(--red-dim);color:var(--red);border:1px solid rgba(232,64,87,0.35);}
+  .tsc-outcome.b{background:rgba(224,166,75,0.12);color:var(--amber);border:1px solid rgba(224,166,75,0.35);}
+  .tsc-outcome.n{color:var(--text-muted);border:1px solid var(--border-light);}
+  .tsc-dots{display:flex;align-items:center;gap:0.3rem;margin-top:0.45rem;}
+  .tsc-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.08);flex-shrink:0;}
+  .tsc-dot.on{background:var(--accent);}
+  .tsc-dots-n{font-family:var(--font-mono);font-size:0.58rem;color:var(--text-muted);margin-left:0.25rem;}
+  .tsc-pr{font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);margin-top:0.3rem;}
+  .tsc-pr .done{color:var(--green);}
+  .tsc-body{padding:0.7rem 1rem 0.85rem;}
+  .tsc-sec{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;margin-top:0.65rem;}
+  .tsc-sec:first-child{margin-top:0;}
+  .tsc-row{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.25rem;}
+  .tsc-lbl{font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);}
+  .tsc-val{font-family:var(--font-mono);font-size:0.75rem;color:var(--text-primary);}
+  .tsc-chip{display:inline-block;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.4rem;border:1px solid var(--border-light);border-radius:2px;color:var(--text-secondary);}
+  .tsc-chip.long{color:var(--green);border-color:rgba(52,199,123,0.35);}
+  .tsc-chip.short{color:var(--red);border-color:rgba(232,64,87,0.35);}
+  .tsc-price{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-secondary);}
+  .tsc-price b{color:var(--text-primary);}
+  .tsc-badge{display:inline-block;font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.06em;padding:0.2rem 0.45rem;background:var(--accent-glow);color:var(--accent);border:1px solid rgba(212,83,126,0.3);border-radius:2px;}
+  .tsc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 0.75rem;margin-top:0.3rem;}
+  .tsc-grid .tsc-lbl{font-size:0.5rem;} .tsc-grid .tsc-val{font-size:0.72rem;}
+  .tsc-rbox{display:flex;gap:0.35rem;margin-top:0.35rem;}
+  .tsc-r{flex:1;text-align:center;padding:0.3rem 0.2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:3px;}
+  .tsc-r .tsc-lbl{display:block;font-size:0.45rem;margin-bottom:0.1rem;}
+  .tsc-r .tsc-val{font-size:0.72rem;}
+  .tsc-foot{padding:0.5rem 1rem 0.7rem;border-top:1px solid var(--border);}
+  .tsc-links{display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.3rem;}
+  .tsc-link{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.4rem;border:1px solid var(--border-light);border-radius:2px;color:var(--accent);text-decoration:none;transition:border-color 0.15s;}
+  .tsc-link:hover{border-color:var(--accent);}
+  .tsc-notes{font-family:var(--font-body);font-size:0.75rem;font-style:italic;color:var(--text-muted);line-height:1.45;white-space:pre-wrap;overflow:hidden;text-overflow:ellipsis;max-height:3.2em;}
+
   @media(max-width:900px){
     .nav{padding:0.85rem 1rem;}
     .hero{padding:5rem 1rem 1.25rem;}
@@ -360,6 +402,7 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
 </div>
 
 <div class="tip" id="tip"></div>
+<div class="tsc" id="tsc"></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -1076,6 +1119,115 @@ function wireTips(){
   tbl.addEventListener('mouseleave', () => { hideT = setTimeout(() => tip.classList.remove('show'), 80); });
 }
 
+/* ─── Trade summary card (hover on poi_ref) ─── */
+function wireSummaryCard(){
+  const card = $('tsc'), tbl = $('grid');
+  const poiRefIdx = COLS.findIndex(c => c.k === 'poi_ref');
+  const v = x => (x == null || x === '' || x === '—') ? '—' : String(x);
+  const rCol = val => val === null ? '' : val >= 0 ? ' pos' : ' neg';
+  const rFmt = val => val === null ? '—' : (val >= 0 ? '+' : '') + val.toFixed(2) + 'R';
+  const biasClass = b => b === 'Long' ? ' long' : b === 'Short' ? ' short' : '';
+
+  function buildCard(row){
+    const c = calcs(row);
+    const cn = CONFLUENCES.filter(x => row[x.key]).length;
+    const oc = row.outcome;
+    const ocClass = oc === 'Win' ? 'w' : oc === 'Loss' ? 'l' : oc === 'Breakeven' ? 'b' : 'n';
+
+    let h = '<div class="tsc-head">';
+    h += '<div class="tsc-inst">' + esc(v(row.instrument)) + '</div>';
+    h += '<div class="tsc-sub">' + esc(v(row.poi_ref)) + ' &middot; ' + esc(v(row.date)) + '</div>';
+    h += '<div class="tsc-trader">' + esc(v(row.trader)) + '</div>';
+    h += '<span class="tsc-outcome ' + ocClass + '">' + esc(v(oc)) + '</span>';
+    h += '<div class="tsc-dots">';
+    CONFLUENCES.forEach(x => { h += '<span class="tsc-dot' + (row[x.key] ? ' on' : '') + '" title="' + esc(x.name) + '"></span>'; });
+    h += '<span class="tsc-dots-n">' + cn + '/' + CONFLUENCES.length + '</span></div>';
+    if(row.pr_reviewer && row.pr_reviewer !== '—'){
+      h += '<div class="tsc-pr">' + (row.pr_complete ? '<span class="done">&#10003; Reviewed</span>' : 'Review requested: ' + esc(row.pr_reviewer)) + '</div>';
+    }
+    h += '</div>';
+
+    h += '<div class="tsc-body">';
+    /* THE POI */
+    h += '<div class="tsc-sec">The POI</div>';
+    h += '<div class="tsc-row"><span class="tsc-val">' + esc(v(row.poi_type)) + '</span><span class="tsc-lbl">&middot;</span><span class="tsc-val">' + esc(v(row.poi_tf)) + '</span></div>';
+    h += '<div class="tsc-row"><span class="tsc-lbl">HTF</span> <span class="tsc-val">' + esc(v(row.htf_phase)) + '</span><span class="tsc-lbl" style="margin-left:0.35rem">MTF</span> <span class="tsc-val">' + esc(v(row.h4_phase)) + '</span></div>';
+    h += '<div class="tsc-row">';
+    h += '<span class="tsc-chip' + biasClass(row.h4_bias) + '">H4 ' + esc(v(row.h4_bias)) + '</span>';
+    h += '<span class="tsc-chip' + biasClass(row.h1_bias) + '">H1 ' + esc(v(row.h1_bias)) + '</span>';
+    h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">15m ' + esc(v(row.m15_bias)) + '</span>';
+    h += '<span class="tsc-chip">' + esc(v(row.push_liq)) + ' push</span>';
+    h += '</div>';
+    h += '<div class="tsc-price"><span>' + esc(v(row.poi_entry)) + ' &rarr; ' + esc(v(row.poi_inval)) + '</span><b>' + (c.poiR !== null ? c.poiR.toFixed(2) + ' R' : '—') + '</b></div>';
+
+    /* ENTRY MODEL */
+    h += '<div class="tsc-sec">Entry model</div>';
+    h += '<div class="tsc-row"><span class="tsc-badge">' + esc(v(row.entry_model)) + '</span></div>';
+    const em = row.entry_model;
+    if(em === 'EM3 Aggressive' || em === 'EM3 Conservative'){
+      h += '<div class="tsc-row"><span class="tsc-chip">Fake shift: ' + esc(v(row.fake_shift)) + '</span>';
+      if(em === 'EM3 Conservative') h += '<span class="tsc-chip">FZ: ' + esc(v(row.fz_state)) + '</span>';
+      h += '</div>';
+    }
+    h += '<div class="tsc-row"><span class="tsc-lbl">Entered ' + esc(v(row.entry_tf)) + ' &middot; ' + esc(v(row.entry_time)) + '</span></div>';
+
+    /* THE TRADE */
+    h += '<div class="tsc-sec">The trade</div>';
+    h += '<div class="tsc-grid">';
+    h += '<div><div class="tsc-lbl">Entry</div><div class="tsc-val">' + esc(v(row.entry_price)) + '</div></div>';
+    h += '<div><div class="tsc-lbl">Target</div><div class="tsc-val">' + esc(v(row.target_price)) + '</div></div>';
+    h += '<div><div class="tsc-lbl">Stop 1</div><div class="tsc-val">' + esc(v(row.stop1)) + '</div></div>';
+    h += '<div><div class="tsc-lbl">Stop 2</div><div class="tsc-val">' + esc(v(row.stop2)) + '</div></div>';
+    h += '<div><div class="tsc-lbl">B/E trigger</div><div class="tsc-val">' + esc(v(row.be_trigger)) + '</div></div>';
+    h += '</div>';
+    h += '<div class="tsc-rbox">';
+    h += '<div class="tsc-r"><span class="tsc-lbl">R1</span><span class="tsc-val' + rCol(c.r1) + '">' + rFmt(c.r1) + '</span></div>';
+    h += '<div class="tsc-r"><span class="tsc-lbl">R2</span><span class="tsc-val' + rCol(c.r2) + '">' + rFmt(c.r2) + '</span></div>';
+    h += '<div class="tsc-r"><span class="tsc-lbl">MFE</span><span class="tsc-val">' + esc(v(row.mfe_price)) + '</span></div>';
+    h += '<div class="tsc-r"><span class="tsc-lbl">MAE</span><span class="tsc-val">' + esc(v(row.mae_price)) + '</span></div>';
+    h += '</div>';
+    h += '</div>';
+
+    /* FOOTER */
+    const links = [['tv_h4','H4'],['tv_h1','H1'],['tv_m15','15m'],['tv_m3','3m'],['tv_m1','1m']].filter(([k]) => row[k]);
+    const hasNotes = row.notes && row.notes.trim();
+    if(links.length || hasNotes){
+      h += '<div class="tsc-foot">';
+      if(links.length){
+        h += '<div class="tsc-links">' + links.map(([k, lbl]) => '<a class="tsc-link" href="' + esc(row[k]) + '" target="_blank" rel="noopener">' + lbl + '</a>').join('') + '</div>';
+      }
+      if(hasNotes) h += '<div class="tsc-notes">' + esc(row.notes) + '</div>';
+      h += '</div>';
+    }
+    return h;
+  }
+
+  let hideT = null;
+  function scheduleHide(){ hideT = setTimeout(() => card.classList.remove('show'), 120); }
+  function cancelHide(){ clearTimeout(hideT); }
+
+  tbl.addEventListener('mouseover', ev => {
+    const td = ev.target.closest('td');
+    if(!td) return;
+    const tr = td.closest('tr[data-id]');
+    if(!tr) return;
+    const idx = td.cellIndex - 1;
+    if(idx !== poiRefIdx){ scheduleHide(); return; }
+    const row = rows.find(x => String(x.id) === String(tr.dataset.id));
+    if(!row){ card.classList.remove('show'); return; }
+    cancelHide();
+    card.innerHTML = buildCard(row);
+    card.classList.add('show');
+    const r = td.getBoundingClientRect();
+    const top = r.bottom + 8 + card.offsetHeight > window.innerHeight ? r.top - card.offsetHeight - 8 : r.bottom + 8;
+    card.style.top = Math.max(8, top) + 'px';
+    card.style.left = Math.max(8, Math.min(r.left, window.innerWidth - card.offsetWidth - 12)) + 'px';
+  });
+  tbl.addEventListener('mouseleave', scheduleHide);
+  card.addEventListener('mouseenter', cancelHide);
+  card.addEventListener('mouseleave', scheduleHide);
+}
+
 /* ─── Trader identity ─── */
 function setTrader(name){
   trader = name || '';
@@ -1240,6 +1392,7 @@ function init(){
   });
 
   wireTips();
+  wireSummaryCard();
   window.addEventListener('scroll', closePop, true);
   resolveIdentity().then(() => { if(trader || storeMode !== 'supabase') loadRows(); });
 }
