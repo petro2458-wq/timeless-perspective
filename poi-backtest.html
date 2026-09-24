@@ -79,12 +79,18 @@
   table.grid th.gh{color:var(--text-primary);font-size:0.68rem;letter-spacing:0.18em;border-bottom:1px solid var(--border-light);background:var(--bg-solid);text-align:left;}
   table.grid td{padding:0;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle;}
   table.grid tr:hover td{background:rgba(255,255,255,0.015);}
+  table.grid tr.win td{background:rgba(52,199,123,0.07);}
+  table.grid tr.loss td{background:rgba(232,64,87,0.07);}
+  table.grid tr.be td{background:rgba(255,255,255,0.05);}
+  table.grid tr.locked td{opacity:0.7;}
   .ci{width:100%;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;}
   .ci:focus{background:var(--hi);box-shadow:inset 0 0 0 1px var(--hi-line);}
   .ci::placeholder{color:var(--text-muted);}
   select.ci{cursor:pointer;-webkit-appearance:none;appearance:none;}
   select.ci option{background:var(--bg-solid);color:var(--text-primary);}
   select.ci:disabled{opacity:0.35;cursor:not-allowed;}
+  .ci:disabled,.ci[readonly]{opacity:0.5;cursor:not-allowed;}
+  .conf-btn:disabled{opacity:0.35;cursor:not-allowed;}
   .link-cell{display:flex;align-items:center;}
   .link-cell .ci{flex:1;min-width:0;}
   .tv-open{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;color:var(--text-muted);font-size:0.78rem;text-decoration:none;transition:color 0.15s;}
@@ -96,6 +102,7 @@
   .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.88rem;padding:0.4rem 0.55rem;}
   .row-x:hover{color:var(--red);}
   .row-x.armed{color:var(--red);font-weight:600;}
+  .row-x.lock{font-size:0.72rem;}
   .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;cursor:pointer;text-align:left;}
   .conf-btn:hover{color:var(--text-primary);}
   .conf-btn.none{color:var(--text-muted);}
@@ -465,6 +472,12 @@ const COL_DEFS = {
 
 let rows = [], sb = null, storeMode = 'local', trader = '', pendingEmail = '';
 const saveTimers = {};
+const unlockedIds = new Set();
+function isLocked(r){
+  if(unlockedIds.has(String(r.id))) return false;
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  return r.date && r.date < today;
+}
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -600,41 +613,45 @@ function renderGrid(){
   }
   rows.forEach((r, i) => {
     const c = calcs(r);
-    h += '<tr data-id="' + esc(r.id) + '"><td class="rownum">' + (i+1) + '</td>';
-    COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c) + '</td>'; });
-    h += '<td style="white-space:nowrap"><button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
-         '<button class="row-x" data-act="del" title="Delete row">✕</button></td></tr>';
+    const oc = r.outcome === 'Win' ? ' win' : r.outcome === 'Loss' ? ' loss' : r.outcome === 'Breakeven' ? ' be' : '';
+    const locked = isLocked(r);
+    h += '<tr data-id="' + esc(r.id) + '" class="' + oc + (locked ? ' locked' : '') + '"><td class="rownum">' + (i+1) + '</td>';
+    COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c, locked) + '</td>'; });
+    const lockBtn = locked ? '<button class="row-x lock" data-act="unlock" title="Unlock row for editing">&#128274;</button>' : '';
+    h += '<td style="white-space:nowrap">' + lockBtn + '<button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
+         '<button class="row-x" data-act="del" title="Delete row">&#10005;</button></td></tr>';
   });
   t.innerHTML = h + '</tbody>';
   wireGrid();
 }
 
-function cellHTML(col, r, c){
+function cellHTML(col, r, c, locked){
   const v = r[col.k];
+  const lk = locked ? ' disabled' : '';
   switch(col.t){
     case 'select': {
-      const dis = (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
+      const dis = locked || (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
                   (col.k === 'fake_shift' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
-      const disAttr = dis ? ' disabled title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
-      return '<select class="ci" data-k="' + col.k + '"' + disAttr + '>' +
+      const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
+      return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + '>' +
         col.o.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
     }
     case 'num':
-      return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '">';
+      return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '"' + lk + '>';
     case 'date':
-      return '<input class="ci" type="date" data-k="' + col.k + '" value="' + esc(v || '') + '">';
+      return '<input class="ci" type="date" data-k="' + col.k + '" value="' + esc(v || '') + '"' + lk + '>';
     case 'time':
-      return '<input class="ci" type="time" data-k="' + col.k + '" value="' + esc((v || '').slice(0,5)) + '">';
+      return '<input class="ci" type="time" data-k="' + col.k + '" value="' + esc((v || '').slice(0,5)) + '"' + lk + '>';
     case 'link': {
       const href = (v || '').trim();
       const btn = href ? '<a class="tv-open" href="' + esc(href) + '" target="_blank" rel="noopener" title="Open chart">&#8599;</a>' : '<span class="tv-open" style="opacity:0.2">&#8599;</span>';
-      return '<div class="link-cell"><input class="ci" type="url" data-k="' + col.k + '" placeholder="paste link" value="' + esc(v || '') + '">' + btn + '</div>';
+      return '<div class="link-cell"><input class="ci" type="url" data-k="' + col.k + '" placeholder="paste link" value="' + esc(v || '') + '"' + lk + '>' + btn + '</div>';
     }
     case 'text':
-      return '<input class="ci" type="text" data-k="' + col.k + '" value="' + esc(v || '') + '">';
+      return '<input class="ci" type="text" data-k="' + col.k + '" value="' + esc(v || '') + '"' + lk + '>';
     case 'conf': {
       const n = CONFLUENCES.filter(x => r[x.key]).length;
-      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf">' + n + ' / ' + CONFLUENCES.length + '</button>';
+      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
     }
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
@@ -687,6 +704,8 @@ function wireGrid(){
       try { await store.remove(id); rows = rows.filter(x => String(x.id) !== String(id)); renderGrid(); refreshCounts(); toast('Row deleted'); }
       catch(e){ toast('Delete failed: ' + (e.message || e), true); }
     });
+    const ul = tr.querySelector('[data-act="unlock"]');
+    if(ul) ul.addEventListener('click', () => { unlockedIds.add(id); renderGrid(); toast('Row unlocked for editing'); });
     const cl = tr.querySelector('[data-act="clone"]');
     if(cl) cl.addEventListener('click', () => cloneRow(id));
     const cb = tr.querySelector('[data-act="conf"]');
