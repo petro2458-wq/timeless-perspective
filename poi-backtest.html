@@ -651,8 +651,9 @@ function cellHTML(col, r, c, locked){
       const dis = locked || (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
                   (col.k === 'fake_shift' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
       const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
+      const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
       return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + '>' +
-        col.o.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+        opts.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
     }
     case 'num':
       return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '"' + lk + '>';
