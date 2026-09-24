@@ -1133,6 +1133,8 @@ function wireSummaryCard(){
     const cn = CONFLUENCES.filter(x => row[x.key]).length;
     const oc = row.outcome;
     const ocClass = oc === 'Win' ? 'w' : oc === 'Loss' ? 'l' : oc === 'Breakeven' ? 'b' : 'n';
+    const em = row.entry_model;
+    const noEntry = !em || em === '—' || em === 'No Entry Model';
 
     let h = '<div class="tsc-head">';
     h += '<div class="tsc-inst">' + esc(v(row.instrument)) + '</div>';
@@ -1148,7 +1150,7 @@ function wireSummaryCard(){
     h += '</div>';
 
     h += '<div class="tsc-body">';
-    /* THE POI */
+    /* THE POI — always shown */
     h += '<div class="tsc-sec">The POI</div>';
     h += '<div class="tsc-row"><span class="tsc-val">' + esc(v(row.poi_type)) + '</span><span class="tsc-lbl">&middot;</span><span class="tsc-val">' + esc(v(row.poi_tf)) + '</span></div>';
     h += '<div class="tsc-row"><span class="tsc-lbl">HTF</span> <span class="tsc-val">' + esc(v(row.htf_phase)) + '</span><span class="tsc-lbl" style="margin-left:0.35rem">MTF</span> <span class="tsc-val">' + esc(v(row.h4_phase)) + '</span></div>';
@@ -1159,36 +1161,42 @@ function wireSummaryCard(){
     h += '<span class="tsc-chip">' + esc(v(row.push_liq)) + ' push</span>';
     h += '</div>';
     h += '<div class="tsc-price"><span>' + esc(v(row.poi_entry)) + ' &rarr; ' + esc(v(row.poi_inval)) + '</span><b>' + (c.poiR !== null ? c.poiR.toFixed(2) + ' R' : '—') + '</b></div>';
+    /* MFE / MAE live on the POI — they describe the zone reaction, not the trade */
+    h += '<div class="tsc-rbox">';
+    h += '<div class="tsc-r"><span class="tsc-lbl">MFE</span><span class="tsc-val' + rCol(c.mfePoiR) + '">' + rFmt(c.mfePoiR) + '</span></div>';
+    h += '<div class="tsc-r"><span class="tsc-lbl">MAE</span><span class="tsc-val">' + esc(v(row.mae_price)) + '</span></div>';
+    h += '</div>';
 
-    /* ENTRY MODEL */
+    /* ENTRY MODEL — always shown */
     h += '<div class="tsc-sec">Entry model</div>';
-    h += '<div class="tsc-row"><span class="tsc-badge">' + esc(v(row.entry_model)) + '</span></div>';
-    const em = row.entry_model;
+    h += '<div class="tsc-row"><span class="tsc-badge">' + esc(v(em)) + '</span></div>';
     if(em === 'EM3 Aggressive' || em === 'EM3 Conservative'){
       h += '<div class="tsc-row"><span class="tsc-chip">Fake shift: ' + esc(v(row.fake_shift)) + '</span>';
       if(em === 'EM3 Conservative') h += '<span class="tsc-chip">FZ: ' + esc(v(row.fz_state)) + '</span>';
       h += '</div>';
     }
-    h += '<div class="tsc-row"><span class="tsc-lbl">Entered ' + esc(v(row.entry_tf)) + ' &middot; ' + esc(v(row.entry_time)) + '</span></div>';
+    if(!noEntry){
+      h += '<div class="tsc-row"><span class="tsc-lbl">Entered ' + esc(v(row.entry_tf)) + ' &middot; ' + esc(v(row.entry_time)) + '</span></div>';
+    }
 
-    /* THE TRADE */
-    h += '<div class="tsc-sec">The trade</div>';
-    h += '<div class="tsc-grid">';
-    h += '<div><div class="tsc-lbl">Entry</div><div class="tsc-val">' + esc(v(row.entry_price)) + '</div></div>';
-    h += '<div><div class="tsc-lbl">Target</div><div class="tsc-val">' + esc(v(row.target_price)) + '</div></div>';
-    h += '<div><div class="tsc-lbl">Stop 1</div><div class="tsc-val">' + esc(v(row.stop1)) + '</div></div>';
-    h += '<div><div class="tsc-lbl">Stop 2</div><div class="tsc-val">' + esc(v(row.stop2)) + '</div></div>';
-    h += '<div><div class="tsc-lbl">B/E trigger</div><div class="tsc-val">' + esc(v(row.be_trigger)) + '</div></div>';
-    h += '</div>';
-    h += '<div class="tsc-rbox">';
-    h += '<div class="tsc-r"><span class="tsc-lbl">R1</span><span class="tsc-val' + rCol(c.r1) + '">' + rFmt(c.r1) + '</span></div>';
-    h += '<div class="tsc-r"><span class="tsc-lbl">R2</span><span class="tsc-val' + rCol(c.r2) + '">' + rFmt(c.r2) + '</span></div>';
-    h += '<div class="tsc-r"><span class="tsc-lbl">MFE</span><span class="tsc-val">' + esc(v(row.mfe_price)) + '</span></div>';
-    h += '<div class="tsc-r"><span class="tsc-lbl">MAE</span><span class="tsc-val">' + esc(v(row.mae_price)) + '</span></div>';
-    h += '</div>';
+    /* THE TRADE — hidden entirely for No Entry Model */
+    if(!noEntry){
+      h += '<div class="tsc-sec">The trade</div>';
+      h += '<div class="tsc-grid">';
+      h += '<div><div class="tsc-lbl">Entry</div><div class="tsc-val">' + esc(v(row.entry_price)) + '</div></div>';
+      h += '<div><div class="tsc-lbl">Target</div><div class="tsc-val">' + esc(v(row.target_price)) + '</div></div>';
+      h += '<div><div class="tsc-lbl">Stop 1</div><div class="tsc-val">' + esc(v(row.stop1)) + '</div></div>';
+      h += '<div><div class="tsc-lbl">Stop 2</div><div class="tsc-val">' + esc(v(row.stop2)) + '</div></div>';
+      h += '<div><div class="tsc-lbl">B/E trigger</div><div class="tsc-val">' + esc(v(row.be_trigger)) + '</div></div>';
+      h += '</div>';
+      h += '<div class="tsc-rbox">';
+      h += '<div class="tsc-r"><span class="tsc-lbl">R1</span><span class="tsc-val' + rCol(c.r1) + '">' + rFmt(c.r1) + '</span></div>';
+      h += '<div class="tsc-r"><span class="tsc-lbl">R2</span><span class="tsc-val' + rCol(c.r2) + '">' + rFmt(c.r2) + '</span></div>';
+      h += '</div>';
+    }
     h += '</div>';
 
-    /* FOOTER */
+    /* FOOTER — always shown */
     const links = [['tv_h4','H4'],['tv_h1','H1'],['tv_m15','15m'],['tv_m3','3m'],['tv_m1','1m']].filter(([k]) => row[k]);
     const hasNotes = row.notes && row.notes.trim();
     if(links.length || hasNotes){
