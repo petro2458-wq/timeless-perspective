@@ -743,9 +743,7 @@ function cellHTML(col, r, c, locked){
       return '<input class="ci" type="text" data-k="' + col.k + '" value="' + esc(v || '') + '"' + lk + '>';
     case 'conf': {
       const n = CONFLUENCES.filter(x => r[x.key]).length;
-      const ind = r.conf_inducement;
-      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>' +
-        '<button class="ind-btn' + (ind ? ' on' : '') + '" data-act="ind" title="Inducement present (negative)"' + lk + '>IND</button>';
+      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
     }
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
@@ -806,14 +804,6 @@ function wireGrid(){
     if(cl) cl.addEventListener('click', () => cloneRow(id));
     const cb = tr.querySelector('[data-act="conf"]');
     if(cb) cb.addEventListener('click', ev => { ev.stopPropagation(); openConfPop(cb, id); });
-    const ib = tr.querySelector('[data-act="ind"]');
-    if(ib) ib.addEventListener('click', () => {
-      const row = rows.find(x => String(x.id) === String(id));
-      if(!row) return;
-      row.conf_inducement = !row.conf_inducement;
-      ib.classList.toggle('on', row.conf_inducement);
-      queueSave(id, row);
-    });
   });
 }
 
