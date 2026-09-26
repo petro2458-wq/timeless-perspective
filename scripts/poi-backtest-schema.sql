@@ -65,6 +65,9 @@ create table if not exists public.poi_backtest (
   outcome             text,          -- Win / Loss / Breakeven
   after_be            text,          -- Worked / Failed — only for Breakeven rows
 
+  -- self-review flag
+  needs_review        boolean not null default false,
+
   -- peer review
   pr_reviewer         text,
   pr_notes            text,
@@ -124,6 +127,7 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists conf_pro_trend boolean not null default false,
 --   add column if not exists conf_inducement boolean not null default false,
 --   add column if not exists htf_phase    text,
+--   add column if not exists needs_review  boolean not null default false,
 --   add column if not exists pr_reviewer  text,
 --   add column if not exists pr_notes     text,
 --   add column if not exists pr_complete  boolean not null default false;

@@ -102,6 +102,8 @@
   .link-cell .ci{flex:1;min-width:0;}
   .tv-open{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;color:var(--text-muted);font-size:0.78rem;text-decoration:none;transition:color 0.15s;}
   .tv-open:hover{color:var(--accent);}
+  .ci-check{width:auto;margin:0 auto;display:block;cursor:pointer;accent-color:var(--amber);}
+  .ci-check:disabled{cursor:not-allowed;}
   .ci.n{text-align:right;}
   .calc{padding:0.55rem 0.6rem;font-size:0.88rem;text-align:right;color:var(--text-secondary);}
   .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
@@ -467,6 +469,7 @@ const COLS = [
   /* ── CONTEXT ── */
   { k:'trader',        h:'Trader',      t:'ro',     w:110, g:'Context' },
   { k:'pr_reviewer',   h:'Request PR',  t:'select', o:PR_OPTIONS, w:120, g:'Context' },
+  { k:'needs_review',  h:'Review',      t:'check',  w:56,  g:'Context' },
   { k:'date',          h:'Date',        t:'date',   w:150, g:'Context' },
   { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:114, g:'Context' },
   { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
@@ -510,6 +513,7 @@ const COLS = [
 const COL_DEFS = {
   trader:'Who logged this row. Comes from sign-in, not editable in the grid.',
   pr_reviewer:'Request a peer review from another trader. Select their initials and they will see it in the Peer Review section below the grid.',
+  needs_review:'Check this if you need to come back and review this trade. A quick flag for incomplete or uncertain entries.',
   date:'Date the POI was mitigated.',
   entry_tf:'The timeframe the entry trigger was read on.',
   entry_time:'Time the entry filled — New York time (Eastern).',
@@ -625,7 +629,7 @@ const store = {
 };
 
 function blankRow(){
-  const r = { trader: trader, pr_reviewer:'—', pr_notes:'', pr_complete:false,
+  const r = { trader: trader, pr_reviewer:'—', pr_notes:'', pr_complete:false, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
     entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', htf_phase:'—', h4_phase:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
@@ -747,6 +751,8 @@ function cellHTML(col, r, c, locked){
       const n = CONFLUENCES.filter(x => r[x.key]).length;
       return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
     }
+    case 'check':
+      return '<input class="ci-check" type="checkbox" data-k="' + col.k + '"' + (v ? ' checked' : '') + lk + '>';
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
     case 'calc': {
@@ -764,11 +770,11 @@ function wireGrid(){
   $('grid').querySelectorAll('tbody tr[data-id]').forEach(tr => {
     const id = tr.dataset.id;
     tr.querySelectorAll('[data-k]').forEach(el => {
-      const ev = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time') ? 'change' : 'input';
+      const ev = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time' || el.type === 'checkbox') ? 'change' : 'input';
       el.addEventListener(ev, () => {
         const row = rows.find(x => String(x.id) === String(id));
         if(!row) return;
-        row[el.dataset.k] = (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
+        row[el.dataset.k] = (el.type === 'checkbox') ? el.checked : (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
         const k = el.dataset.k;
         if(k === 'h4_bias' || k === 'h1_bias' || k === 'm15_bias'){
           el.style.color = el.value === 'Long' ? 'var(--green)' : el.value === 'Short' ? 'var(--red)' : '';
@@ -1164,17 +1170,16 @@ function wireTips(){
   const tip = $('tip'), tbl = $('grid');
   let hideT = null;
   tbl.addEventListener('mouseover', ev => {
-    const cell = ev.target.closest('th, td');
+    const cell = ev.target.closest('th');
     if(!cell || !tbl.contains(cell)) return;
-    const idx = cell.cellIndex - 2;            // first two columns are row number and edit cell
+    const idx = cell.cellIndex - 2;
     const col = COLS[idx];
     if(!col || !COL_DEFS[col.k]){ tip.classList.remove('show'); return; }
     clearTimeout(hideT);
     tip.innerHTML = '<div class="tip-t">' + esc(col.h) + '</div><div class="tip-b">' + esc(COL_DEFS[col.k]) + '</div>';
     tip.classList.add('show');
     const r = cell.getBoundingClientRect();
-    const top = r.bottom + 8 + tip.offsetHeight > window.innerHeight ? r.top - tip.offsetHeight - 8 : r.bottom + 8;
-    tip.style.top = Math.max(8, top) + 'px';
+    tip.style.top = Math.max(8, r.top - tip.offsetHeight - 8) + 'px';
     tip.style.left = Math.max(8, Math.min(r.left, window.innerWidth - tip.offsetWidth - 12)) + 'px';
   });
   tbl.addEventListener('mouseleave', () => { hideT = setTimeout(() => tip.classList.remove('show'), 80); });
