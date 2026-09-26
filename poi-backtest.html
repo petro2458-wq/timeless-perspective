@@ -744,7 +744,7 @@ function cellHTML(col, r, c, locked){
       const n = CONFLUENCES.filter(x => r[x.key]).length;
       const ind = r.conf_inducement;
       return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>' +
-        '<button class="ind-btn' + (ind ? ' on' : '') + '" data-act="ind" title="Inducement present (negative)"' + lk + '>!</button>';
+        '<button class="ind-btn' + (ind ? ' on' : '') + '" data-act="ind" title="Inducement present (negative)"' + lk + '>IND</button>';
     }
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
