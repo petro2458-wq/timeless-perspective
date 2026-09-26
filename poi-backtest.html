@@ -33,12 +33,12 @@
   .nav-back:hover{color:var(--text-primary);}
 
   .strip{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin-bottom:0.85rem;}
-  .pill{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.65rem;border:1px solid var(--border-light);color:var(--text-muted);border-radius:2px;}
-  .pill.live{color:var(--green);border-color:var(--green-border);}
+  .pill{font-family:var(--font-mono);font-size:0.625rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.25rem 0.56rem;border:1px solid var(--border-strong);color:var(--text-muted);border-radius:5px;background:transparent;}
+  .pill.live{color:var(--green);border-color:rgba(74,222,128,0.35);}
   .pill.local{color:var(--amber);border-color:var(--amber-border);}
 
   .tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;margin-bottom:0;}
-  .tab{font-family:var(--font-display);font-size:1.05rem;font-weight:500;letter-spacing:0.01em;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;padding:0.75rem 1.25rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+  .tab{font-family:var(--font-mono);font-size:0.75rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;padding:0.75rem 1.25rem 0.5rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
   .tab:hover{color:var(--accent);}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
@@ -47,9 +47,9 @@
 
   .app{display:flex;height:calc(100vh - 49px);margin-top:49px;}
   .sidebar{width:272px;flex-shrink:0;background:var(--bg-secondary);border-right:1px solid var(--border);padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column;gap:0;}
-  .sidebar .brand{font-family:var(--font-display);font-size:1.2rem;font-weight:500;color:var(--text-primary);margin-bottom:0.15rem;}
-  .sidebar .brand em{font-style:italic;color:var(--accent);}
-  .sidebar .tagline{font-size:0.72rem;color:var(--text-muted);margin-bottom:0.85rem;line-height:1.4;}
+  .sidebar .brand{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.15rem;}
+  .sidebar .brand em{font-style:italic;font-weight:600;color:var(--accent);}
+  .sidebar .tagline{font-family:var(--font-mono);font-size:0.625rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.85rem;line-height:1.4;}
   .sidebar .divider{height:1px;background:var(--border);margin:0.85rem 0;}
   .sidebar .btn{width:100%;text-align:center;}
   .sidebar .btn-stack{display:flex;flex-direction:column;gap:0.4rem;}
@@ -58,19 +58,20 @@
   .main-body{flex:1;overflow:auto;padding:0;}
 
   .card{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:1.25rem;}
-  .card-label{font-family:var(--font-mono);font-size:0.6rem;color:var(--text-secondary);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.85rem;display:flex;align-items:center;gap:0.5rem;}
+  .card-label{font-family:var(--font-mono);font-size:0.625rem;color:var(--text-secondary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.85rem;display:flex;align-items:center;gap:0.5rem;}
+  #dictateCard .card-label{color:var(--accent);}
   .card-label::after{content:'';flex:1;height:1px;background:var(--border);}
   .card-note{font-size:0.78rem;color:var(--text-muted);line-height:1.55;margin-top:0.6rem;}
 
-  .dictate{width:100%;min-height:96px;background:var(--bg-secondary);border:1px solid var(--border-light);border-radius:3px;color:var(--text-primary);font-family:var(--font-body);font-size:1rem;line-height:1.6;padding:0.8rem;outline:none;resize:vertical;}
+  .dictate{width:100%;min-height:96px;background:#111318;border:1px solid var(--border-strong);border-radius:8px;color:var(--text-secondary);font-family:var(--font-body);font-size:0.78rem;line-height:1.5;padding:0.8rem;outline:none;resize:vertical;}
   .dictate:focus{border-color:var(--hi-line);}
   .dictate::placeholder{color:var(--text-muted);}
 
   .btn-row{display:flex;gap:0.5rem;flex-wrap:wrap;}
-  .btn{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.95rem;border:1px solid var(--border-light);background:transparent;color:var(--text-secondary);cursor:pointer;border-radius:2px;transition:all 0.2s;}
+  .btn{font-family:var(--font-body);font-size:0.75rem;font-weight:500;letter-spacing:0.02em;padding:0.55rem 0.95rem;border:1px solid var(--border-strong);background:transparent;color:var(--text-secondary);cursor:pointer;border-radius:6px;transition:all 0.2s;}
   .btn:hover{color:var(--text-primary);border-color:var(--hi-line);background:var(--hi);}
-  .btn.primary{background:var(--text-primary);border-color:var(--text-primary);color:var(--bg-primary);font-weight:600;}
-  .btn.primary:hover{background:#ffffff;border-color:#ffffff;color:var(--bg-primary);}
+  .btn.primary{background:var(--text-primary);border-color:var(--text-primary);color:var(--bg-primary);font-weight:600;border:none;}
+  .btn.primary:hover{background:#ffffff;color:var(--bg-primary);}
   .btn:disabled{opacity:0.45;cursor:not-allowed;}
 
   select.mini{font-family:var(--font-mono);font-size:0.65rem;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:0.35rem 0.5rem;outline:none;border-radius:2px;}
@@ -78,7 +79,7 @@
   /* ═══ SPREADSHEET ═══ */
   .grid-wrap{border:1px solid var(--border);border-radius:4px;overflow:auto;flex:1;background:var(--bg-secondary);margin:0.75rem 1rem;}
   table.grid{border-collapse:separate;border-spacing:0;font-family:var(--font-mono);font-size:0.88rem;white-space:nowrap;}
-  table.grid th{position:sticky;top:0;z-index:5;background:var(--bg-solid);color:var(--text-muted);font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.6rem 0.6rem;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border);}
+  table.grid th{position:sticky;top:0;z-index:5;background:var(--bg-solid);color:var(--text-muted);font-size:0.625rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.6rem 0.6rem;border-bottom:1px solid var(--border-strong);border-right:1px solid var(--border);}
   table.grid thead tr.grow th{top:0;z-index:6;}
   table.grid thead tr.crow th{top:30px;}
   table.grid th.gh{color:var(--text-primary);font-size:0.68rem;letter-spacing:0.18em;border-bottom:1px solid var(--border-light);background:var(--bg-solid);text-align:left;}
@@ -111,9 +112,9 @@
   .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.88rem;padding:0.4rem 0.55rem;}
   .row-x:hover{color:var(--red);}
   .row-x.armed{color:var(--red);font-weight:600;}
-  .edit-cell{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.35rem 0.4rem;cursor:pointer;text-align:center;color:var(--text-muted);white-space:nowrap;user-select:none;transition:all 0.15s;border-radius:2px;}
+  .edit-cell{font-family:var(--font-mono);font-size:0.625rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;padding:0.25rem 0.56rem;cursor:pointer;text-align:center;color:var(--text-muted);white-space:nowrap;user-select:none;transition:all 0.15s;border-radius:5px;border:1px solid var(--border-strong);background:transparent;}
   .edit-cell:hover{color:var(--text-primary);}
-  .edit-cell.editing{color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);}
+  .edit-cell.editing{color:var(--amber);background:var(--amber-bg);border-color:var(--amber-border);}
   .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;cursor:pointer;text-align:left;}
   .conf-btn:hover{color:var(--text-primary);}
   .conf-btn.none{color:var(--text-muted);}
@@ -176,7 +177,7 @@
   .gate{max-width:420px;}
   .gate input{width:100%;background:var(--bg-secondary);border:1px solid var(--border-light);border-radius:3px;color:var(--text-primary);font-family:var(--font-body);font-size:1rem;padding:0.7rem 0.8rem;outline:none;margin-bottom:0.65rem;}
   .gate input:focus{border-color:var(--hi-line);}
-  .who{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.65rem;border:1px solid var(--border-light);border-radius:2px;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;}
+  .who{font-family:var(--font-mono);font-size:0.625rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.25rem 0.56rem;border:1px solid var(--border-strong);border-radius:5px;color:var(--text-secondary);display:flex;align-items:center;gap:0.5rem;}
   .who button{background:none;border:none;color:var(--text-muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;padding:0;}
   .who button:hover{color:var(--text-primary);}
   .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(150%);background:var(--bg-primary);border:1px solid var(--border-strong);border-radius:3px;color:var(--text-primary);font-family:var(--font-mono);font-size:0.72rem;padding:0.8rem 1.4rem;z-index:500;transition:transform 0.25s;max-width:92vw;text-align:center;}
@@ -246,8 +247,7 @@
     .def-grid{grid-template-columns:1fr;}
     .dictate{min-height:300px;font-size:1.15rem;line-height:1.55;padding:1rem;border-width:2px;}
     .grid-wrap{max-height:70vh;margin:0.75rem 0.5rem;}
-    #dictateCard{border:2px solid var(--border-light);}
-    #dictateCard .card-label{color:var(--text-primary);}
+    #dictateCard{border:2px solid var(--border-strong);}
   }
 </style>
 </head>
@@ -262,7 +262,7 @@
   <!-- ══════════ SIDEBAR ══════════ -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">Back<em>Test</em></div>
-    <div class="tagline">Dictate a row from your phone, correct it at the desk, and the analysis rebuilds itself.</div>
+    <div class="tagline">Research Tool · Private</div>
     <div class="strip">
       <span class="pill" id="storeStatus">Checking storage…</span>
       <span class="who" id="whoPill"><span id="whoName">Not signed in</span><button id="whoChange">change</button></span>
@@ -443,7 +443,7 @@ const CONFLUENCES = [
   { key:'conf_break_structure', name:'Break Structure',                      desc:'The POI led to a confirmed break in market structure.' },
   { key:'conf_flip',            name:'Flip Supply to Demand (or vice versa)',desc:'The zone caused a failed reaction and flipped polarity.' },
   { key:'conf_sweep_liq',       name:'Sweep Liquidity',                      desc:'Liquidity was swept at or near the zone before the move.' },
-  { key:'conf_pro_trend',       name:'Pro-Trend or Counter Trend',           desc:'Whether the POI trades with or against the prevailing trend — logged so the data can compare.' },
+  { key:'conf_pro_trend',       name:'Pro-Trend',                            desc:'The POI trades with the prevailing trend. If not selected, the trade is assumed counter-trend.' },
   { key:'conf_pd',              name:'Premium / Discount',                   desc:'Well priced — demand in discount, supply in premium.' },
   { key:'conf_unmitigated',     name:'Unmitigated',                          desc:'Fresh, efficient when created, not already reacted to.' },
   { key:'conf_chain',           name:'Part of Supply & Demand Chain',        desc:'Belongs to a chain of mitigations.' }
@@ -924,7 +924,7 @@ function parseDictation(text){
   if(/\bbreak.{0,6}structure\b|\bbos\b/.test(t))              o.conf.conf_break_structure = true;
   if(/\bflip\b/.test(t))                                      o.conf.conf_flip = true;
   if(/\bsweep.{0,6}liq\b|\bswept.{0,6}liq\b|\bliquidity.{0,6}swept\b/.test(t)) o.conf.conf_sweep_liq = true;
-  if(/\bpro.?trend\b|\bcounter.?trend\b/.test(t))             o.conf.conf_pro_trend = true;
+  if(/\bpro.?trend\b/.test(t))                                o.conf.conf_pro_trend = true;
   if(/\b(discount|premium|well priced)\b/.test(t))            o.conf.conf_pd = true;
   if(/\b(unmitigated|fresh|virgin)\b/.test(t))                o.conf.conf_unmitigated = true;
   if(/\bchain\b/.test(t))                                     o.conf.conf_chain = true;
