@@ -70,8 +70,10 @@ create table if not exists public.poi_backtest (
 
   -- peer review
   pr_reviewer         text,
+  pr_request_note     text,
   pr_notes            text,
   pr_complete         boolean not null default false,
+  pr_read_at          timestamptz,
 
   -- reference
   tv_h4               text,
@@ -128,6 +130,8 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists conf_inducement boolean not null default false,
 --   add column if not exists htf_phase    text,
 --   add column if not exists needs_review  boolean not null default false,
+--   add column if not exists pr_request_note text,
+--   add column if not exists pr_read_at    timestamptz,
 --   add column if not exists pr_reviewer  text,
 --   add column if not exists pr_notes     text,
 --   add column if not exists pr_complete  boolean not null default false;

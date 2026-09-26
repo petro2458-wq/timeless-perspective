@@ -630,7 +630,7 @@ const store = {
 };
 
 function blankRow(){
-  const r = { trader: trader, pr_reviewer:'—', pr_notes:'', pr_complete:false, needs_review:false,
+  const r = { trader: trader, pr_reviewer:'—', pr_request_note:'', pr_notes:'', pr_complete:false, pr_read_at:null, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
     entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', htf_phase:'—', h4_phase:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
@@ -1104,33 +1104,64 @@ const tile = (v, l, c) => '<div class="tile"><div class="tile-v ' + c + '">' + v
 function renderPeerReview(){
   const el = $('prSection');
   if(!trader){ el.innerHTML = ''; return; }
-  const pending = rows.filter(r => r.pr_reviewer === trader && !r.pr_complete);
-  const feedback = rows.filter(r => r.trader === trader && r.pr_complete && r.pr_notes);
-  if(!pending.length && !feedback.length){ el.innerHTML = ''; return; }
+  const now = Date.now(), DAY = 86400000;
+  const fresh = r => !r.pr_read_at || (now - new Date(r.pr_read_at).getTime()) < DAY;
+
+  /* 1. Reviews assigned to me (pending) */
+  const incoming = rows.filter(r => r.pr_reviewer === trader && !r.pr_complete);
+  /* 2. My outgoing requests — waiting or completed */
+  const outWaiting = rows.filter(r => r.trader === trader && r.pr_reviewer && r.pr_reviewer !== '—' && !r.pr_complete);
+  const outDone = rows.filter(r => r.trader === trader && r.pr_complete && r.pr_notes && fresh(r));
+  /* 3. Feedback on my trades — unread */
+  const unread = rows.filter(r => r.trader === trader && r.pr_complete && r.pr_notes && !r.pr_read_at);
+
+  if(!incoming.length && !outWaiting.length && !outDone.length){ el.innerHTML = ''; return; }
   let h = '';
-  if(pending.length){
-    h += '<div class="pr-head">Peer reviews assigned to you</div>';
-    pending.forEach(r => {
+
+  /* Incoming — reviews I need to do */
+  if(incoming.length){
+    h += '<div class="pr-head">Reviews assigned to you</div>';
+    incoming.forEach(r => {
       h += '<div class="pr-card" data-prid="' + esc(r.id) + '">' +
         '<div class="pr-meta">From <b>' + esc(r.trader) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.entry_model || '—') + ' &middot; ' + esc(r.outcome || '—') + '</div>' +
         '<div class="pr-meta">POI: ' + esc(r.poi_type || '—') + ' &middot; ' + esc(r.poi_ref || '') + '</div>' +
+        (r.pr_request_note ? '<div style="font-size:0.82rem;color:var(--accent);line-height:1.5;margin:0.35rem 0;padding:0.5rem 0.65rem;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:4px"><b>They asked:</b> ' + esc(r.pr_request_note) + '</div>' : '') +
         '<textarea class="pr-notes" data-prid="' + esc(r.id) + '" placeholder="Your review notes...">' + esc(r.pr_notes || '') + '</textarea>' +
-        '<div class="btn-row" style="margin-top:0.5rem"><button class="btn primary" data-prcomplete="' + esc(r.id) + '">Mark review complete</button></div>' +
+        '<div class="btn-row" style="margin-top:0.5rem"><button class="btn primary" data-prcomplete="' + esc(r.id) + '">Submit review</button></div>' +
         '</div>';
     });
   }
-  if(feedback.length){
-    h += '<div class="pr-head" style="margin-top:1rem">Feedback on your trades <span style="font-family:var(--font-body);font-size:0.7rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:10px;padding:0.15rem 0.5rem;margin-left:0.4rem;vertical-align:middle">' + feedback.length + ' new</span></div>';
-    feedback.forEach(r => {
-      h += '<div class="pr-card done">' +
-        '<div class="pr-meta">Reviewed by <b>' + esc(r.pr_reviewer) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.entry_model || '—') + ' &middot; ' + esc(r.outcome || '—') + '</div>' +
-        '<div class="pr-meta">' + esc(r.poi_ref || '') + '</div>' +
+
+  /* Outgoing — requests I sent */
+  if(outWaiting.length){
+    h += '<div class="pr-head" style="margin-top:1rem">Your review requests</div>';
+    outWaiting.forEach(r => {
+      h += '<div class="pr-card" data-prid="' + esc(r.id) + '">' +
+        '<div class="pr-meta">Sent to <b>' + esc(r.pr_reviewer) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.poi_ref || '') + '</div>' +
+        '<input class="pr-req-note" data-prid="' + esc(r.id) + '" type="text" placeholder="What do you need help with?" value="' + esc(r.pr_request_note || '') + '" style="width:100%;background:#111318;border:1px solid var(--border-strong);border-radius:6px;color:var(--text-secondary);font-family:var(--font-body);font-size:0.78rem;padding:0.5rem 0.65rem;outline:none;margin-top:0.35rem">' +
+        '<div style="font-family:var(--font-body);font-size:0.7rem;color:var(--amber);margin-top:0.35rem">Waiting for review</div>' +
+        '</div>';
+    });
+  }
+
+  /* Feedback received — completed reviews on my trades */
+  if(outDone.length){
+    const unreadCount = unread.length;
+    h += '<div class="pr-head" style="margin-top:1rem">Feedback on your trades' +
+      (unreadCount ? ' <span style="font-family:var(--font-body);font-size:0.7rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:10px;padding:0.15rem 0.5rem;margin-left:0.4rem;vertical-align:middle">' + unreadCount + ' unread</span>' : '') + '</div>';
+    outDone.forEach(r => {
+      const isUnread = !r.pr_read_at;
+      h += '<div class="pr-card done" style="' + (isUnread ? 'border-left-color:var(--green)' : 'opacity:0.6') + '">' +
+        '<div class="pr-meta">Reviewed by <b>' + esc(r.pr_reviewer) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.poi_ref || '') + '</div>' +
         '<div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.55;margin-top:0.35rem;white-space:pre-wrap">' + esc(r.pr_notes) + '</div>' +
-        '<div class="pr-done-label">Review complete</div>' +
+        (isUnread ? '<div class="btn-row" style="margin-top:0.5rem"><button class="btn" data-prread="' + esc(r.id) + '">Mark as read</button></div>' :
+        '<div style="font-family:var(--font-body);font-size:0.65rem;color:var(--text-muted);margin-top:0.35rem">Read — fades in 24h</div>') +
         '</div>';
     });
   }
+
   el.innerHTML = h;
+
   /* wire notes autosave */
   el.querySelectorAll('textarea.pr-notes').forEach(ta => {
     let t = null;
@@ -1142,14 +1173,35 @@ function renderPeerReview(){
       }, 600); }
     });
   });
-  /* wire complete button */
+  /* wire submit review button */
   el.querySelectorAll('[data-prcomplete]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.prcomplete, row = rows.find(x => String(x.id) === String(id));
       if(!row) return;
       row.pr_complete = true;
-      try { await store.update(id, { pr_complete: true, pr_notes: row.pr_notes || '' }); renderPeerReview(); toast('Review marked complete'); }
-      catch(e){ toast('Could not complete review: ' + (e.message||e), true); }
+      try { await store.update(id, { pr_complete: true, pr_notes: row.pr_notes || '' }); renderPeerReview(); renderGrid(); toast('Review submitted'); }
+      catch(e){ toast('Could not submit review: ' + (e.message||e), true); }
+    });
+  });
+  /* wire request note autosave */
+  el.querySelectorAll('.pr-req-note').forEach(inp => {
+    let t = null;
+    inp.addEventListener('input', () => {
+      clearTimeout(t);
+      const id = inp.dataset.prid, row = rows.find(x => String(x.id) === String(id));
+      if(row){ row.pr_request_note = inp.value; t = setTimeout(() => {
+        store.update(id, { pr_request_note: inp.value }).catch(e => toast('Save failed: ' + (e.message||e), true));
+      }, 600); }
+    });
+  });
+  /* wire mark as read button */
+  el.querySelectorAll('[data-prread]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.prread, row = rows.find(x => String(x.id) === String(id));
+      if(!row) return;
+      row.pr_read_at = new Date().toISOString();
+      try { await store.update(id, { pr_read_at: row.pr_read_at }); renderPeerReview(); toast('Marked as read'); }
+      catch(e){ toast('Could not update: ' + (e.message||e), true); }
     });
   });
 }
