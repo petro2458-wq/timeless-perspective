@@ -85,9 +85,6 @@
   table.grid th.gh{color:var(--text-primary);font-size:0.68rem;letter-spacing:0.18em;border-bottom:1px solid var(--border-light);background:var(--bg-solid);text-align:left;}
   table.grid td{padding:0;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle;}
   table.grid tr:hover td{background:rgba(255,255,255,0.015);}
-  table.grid tr.win td{background:var(--green-bg);}
-  table.grid tr.loss td{background:var(--red-bg);}
-  table.grid tr.be td{background:var(--amber-bg);}
   table.grid tr.locked td{}
   .ci{width:100%;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;}
   .ci:focus{background:var(--hi);box-shadow:inset 0 0 0 1px var(--hi-line);}
@@ -697,9 +694,8 @@ function renderGrid(){
   }
   rows.forEach((r, i) => {
     const c = calcs(r);
-    const oc = r.outcome === 'Win' ? ' win' : r.outcome === 'Loss' ? ' loss' : r.outcome === 'Breakeven' ? ' be' : '';
     const locked = isLocked(r);
-    h += '<tr data-id="' + esc(r.id) + '" class="' + oc + (locked ? ' locked' : '') + '"><td class="rownum">' + (i+1) + '</td>';
+    h += '<tr data-id="' + esc(r.id) + '"' + (locked ? ' class="locked"' : '') + '><td class="rownum">' + (i+1) + '</td>';
     const canLock = r.date && r.date < new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
     if(locked){
       h += '<td><span class="edit-cell" data-act="unlock">EDIT</span></td>';
@@ -725,7 +721,13 @@ function cellHTML(col, r, c, locked){
                   (col.k === 'fake_shift' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
       const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
       const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
-      return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + '>' +
+      let sty = '';
+      if((col.k === 'h4_bias' || col.k === 'h1_bias' || col.k === 'm15_bias') && v === 'Long') sty = ' style="color:var(--green)"';
+      else if((col.k === 'h4_bias' || col.k === 'h1_bias' || col.k === 'm15_bias') && v === 'Short') sty = ' style="color:var(--red)"';
+      else if(col.k === 'outcome' && v === 'Win') sty = ' style="color:var(--green);font-weight:600"';
+      else if(col.k === 'outcome' && v === 'Loss') sty = ' style="color:var(--red);font-weight:600"';
+      else if(col.k === 'outcome' && v === 'Breakeven') sty = ' style="color:var(--amber);font-weight:600"';
+      return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + sty + '>' +
         opts.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
     }
     case 'num':
@@ -767,7 +769,15 @@ function wireGrid(){
         const row = rows.find(x => String(x.id) === String(id));
         if(!row) return;
         row[el.dataset.k] = (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
-        if(el.dataset.k === 'entry_model'){
+        const k = el.dataset.k;
+        if(k === 'h4_bias' || k === 'h1_bias' || k === 'm15_bias'){
+          el.style.color = el.value === 'Long' ? 'var(--green)' : el.value === 'Short' ? 'var(--red)' : '';
+        }
+        if(k === 'outcome'){
+          el.style.color = el.value === 'Win' ? 'var(--green)' : el.value === 'Loss' ? 'var(--red)' : el.value === 'Breakeven' ? 'var(--amber)' : '';
+          el.style.fontWeight = ['Win','Loss','Breakeven'].includes(el.value) ? '600' : '';
+        }
+        if(k === 'entry_model'){
           const m = row.entry_model;
           if(m !== 'EM3 Conservative' && row.fz_state !== '—') row.fz_state = '—';
           if(m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
