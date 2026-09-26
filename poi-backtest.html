@@ -753,7 +753,7 @@ function cellHTML(col, r, c, locked){
       return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
     }
     case 'check':
-      return '<input class="ci-check" type="checkbox" data-k="' + col.k + '"' + (v ? ' checked' : '') + lk + '>';
+      return '<input class="ci-check" type="checkbox" data-k="' + col.k + '"' + (v ? ' checked' : '') + '>';
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
     case 'calc': {
