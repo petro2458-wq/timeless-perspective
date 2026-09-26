@@ -699,10 +699,13 @@ function renderGrid(){
   }
   rows.forEach((r, i) => {
     const c = calcs(r);
-    const locked = isLocked(r);
+    const mine = !r.trader || r.trader === trader;
+    const locked = mine ? isLocked(r) : true;
     h += '<tr data-id="' + esc(r.id) + '"' + (locked ? ' class="locked"' : '') + '><td class="rownum">' + (i+1) + '</td>';
     const canLock = r.date && r.date < new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-    if(locked){
+    if(!mine){
+      h += '<td></td>';
+    } else if(locked){
       h += '<td><span class="edit-cell" data-act="unlock">EDIT</span></td>';
     } else if(canLock){
       h += '<td><span class="edit-cell editing" data-act="relock">LOCK</span></td>';
@@ -710,8 +713,9 @@ function renderGrid(){
       h += '<td></td>';
     }
     COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c, locked) + '</td>'; });
-    h += '<td style="white-space:nowrap"><button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
-         '<button class="row-x" data-act="del" title="Delete row">&#10005;</button></td></tr>';
+    const actions = mine ? '<button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
+         '<button class="row-x" data-act="del" title="Delete row">&#10005;</button>' : '';
+    h += '<td style="white-space:nowrap">' + actions + '</td></tr>';
   });
   t.innerHTML = h + '</tbody>';
   wireGrid();
