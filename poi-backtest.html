@@ -25,32 +25,36 @@
   body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased;}
   ::selection{background:var(--accent);color:var(--bg-primary);}
 
-  .nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,11,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+  .nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0.75rem 1.25rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,11,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
   .nav-logo{font-family:var(--font-display);font-size:1.3rem;font-weight:600;color:var(--text-primary);text-decoration:none;letter-spacing:0.02em;}
   .nav-logo span{color:var(--accent);}
   .nav-back{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
   .nav-back:hover{color:var(--text-primary);}
 
-  .hero{padding:6rem 2rem 1.5rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
-  .hero::before{content:'';position:absolute;top:-50%;right:-10%;width:60vw;height:60vw;background:radial-gradient(ellipse,rgba(212,83,126,0.07) 0%,transparent 65%);pointer-events:none;}
-  .hero-inner{max-width:1500px;margin:0 auto;position:relative;z-index:1;}
-  .eyebrow{font-family:var(--font-mono);font-size:0.7rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem;}
-  .eyebrow::before{content:'';width:28px;height:1px;background:var(--accent);}
-  h1{font-family:var(--font-display);font-size:clamp(2rem,4.5vw,3rem);font-weight:400;line-height:1.1;margin-bottom:0.5rem;}
-  h1 em{font-style:italic;color:var(--accent);}
-  .hero-sub{font-size:0.95rem;color:var(--text-secondary);max-width:680px;line-height:1.7;}
-  .strip{max-width:1500px;margin:1rem auto 0;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;}
+  .strip{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin-bottom:0.85rem;}
   .pill{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.65rem;border:1px solid var(--border-light);color:var(--text-muted);border-radius:2px;}
   .pill.live{color:var(--green);border-color:rgba(52,199,123,0.35);}
   .pill.local{color:var(--amber);border-color:rgba(224,166,75,0.35);}
 
-  .tabs{max-width:1500px;margin:1.25rem auto 0;padding:0 2rem;display:flex;border-bottom:1px solid var(--border);overflow-x:auto;}
+  .tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;margin-bottom:0;}
   .tab{font-family:var(--font-display);font-size:1.05rem;font-weight:500;letter-spacing:0.01em;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;padding:0.75rem 1.25rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
   .tab:hover{color:var(--accent);}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-  .wrap{max-width:1500px;margin:0 auto;padding:1.5rem 2rem 4rem;}
+  .wrap{padding:1rem 1.25rem 2rem;}
   .hidden{display:none !important;}
+
+  .app{display:flex;height:calc(100vh - 49px);margin-top:49px;}
+  .sidebar{width:272px;flex-shrink:0;background:var(--bg-secondary);border-right:1px solid var(--border);padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column;gap:0;}
+  .sidebar .brand{font-family:var(--font-display);font-size:1.2rem;font-weight:500;color:var(--text-primary);margin-bottom:0.15rem;}
+  .sidebar .brand em{font-style:italic;color:var(--accent);}
+  .sidebar .tagline{font-size:0.72rem;color:var(--text-muted);margin-bottom:0.85rem;line-height:1.4;}
+  .sidebar .divider{height:1px;background:var(--border);margin:0.85rem 0;}
+  .sidebar .btn{width:100%;text-align:center;}
+  .sidebar .btn-stack{display:flex;flex-direction:column;gap:0.4rem;}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+  .main-head{display:flex;align-items:center;border-bottom:1px solid var(--border);padding:0 1rem;flex-shrink:0;}
+  .main-body{flex:1;overflow:auto;padding:0;}
 
   .card{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:1.25rem;}
   .card-label{font-family:var(--font-mono);font-size:0.6rem;color:var(--text-secondary);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.85rem;display:flex;align-items:center;gap:0.5rem;}
@@ -71,7 +75,7 @@
   select.mini{font-family:var(--font-mono);font-size:0.65rem;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:0.35rem 0.5rem;outline:none;border-radius:2px;}
 
   /* ═══ SPREADSHEET ═══ */
-  .grid-wrap{margin-top:1.25rem;border:1px solid var(--border);border-radius:4px;overflow:auto;max-height:80vh;background:var(--bg-secondary);}
+  .grid-wrap{border:1px solid var(--border);border-radius:4px;overflow:auto;flex:1;background:var(--bg-secondary);margin:0.75rem 1rem;}
   table.grid{border-collapse:separate;border-spacing:0;font-family:var(--font-mono);font-size:0.88rem;white-space:nowrap;}
   table.grid th{position:sticky;top:0;z-index:5;background:var(--bg-solid);color:var(--text-muted);font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;text-align:left;padding:0.6rem 0.6rem;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border);}
   table.grid thead tr.grow th{top:0;z-index:6;}
@@ -106,7 +110,9 @@
   .row-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);font-size:0.88rem;padding:0.4rem 0.55rem;}
   .row-x:hover{color:var(--red);}
   .row-x.armed{color:var(--red);font-weight:600;}
-  .row-x.lock{font-size:0.72rem;}
+  .edit-cell{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.35rem 0.4rem;cursor:pointer;text-align:center;color:var(--text-muted);white-space:nowrap;user-select:none;transition:color 0.15s;}
+  .edit-cell:hover{color:var(--text-primary);}
+  .edit-cell.editing{color:var(--green);}
   .conf-btn{width:100%;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;padding:0.55rem 0.6rem;cursor:pointer;text-align:left;}
   .conf-btn:hover{color:var(--text-primary);}
   .conf-btn.none{color:var(--text-muted);}
@@ -229,14 +235,16 @@
   .tsc-notes{font-family:var(--font-body);font-size:0.75rem;font-style:italic;color:var(--text-muted);line-height:1.45;white-space:pre-wrap;overflow:hidden;text-overflow:ellipsis;max-height:3.2em;}
 
   @media(max-width:900px){
+    .app{flex-direction:column;height:auto;margin-top:49px;}
+    .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);padding:1rem;overflow-y:visible;}
+    .main{overflow:visible;}
+    .main-body{overflow:visible;}
     .nav{padding:0.85rem 1rem;}
-    .hero{padding:5rem 1rem 1.25rem;}
-    .tabs{padding:0 1rem;}
-    .wrap{padding:1.25rem 1rem 3rem;}
+    .wrap{padding:1rem 1rem 2rem;}
     .tiles{grid-template-columns:1fr 1fr;}
     .def-grid{grid-template-columns:1fr;}
     .dictate{min-height:300px;font-size:1.15rem;line-height:1.55;padding:1rem;border-width:2px;}
-    .grid-wrap{max-height:60vh;}
+    .grid-wrap{max-height:70vh;margin:0.75rem 0.5rem;}
     #dictateCard{border:2px solid var(--border-light);}
     #dictateCard .card-label{color:var(--text-primary);}
   }
@@ -249,158 +257,164 @@
   <a class="nav-back" href="index.html">&larr; Back to tools</a>
 </nav>
 
-<div class="hero">
-  <div class="hero-inner">
-    <div class="eyebrow">Research Tool · Private</div>
-    <h1>Back<em>Test</em></h1>
-    <p class="hero-sub">One row per record — the POI, the entry model it produced and the prices inside it, all on one line. Dictate a row from your phone, correct it at the desk, and the analysis rebuilds itself as rows arrive.</p>
-  </div>
-  <div class="strip">
-    <span class="pill" id="storeStatus">Checking storage…</span>
-    <span class="who" id="whoPill"><span id="whoName">Not signed in</span><button id="whoChange">change</button></span>
-    <span class="pill" id="rowCount">0 rows</span>
-  </div>
-</div>
+<div class="app">
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">Back<em>Test</em></div>
+    <div class="tagline">Dictate a row from your phone, correct it at the desk, and the analysis rebuilds itself.</div>
+    <div class="strip">
+      <span class="pill" id="storeStatus">Checking storage…</span>
+      <span class="who" id="whoPill"><span id="whoName">Not signed in</span><button id="whoChange">change</button></span>
+      <span class="pill" id="rowCount">0 rows</span>
+    </div>
+    <div class="divider"></div>
 
-<div class="tabs">
-  <button class="tab active" data-tab="grid">Grid</button>
-  <button class="tab" data-tab="analysis">Analysis</button>
-  <button class="tab" data-tab="defs">Definitions</button>
-</div>
+    <div class="card gate hidden" id="gate" style="margin-bottom:0.85rem">
+      <div class="card-label">Who is logging?</div>
+      <p class="card-note" id="gateNote" style="margin:0 0 0.75rem"></p>
+      <input type="text" id="gateInput" autocomplete="name">
+      <div class="btn-row"><button class="btn primary" id="gateBtn">Continue</button></div>
+    </div>
 
-<!-- ══════════ GRID ══════════ -->
-<div class="wrap" id="panel-grid">
-  <div class="card gate hidden" id="gate" style="margin-bottom:1.25rem">
-    <div class="card-label">Who is logging?</div>
-    <p class="card-note" id="gateNote" style="margin:0 0 0.75rem"></p>
-    <input type="text" id="gateInput" autocomplete="name">
-    <div class="btn-row"><button class="btn primary" id="gateBtn">Continue</button></div>
-  </div>
-
-  <div class="card" id="dictateCard">
-    <div class="card-label">Dictate a backtest</div>
-    <textarea class="dictate" id="dictation" placeholder="Tap your keyboard's microphone and read it out. For example:
+    <div class="card" id="dictateCard" style="margin-bottom:0.85rem">
+      <div class="card-label">Dictate a backtest</div>
+      <textarea class="dictate" id="dictation" placeholder="Tap your keyboard's microphone and read it out. For example:
 
 ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop one 5823.5, stop two 5818.5, target 5860. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
-    <div class="btn-row" style="margin-top:0.75rem">
-      <button class="btn primary" id="parseBtn">Create row from dictation</button>
-      <button class="btn" id="clearDictation">Clear</button>
+      <div class="btn-row" style="margin-top:0.6rem">
+        <button class="btn primary" id="parseBtn">Create row from dictation</button>
+        <button class="btn" id="clearDictation">Clear</button>
+      </div>
+      <p class="card-note">The new row lands at the top of the grid — check it and fix anything the parser misread. If you want to re-dictate, delete the row first — every parse creates a new row.</p>
     </div>
-    <p class="card-note">Your phone keyboard's dictation is more accurate than in-browser speech recognition and needs no permissions. The new row lands at the top of the grid — check it and fix anything the parser misread. If you want to re-dictate, delete the row first — every parse creates a new row, so you will end up with duplicates if you just try again.</p>
-  </div>
 
-  <div class="btn-row" style="margin-top:1.25rem">
-    <button class="btn primary" id="addRowBtn">+ Add blank row</button>
-    <button class="btn" id="exportBtn">Export CSV</button>
-    <button class="btn" id="refreshBtn">Refresh</button>
-  </div>
+    <div class="divider"></div>
+    <div class="btn-stack">
+      <button class="btn primary" id="addRowBtn">+ Add blank row</button>
+      <button class="btn" id="exportBtn">Export CSV</button>
+      <button class="btn" id="refreshBtn">Refresh</button>
+    </div>
+  </aside>
 
-  <div class="grid-wrap"><table class="grid" id="grid"></table></div>
-  <p class="card-note">Edits save as you type. Confluence definitions live on the Definitions tab — the grid only asks for the tick.</p>
-
-  <div id="prSection" style="margin-top:1.5rem"></div>
-</div>
-
-<!-- ══════════ ANALYSIS ══════════ -->
-<div class="wrap hidden" id="panel-analysis">
-  <h2 class="sec">What the data <em>says</em></h2>
-  <p class="sec-sub">POI-level MFE is measured in POI-R — POI entry price to POI invalidation price — so instruments sit on one scale. Entry-level R is measured from the entry price against each stop.</p>
-
-  <div class="filters">
-    <div class="fld"><span>Trader</span><select id="a-trader"><option value="all">All traders</option></select></div>
-    <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>NQ</option><option>YM</option><option>GC</option><option>XAUUSD</option><option>US100</option><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option></select></div>
-    <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
-    <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
-    <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>Flip Zone - Swept</option><option>Flip Zone - Unswept</option></select></div>
-    <div class="fcount">Sample: <b id="a-count">0</b> rows</div>
-  </div>
-
-  <div class="tiles" id="a-tiles"></div>
-
-  <div class="card" style="margin-bottom:1.25rem">
-    <div class="card-label">POI MFE distribution</div>
-    <div class="bars" id="a-dist"></div>
-    <p class="card-note">The 2R line is the meaningful-reaction threshold. Where this falls away is where targets stop being realistic.</p>
-  </div>
-
-  <div class="card" style="margin-bottom:1.25rem">
-    <div class="card-label">Confluence lift — share reaching 2R, with vs without</div>
-    <div style="overflow-x:auto"><table class="atbl" id="a-conf"></table></div>
-    <div id="a-inducement" style="margin-top:0.75rem"></div>
-  </div>
-
-  <div class="card" style="margin-bottom:1.25rem">
-    <div class="card-label">Entry models — both stops, same move</div>
-    <div style="overflow-x:auto"><table class="atbl" id="a-models"></table></div>
-    <p class="card-note">Expectancy assumes 1R risked at a flat 5R target. A stop that survives more often at a lower multiple can still lose to a tighter one — that is what this table settles.</p>
-  </div>
-
-  <div class="card" style="margin-bottom:1.25rem">
-    <div class="card-label">Outcomes — and what breakeven cost</div>
-    <div style="overflow-x:auto"><table class="atbl" id="a-outcome"></table></div>
-    <p class="card-note">Every breakeven row records what happened afterwards. If most of them would have worked, moving to breakeven is costing more than it saves.</p>
-  </div>
-
-  <div class="note-box" id="a-note">Log some rows and this fills in.</div>
-</div>
-
-<!-- ══════════ DEFINITIONS ══════════ -->
-<div class="wrap hidden" id="panel-defs">
-  <h2 class="sec">Column <em>definitions</em></h2>
-  <p class="sec-sub">One definition, both traders. If we disagree about how to log something, the definition gets settled and written here before any more rows go in.</p>
-  <div class="def-grid">
-    <div class="stack">
-      <div class="card">
-        <div class="card-label">Qualifying rules — not logged</div>
-        <div class="def"><div class="def-t">15m POI</div><div class="def-b">The zone is a 15m point of interest. Pro internal order flow is confirmed per row in the confluence list rather than assumed.</div></div>
-        <div class="def"><div class="def-t">Break of structure</div><div class="def-b">The POI must lead to a break in structure. A zone that doesn't is not a POI and doesn't get a row.</div></div>
-        <div class="def"><div class="def-t">Mitigated by price</div><div class="def-b">Price must have traded into the zone.</div></div>
-      </div>
-      <div class="card">
-        <div class="card-label">The seven confluences + inducement</div>
-        <div id="defConf"></div>
-      </div>
-      <div class="card">
-        <div class="card-label">POI level</div>
-        <div class="def"><div class="def-t">POI</div><div class="def-b"><em>Flip Zone</em> — a zone that caused a failed reaction and flipped. <em>Supply Zone</em> — sell-side origin. <em>Demand Zone</em> — buy-side origin.</div></div>
-        <div class="def"><div class="def-t">POI entry price</div><div class="def-b">The entry side of the zone — where price first engages it.</div></div>
-        <div class="def"><div class="def-t">POI invalidation price</div><div class="def-b">The far side of the zone.</div></div>
-        <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
-        <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
-        <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
-        <div class="def"><div class="def-t">H4 bias</div><div class="def-b">H4 directional bias at the time — long or short.</div></div>
-        <div class="def"><div class="def-t">H1 bias</div><div class="def-b">H1 directional bias at the time — long or short. Logged alongside H4 so alignment across timeframes becomes a filter rather than an assumption.</div></div>
-        <div class="def"><div class="def-t">15m bias</div><div class="def-b">Long or short — the direction the POI is traded in, and <em>the sign used for every R calculation on the row</em>.</div></div>
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="main">
+    <div class="main-head">
+      <div class="tabs">
+        <button class="tab active" data-tab="grid">Grid</button>
+        <button class="tab" data-tab="analysis">Analysis</button>
+        <button class="tab" data-tab="defs">Definitions</button>
       </div>
     </div>
-    <div class="stack">
-      <div class="card">
-        <div class="card-label">Entry level</div>
-        <div class="def"><div class="def-t">Entry timeframe</div><div class="def-b">The timeframe the entry trigger was read on — 1m, 3m, 5m or 15m.</div></div>
-        <div class="def"><div class="def-t">Entry price</div><div class="def-b">Where the entry filled. Entry R is measured from here, not from the POI edge.</div></div>
-        <div class="def"><div class="def-t">Stop 1 · aggressive</div><div class="def-b">EM3 Aggressive: below the liquidation candle. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
-        <div class="def"><div class="def-t">Stop 2 · conservative</div><div class="def-b">EM3 Aggressive: below the zone. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
-        <div class="def"><div class="def-t">Technical target</div><div class="def-b">The structural profit target for that entry, logged as a price.</div></div>
-        <div class="def"><div class="def-t">B/E trigger price</div><div class="def-b">The price at which the stop was moved to breakeven.</div></div>
-        <div class="def"><div class="def-t">MFE / MAE</div><div class="def-b">Best and worst excursion after entry, logged as prices. The grid converts them to R against both stops.</div></div>
-        <div class="def"><div class="def-t">Outcome</div><div class="def-b">Win, Loss or Breakeven.</div></div>
-        <div class="def"><div class="def-t">After B/E</div><div class="def-b">Only for breakeven rows: <em>Worked</em> means it went on to reach target, <em>Failed</em> means it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.</div></div>
+
+    <div class="main-body" id="panel-grid">
+      <div class="grid-wrap"><table class="grid" id="grid"></table></div>
+      <div id="prSection" style="padding:0 1rem;"></div>
+    </div>
+
+    <div class="main-body hidden" id="panel-analysis">
+      <div class="wrap">
+        <h2 class="sec">What the data <em>says</em></h2>
+        <p class="sec-sub">POI-level MFE is measured in POI-R — POI entry price to POI invalidation price — so instruments sit on one scale. Entry-level R is measured from the entry price against each stop.</p>
+
+        <div class="filters">
+          <div class="fld"><span>Trader</span><select id="a-trader"><option value="all">All traders</option></select></div>
+          <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>NQ</option><option>YM</option><option>GC</option><option>XAUUSD</option><option>US100</option><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option></select></div>
+          <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
+          <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
+          <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>Flip Zone - Swept</option><option>Flip Zone - Unswept</option></select></div>
+          <div class="fcount">Sample: <b id="a-count">0</b> rows</div>
+        </div>
+
+        <div class="tiles" id="a-tiles"></div>
+
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">POI MFE distribution</div>
+          <div class="bars" id="a-dist"></div>
+          <p class="card-note">The 2R line is the meaningful-reaction threshold. Where this falls away is where targets stop being realistic.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Confluence lift — share reaching 2R, with vs without</div>
+          <div style="overflow-x:auto"><table class="atbl" id="a-conf"></table></div>
+          <div id="a-inducement" style="margin-top:0.75rem"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Entry models — both stops, same move</div>
+          <div style="overflow-x:auto"><table class="atbl" id="a-models"></table></div>
+          <p class="card-note">Expectancy assumes 1R risked at a flat 5R target. A stop that survives more often at a lower multiple can still lose to a tighter one — that is what this table settles.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Outcomes — and what breakeven cost</div>
+          <div style="overflow-x:auto"><table class="atbl" id="a-outcome"></table></div>
+          <p class="card-note">Every breakeven row records what happened afterwards. If most of them would have worked, moving to breakeven is costing more than it saves.</p>
+        </div>
+
+        <div class="note-box" id="a-note">Log some rows and this fills in.</div>
       </div>
-      <div class="card">
-        <div class="card-label">Entry models</div>
-        <div class="def"><div class="def-t">EM3 Aggressive</div><div class="def-b">Entry on the fMS-low sweep, taken immediately.</div></div>
-        <div class="def"><div class="def-t">Fake shift</div><div class="def-b">For EM3 entries: which structure the fake market shift broke — <em>fractal</em> or <em>strong</em>.</div></div>
-        <div class="def"><div class="def-t">EM3 Conservative</div><div class="def-b">The flip zone sweep following a working EM3 Aggressive — Entry 2, with Entry 1's stop moving to breakeven. The <em>Flip zone</em> column records whether that zone was already swept or still needed to be swept.</div></div>
-        <div class="def"><div class="def-t">FZ Sweep</div><div class="def-b">Flip zone swept with a clear sweep on 1m, taken alone. Terminal — no EM3 Aggressive or Conservative follows it.</div></div>
-        <div class="def"><div class="def-t">Push liquidity</div><div class="def-b">Whether pre-BOS liquidity existed to fuel the move into or through the POI. Drives the top branch of the decision tree.</div></div>
-        <div class="def"><div class="def-t">Entry-level failure</div><div class="def-b">A 3m close beyond the POI — different from the POI level, where a touch is enough.</div></div>
-        <div class="def"><div class="def-t">Attempt cap</div><div class="def-b">Maximum 2 attempts or 2 losses per POI.</div></div>
-      </div>
-      <div class="card">
-        <div class="card-label">Open decisions</div>
-        <div class="def"><div class="def-t">01 · FZ sweep stops</div><div class="def-b"><span class="pending">Unresolved.</span> An aggressive and a conservative stop for the flip zone sweep. One definition covers EM3 Conservative and FZ Sweep.</div></div>
-        <div class="def"><div class="def-t">02 · 3m or 15m liquidation candle</div><div class="def-b"><span class="pending">Unresolved.</span> Whether EM3 Aggressive should sometimes wait for the 15m candle rather than the 3m that liquidates.</div></div>
-        <div class="def"><div class="def-t">03 · Setups before push liquidity is taken</div><div class="def-b"><span class="pending">Unresolved.</span> When push liquidity is unswept and an FZ sweep or EM3 Aggressive presents anyway — skip it, or log it untraded?</div></div>
+    </div>
+
+    <div class="main-body hidden" id="panel-defs">
+      <div class="wrap">
+        <h2 class="sec">Column <em>definitions</em></h2>
+        <p class="sec-sub">One definition, both traders. If we disagree about how to log something, the definition gets settled and written here before any more rows go in.</p>
+        <div class="def-grid">
+          <div class="stack">
+            <div class="card">
+              <div class="card-label">Qualifying rules — not logged</div>
+              <div class="def"><div class="def-t">15m POI</div><div class="def-b">The zone is a 15m point of interest. Pro internal order flow is confirmed per row in the confluence list rather than assumed.</div></div>
+              <div class="def"><div class="def-t">Break of structure</div><div class="def-b">The POI must lead to a break in structure. A zone that doesn't is not a POI and doesn't get a row.</div></div>
+              <div class="def"><div class="def-t">Mitigated by price</div><div class="def-b">Price must have traded into the zone.</div></div>
+            </div>
+            <div class="card">
+              <div class="card-label">The seven confluences + inducement</div>
+              <div id="defConf"></div>
+            </div>
+            <div class="card">
+              <div class="card-label">POI level</div>
+              <div class="def"><div class="def-t">POI</div><div class="def-b"><em>Flip Zone</em> — a zone that caused a failed reaction and flipped. <em>Supply Zone</em> — sell-side origin. <em>Demand Zone</em> — buy-side origin.</div></div>
+              <div class="def"><div class="def-t">POI entry price</div><div class="def-b">The entry side of the zone — where price first engages it.</div></div>
+              <div class="def"><div class="def-t">POI invalidation price</div><div class="def-b">The far side of the zone.</div></div>
+              <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
+              <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
+              <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
+              <div class="def"><div class="def-t">H4 bias</div><div class="def-b">H4 directional bias at the time — long or short.</div></div>
+              <div class="def"><div class="def-t">H1 bias</div><div class="def-b">H1 directional bias at the time — long or short. Logged alongside H4 so alignment across timeframes becomes a filter rather than an assumption.</div></div>
+              <div class="def"><div class="def-t">15m bias</div><div class="def-b">Long or short — the direction the POI is traded in, and <em>the sign used for every R calculation on the row</em>.</div></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="card">
+              <div class="card-label">Entry level</div>
+              <div class="def"><div class="def-t">Entry timeframe</div><div class="def-b">The timeframe the entry trigger was read on — 1m, 3m, 5m or 15m.</div></div>
+              <div class="def"><div class="def-t">Entry price</div><div class="def-b">Where the entry filled. Entry R is measured from here, not from the POI edge.</div></div>
+              <div class="def"><div class="def-t">Stop 1 · aggressive</div><div class="def-b">EM3 Aggressive: below the liquidation candle. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
+              <div class="def"><div class="def-t">Stop 2 · conservative</div><div class="def-b">EM3 Aggressive: below the zone. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
+              <div class="def"><div class="def-t">Technical target</div><div class="def-b">The structural profit target for that entry, logged as a price.</div></div>
+              <div class="def"><div class="def-t">B/E trigger price</div><div class="def-b">The price at which the stop was moved to breakeven.</div></div>
+              <div class="def"><div class="def-t">MFE / MAE</div><div class="def-b">Best and worst excursion after entry, logged as prices. The grid converts them to R against both stops.</div></div>
+              <div class="def"><div class="def-t">Outcome</div><div class="def-b">Win, Loss or Breakeven.</div></div>
+              <div class="def"><div class="def-t">After B/E</div><div class="def-b">Only for breakeven rows: <em>Worked</em> means it went on to reach target, <em>Failed</em> means it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.</div></div>
+            </div>
+            <div class="card">
+              <div class="card-label">Entry models</div>
+              <div class="def"><div class="def-t">EM3 Aggressive</div><div class="def-b">Entry on the fMS-low sweep, taken immediately.</div></div>
+              <div class="def"><div class="def-t">Fake shift</div><div class="def-b">For EM3 entries: which structure the fake market shift broke — <em>fractal</em> or <em>strong</em>.</div></div>
+              <div class="def"><div class="def-t">EM3 Conservative</div><div class="def-b">The flip zone sweep following a working EM3 Aggressive — Entry 2, with Entry 1's stop moving to breakeven. The <em>Flip zone</em> column records whether that zone was already swept or still needed to be swept.</div></div>
+              <div class="def"><div class="def-t">FZ Sweep</div><div class="def-b">Flip zone swept with a clear sweep on 1m, taken alone. Terminal — no EM3 Aggressive or Conservative follows it.</div></div>
+              <div class="def"><div class="def-t">Push liquidity</div><div class="def-b">Whether pre-BOS liquidity existed to fuel the move into or through the POI. Drives the top branch of the decision tree.</div></div>
+              <div class="def"><div class="def-t">Entry-level failure</div><div class="def-b">A 3m close beyond the POI — different from the POI level, where a touch is enough.</div></div>
+              <div class="def"><div class="def-t">Attempt cap</div><div class="def-b">Maximum 2 attempts or 2 losses per POI.</div></div>
+            </div>
+            <div class="card">
+              <div class="card-label">Open decisions</div>
+              <div class="def"><div class="def-t">01 · FZ sweep stops</div><div class="def-b"><span class="pending">Unresolved.</span> An aggressive and a conservative stop for the flip zone sweep. One definition covers EM3 Conservative and FZ Sweep.</div></div>
+              <div class="def"><div class="def-t">02 · 3m or 15m liquidation candle</div><div class="def-b"><span class="pending">Unresolved.</span> Whether EM3 Aggressive should sometimes wait for the 15m candle rather than the 3m that liquidates.</div></div>
+              <div class="def"><div class="def-t">03 · Setups before push liquidity is taken</div><div class="def-b"><span class="pending">Unresolved.</span> When push liquidity is unswept and an FZ sweep or EM3 Aggressive presents anyway — skip it, or log it untraded?</div></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -436,7 +450,7 @@ const CONFLUENCES = [
 /* Negative confluence — tracked separately, never counted in the N/7 tally */
 const CONF_INDUCEMENT = { key:'conf_inducement', name:'Inducement Present', desc:'Inducement is visible near the zone. A negative signal — presence lowers confidence in the POI.' };
 
-const PHASES   = ['—','P1b','P2','P3 START','P3 FIRM','P4','P1 START','P1 FIRM'];
+const PHASES   = ['—','P1','P1b','P2','P3','P4'];
 const TFS      = ['—','1m','3m','5m','15m'];
 const POITFS   = ['—','H1','M15'];
 const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
@@ -665,7 +679,7 @@ async function cloneRow(id){
 /* ─── Grid ─── */
 function renderGrid(){
   const t = $('grid');
-  let h = '<thead><tr class="grow"><th style="width:34px"></th>';
+  let h = '<thead><tr class="grow"><th style="width:34px"></th><th style="width:52px"></th>';
   let gi = 0;
   while(gi < COLS.length){
     let span = 1;
@@ -673,11 +687,11 @@ function renderGrid(){
     h += '<th class="gh" colspan="' + span + '">' + esc(COLS[gi].g) + '</th>';
     gi += span;
   }
-  h += '<th style="width:56px"></th></tr><tr class="crow"><th style="width:34px"></th>';
+  h += '<th style="width:56px"></th></tr><tr class="crow"><th style="width:34px"></th><th style="width:52px"></th>';
   COLS.forEach(c => { h += '<th style="min-width:' + c.w + 'px">' + esc(c.h) + '</th>'; });
   h += '<th style="width:56px"></th></tr></thead><tbody>';
   if(!rows.length){
-    t.innerHTML = h + '<tr><td colspan="' + (COLS.length + 2) + '" class="grid-empty">No rows yet. Dictate one above, or add a blank row.</td></tr></tbody>';
+    t.innerHTML = h + '<tr><td colspan="' + (COLS.length + 3) + '" class="grid-empty">No rows yet. Dictate one above, or add a blank row.</td></tr></tbody>';
     return;
   }
   rows.forEach((r, i) => {
@@ -685,11 +699,16 @@ function renderGrid(){
     const oc = r.outcome === 'Win' ? ' win' : r.outcome === 'Loss' ? ' loss' : r.outcome === 'Breakeven' ? ' be' : '';
     const locked = isLocked(r);
     h += '<tr data-id="' + esc(r.id) + '" class="' + oc + (locked ? ' locked' : '') + '"><td class="rownum">' + (i+1) + '</td>';
-    COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c, locked) + '</td>'; });
     const canLock = r.date && r.date < new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-    const lockBtn = locked ? '<button class="row-x lock" data-act="unlock" title="Unlock row for editing">&#128274;</button>'
-                 : canLock ? '<button class="row-x lock" data-act="relock" title="Lock row again">&#128275;</button>' : '';
-    h += '<td style="white-space:nowrap">' + lockBtn + '<button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
+    if(locked){
+      h += '<td><span class="edit-cell" data-act="unlock">EDIT</span></td>';
+    } else if(canLock){
+      h += '<td><span class="edit-cell editing" data-act="relock">LOCK</span></td>';
+    } else {
+      h += '<td></td>';
+    }
+    COLS.forEach(col => { h += '<td>' + cellHTML(col, r, c, locked) + '</td>'; });
+    h += '<td style="white-space:nowrap"><button class="row-x" data-act="clone" title="Log a second attempt on this same POI">+2</button>' +
          '<button class="row-x" data-act="del" title="Delete row">&#10005;</button></td></tr>';
   });
   t.innerHTML = h + '</tbody>';
@@ -802,7 +821,7 @@ function refreshCalcCells(tr, row){
   const map = ['_poiR','_mfePoiR','_r1','_r2'];
   const idxs = COLS.map((col, i) => map.includes(col.k) ? i : -1).filter(i => i >= 0);
   idxs.forEach(i => {
-    const td = tr.children[i + 1];
+    const td = tr.children[i + 2];
     if(td) td.innerHTML = cellHTML(COLS[i], row, c);
   });
 }
@@ -905,9 +924,8 @@ function parseDictation(text){
   o.mfe_price    = g(/(?:mfe|max favou?rable|ran to|best)\D{0,14}?(\d+(?:\.\d+)?)/);
   o.mae_price    = g(/(?:mae|max adverse|drew down to|worst)\D{0,14}?(\d+(?:\.\d+)?)/);
   const time = t.match(/\b(\d{1,2}:\d{2})\b/); if(time) o.entry_time = time[1].padStart(5,'0');
-  const ph = t.match(/(?:h4|mtf)\D{0,14}?(?:phase\s*)?(1b|1|2|3|4)\s*(firm|start)?/);
-  if(ph){ o.h4_phase = ph[1] === '1b' ? 'P1b' : ('P' + ph[1] + (ph[2] ? ' ' + ph[2].toUpperCase() : ''));
-          if(!PHASES.includes(o.h4_phase)) o.h4_phase = PHASES.find(p => p.startsWith('P' + ph[1])) || '—'; }
+  const ph = t.match(/(?:h4|htf|mtf)\D{0,14}?(?:phase\s*)?(1b|1|2|3|4)/);
+  if(ph){ o.h4_phase = ph[1] === '1b' ? 'P1b' : 'P' + ph[1]; }
   if(/\bwin\b|\bwinner\b|\bwon\b/.test(t))            o.outcome = 'Win';
   if(/\bloss\b|\blost\b|\bstopped out\b/.test(t))     o.outcome = 'Loss';
   if(/\bbreakeven\b|\bbreak even\b|\bb\/?e\b/.test(t))o.outcome = 'Breakeven';
@@ -1145,7 +1163,7 @@ function wireTips(){
   tbl.addEventListener('mouseover', ev => {
     const cell = ev.target.closest('th, td');
     if(!cell || !tbl.contains(cell)) return;
-    const idx = cell.cellIndex - 1;            // first column is the row number
+    const idx = cell.cellIndex - 2;            // first two columns are row number and edit cell
     const col = COLS[idx];
     if(!col || !COL_DEFS[col.k]){ tip.classList.remove('show'); return; }
     clearTimeout(hideT);
@@ -1261,7 +1279,7 @@ function wireSummaryCard(){
     if(!td) return;
     const tr = td.closest('tr[data-id]');
     if(!tr) return;
-    const idx = td.cellIndex - 1;
+    const idx = td.cellIndex - 2;
     if(idx !== poiRefIdx){ scheduleHide(); return; }
     const row = rows.find(x => String(x.id) === String(tr.dataset.id));
     if(!row){ card.classList.remove('show'); return; }
@@ -1437,7 +1455,7 @@ function init(){
   document.querySelectorAll('.tab').forEach(btn => {
     btn.addEventListener('click', async () => {
       document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
-      ['grid','analysis','defs'].forEach(p => $('panel-' + p).classList.toggle('hidden', p !== btn.dataset.tab));
+      document.querySelectorAll('.main-body').forEach(p => p.classList.toggle('hidden', p.id !== 'panel-' + btn.dataset.tab));
       if(btn.dataset.tab === 'analysis') renderAnalysis();
     });
   });
