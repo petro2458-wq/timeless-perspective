@@ -737,8 +737,10 @@ function cellHTML(col, r, c, locked){
       else if(col.k === 'outcome' && v === 'Win') sty = ' style="color:var(--green);font-weight:600"';
       else if(col.k === 'outcome' && v === 'Loss') sty = ' style="color:var(--red);font-weight:600"';
       else if(col.k === 'outcome' && v === 'Breakeven') sty = ' style="color:var(--amber);font-weight:600"';
+      let prBadge = '';
+      if(col.k === 'pr_reviewer' && r.pr_complete && r.pr_notes) prBadge = '<span style="display:inline-block;font-family:var(--font-body);font-size:0.6rem;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);border-radius:4px;padding:0.15rem 0.4rem;margin-left:0.25rem;vertical-align:middle" title="' + esc(r.pr_notes) + '">&#10003; NOTE</span>';
       return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + sty + '>' +
-        opts.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+        opts.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>' + prBadge;
     }
     case 'num':
       return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '"' + lk + '>';
@@ -1118,7 +1120,7 @@ function renderPeerReview(){
     });
   }
   if(feedback.length){
-    h += '<div class="pr-head" style="margin-top:1rem">Feedback on your trades</div>';
+    h += '<div class="pr-head" style="margin-top:1rem">Feedback on your trades <span style="font-family:var(--font-body);font-size:0.7rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:10px;padding:0.15rem 0.5rem;margin-left:0.4rem;vertical-align:middle">' + feedback.length + ' new</span></div>';
     feedback.forEach(r => {
       h += '<div class="pr-card done">' +
         '<div class="pr-meta">Reviewed by <b>' + esc(r.pr_reviewer) + '</b> &middot; ' + esc(r.date || '—') + ' &middot; ' + esc(r.instrument || '—') + ' &middot; ' + esc(r.entry_model || '—') + ' &middot; ' + esc(r.outcome || '—') + '</div>' +
