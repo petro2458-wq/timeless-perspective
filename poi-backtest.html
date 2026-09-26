@@ -91,6 +91,10 @@
   select.ci:disabled{cursor:not-allowed;}
   .ci:disabled,.ci[readonly]{opacity:1;cursor:not-allowed;color:var(--text-primary);}
   .conf-btn:disabled{cursor:not-allowed;}
+  .ind-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--font-mono);font-size:0.72rem;font-weight:700;padding:0.3rem 0.45rem;cursor:pointer;border-radius:2px;margin-left:0.3rem;opacity:0.4;transition:all 0.15s;}
+  .ind-btn:hover{opacity:0.7;}
+  .ind-btn.on{color:var(--red);border-color:rgba(232,64,87,0.5);background:var(--red-dim);opacity:1;}
+  .ind-btn:disabled{cursor:not-allowed;}
   .link-cell{display:flex;align-items:center;}
   .link-cell .ci{flex:1;min-width:0;}
   .tv-open{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;color:var(--text-muted);font-size:0.78rem;text-decoration:none;transition:color 0.15s;}
@@ -322,6 +326,7 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
   <div class="card" style="margin-bottom:1.25rem">
     <div class="card-label">Confluence lift — share reaching 2R, with vs without</div>
     <div style="overflow-x:auto"><table class="atbl" id="a-conf"></table></div>
+    <div id="a-inducement" style="margin-top:0.75rem"></div>
   </div>
 
   <div class="card" style="margin-bottom:1.25rem">
@@ -352,7 +357,7 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
         <div class="def"><div class="def-t">Mitigated by price</div><div class="def-b">Price must have traded into the zone.</div></div>
       </div>
       <div class="card">
-        <div class="card-label">The eight confluences</div>
+        <div class="card-label">The seven confluences + inducement</div>
         <div id="defConf"></div>
       </div>
       <div class="card">
@@ -420,15 +425,16 @@ const LS_KEY = 'ttp_backtest_v2';
 const TRADERS = {};
 
 const CONFLUENCES = [
-  { key:'conf_pro_internal', name:'Pro internal order flow', desc:'Aligned with the HTF narrative and 15m internal structure — who controls price, continuation or pullback.' },
-  { key:'conf_liquidity',    name:'Liquidity & inducement',  desc:'Swept liquidity, liquidity resting beyond it, where it was taken, high- vs low-resistance.' },
-  { key:'conf_flip',         name:'Flip',                    desc:'Caused a failed reaction and a supply/demand flip.' },
-  { key:'conf_pd',           name:'Within premium/discount', desc:'Well priced — demand in discount, supply in premium.' },
-  { key:'conf_unmitigated',  name:'Unmitigated',             desc:'Fresh, efficient when created, not already reacted to.' },
-  { key:'conf_chain',        name:'Part of an S&D chain',    desc:'Belongs to a chain of mitigations.' },
-  { key:'conf_htf_stack',    name:'Stacked in an HTF POI',   desc:'This MTF POI sits inside a higher-timeframe POI.' },
-  { key:'conf_push',         name:'Push liquidity',          desc:'Pre-BOS liquidity fuelling the move into or through the POI.' }
+  { key:'conf_break_structure', name:'Break Structure',                      desc:'The POI led to a confirmed break in market structure.' },
+  { key:'conf_flip',            name:'Flip Supply to Demand (or vice versa)',desc:'The zone caused a failed reaction and flipped polarity.' },
+  { key:'conf_sweep_liq',       name:'Sweep Liquidity',                      desc:'Liquidity was swept at or near the zone before the move.' },
+  { key:'conf_pro_trend',       name:'Pro-Trend or Counter Trend',           desc:'Whether the POI trades with or against the prevailing trend — logged so the data can compare.' },
+  { key:'conf_pd',              name:'Premium / Discount',                   desc:'Well priced — demand in discount, supply in premium.' },
+  { key:'conf_unmitigated',     name:'Unmitigated',                          desc:'Fresh, efficient when created, not already reacted to.' },
+  { key:'conf_chain',           name:'Part of Supply & Demand Chain',        desc:'Belongs to a chain of mitigations.' }
 ];
+/* Negative confluence — tracked separately, never counted in the N/7 tally */
+const CONF_INDUCEMENT = { key:'conf_inducement', name:'Inducement Present', desc:'Inducement is visible near the zone. A negative signal — presence lowers confidence in the POI.' };
 
 const PHASES   = ['—','P1b','P2','P3 START','P3 FIRM','P4','P1 START','P1 FIRM'];
 const TFS      = ['—','1m','3m','5m','15m'];
@@ -504,7 +510,7 @@ const COL_DEFS = {
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
-  conf:'The eight confluences present on this POI. Click to tick them; full definitions on the Definitions tab.',
+  conf:'7 positive confluences and 1 negative (Inducement). Click the count to tick confluences; the ! button toggles inducement. Definitions on the Definitions tab.',
   entry_model:'No Entry Model — POI mitigated, no trade taken. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. Flip Zone - Swept — zone was already swept before entry. Flip Zone - Unswept — zone had not yet been swept at entry.',
   fake_shift:'For EM3 entries: which structure the fake market shift broke — fractal or strong.',
   fz_state:'For the flip zone: was it already swept, or did it still need to be swept?',
@@ -615,6 +621,7 @@ function blankRow(){
     target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
     outcome:'—', after_be:'—', tv_h4:'', tv_h1:'', tv_m15:'', tv_m3:'', tv_m1:'', notes:'', raw_dictation:'' };
   CONFLUENCES.forEach(c => r[c.key] = false);
+  r.conf_inducement = false;
   r.poi_ref = makeRef(r);
   return r;
 }
@@ -643,6 +650,7 @@ async function cloneRow(id){
   const row = blankRow();
   POI_HALF.forEach(k => row[k] = src[k]);
   CONFLUENCES.forEach(c => row[c.key] = !!src[c.key]);
+  row.conf_inducement = !!src.conf_inducement;
   row.trader = trader || src.trader;
   try {
     const saved = await store.add(row);
@@ -715,7 +723,9 @@ function cellHTML(col, r, c, locked){
       return '<input class="ci" type="text" data-k="' + col.k + '" value="' + esc(v || '') + '"' + lk + '>';
     case 'conf': {
       const n = CONFLUENCES.filter(x => r[x.key]).length;
-      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
+      const ind = r.conf_inducement;
+      return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>' +
+        '<button class="ind-btn' + (ind ? ' on' : '') + '" data-act="ind" title="Inducement present (negative)"' + lk + '>!</button>';
     }
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
@@ -776,6 +786,14 @@ function wireGrid(){
     if(cl) cl.addEventListener('click', () => cloneRow(id));
     const cb = tr.querySelector('[data-act="conf"]');
     if(cb) cb.addEventListener('click', ev => { ev.stopPropagation(); openConfPop(cb, id); });
+    const ib = tr.querySelector('[data-act="ind"]');
+    if(ib) ib.addEventListener('click', () => {
+      const row = rows.find(x => String(x.id) === String(id));
+      if(!row) return;
+      row.conf_inducement = !row.conf_inducement;
+      ib.classList.toggle('on', row.conf_inducement);
+      queueSave(id, row);
+    });
   });
 }
 
@@ -811,6 +829,9 @@ function openConfPop(btn, id){
   popEl.innerHTML = CONFLUENCES.map(c =>
     '<div class="pop-item' + (row[c.key] ? ' on' : '') + '" data-k="' + c.key + '">' +
       '<span class="pop-box">' + (row[c.key] ? '✓' : '') + '</span><span>' + esc(c.name) + '</span></div>').join('') +
+    '<div class="pop-foot" style="color:var(--red);border-top-color:var(--red);opacity:0.7">Negative confluence</div>' +
+    '<div class="pop-item' + (row.conf_inducement ? ' on' : '') + '" data-k="conf_inducement" style="' + (row.conf_inducement ? 'color:var(--red)' : '') + '">' +
+      '<span class="pop-box" style="' + (row.conf_inducement ? 'background:var(--red);border-color:var(--red)' : '') + '">' + (row.conf_inducement ? '✓' : '') + '</span><span>' + esc(CONF_INDUCEMENT.name) + '</span></div>' +
     '<div class="pop-foot">Definitions on the Definitions tab</div>';
   document.body.appendChild(popEl);
   const top = Math.min(rect.bottom + 4, window.innerHeight - popEl.offsetHeight - 10);
@@ -824,10 +845,19 @@ function openConfPop(btn, id){
     const k = item.dataset.k;
     row[k] = !row[k];
     item.classList.toggle('on', row[k]);
-    item.querySelector('.pop-box').textContent = row[k] ? '✓' : '';
-    const n = CONFLUENCES.filter(x => row[x.key]).length;
-    btn.textContent = n + ' / ' + CONFLUENCES.length;
-    btn.classList.toggle('none', !n);
+    const box = item.querySelector('.pop-box');
+    box.textContent = row[k] ? '✓' : '';
+    if(k === 'conf_inducement'){
+      item.style.color = row[k] ? 'var(--red)' : '';
+      box.style.background = row[k] ? 'var(--red)' : '';
+      box.style.borderColor = row[k] ? 'var(--red)' : '';
+      const indBtn = btn.parentElement.querySelector('.ind-btn');
+      if(indBtn) indBtn.classList.toggle('on', row[k]);
+    } else {
+      const n = CONFLUENCES.filter(x => row[x.key]).length;
+      btn.textContent = n + ' / ' + CONFLUENCES.length;
+      btn.classList.toggle('none', !n);
+    }
     queueSave(id, row);
   });
   setTimeout(() => document.addEventListener('click', closePop), 0);
@@ -882,14 +912,14 @@ function parseDictation(text){
   if(/\bloss\b|\blost\b|\bstopped out\b/.test(t))     o.outcome = 'Loss';
   if(/\bbreakeven\b|\bbreak even\b|\bb\/?e\b/.test(t))o.outcome = 'Breakeven';
   o.conf = {};
-  if(/\b(pro.?internal|aligned|continuation)\b/.test(t))      o.conf.conf_pro_internal = true;
-  if(/\b(liquidity|inducement|swept|sweep)\b/.test(t))        o.conf.conf_liquidity = true;
+  if(/\bbreak.{0,6}structure\b|\bbos\b/.test(t))              o.conf.conf_break_structure = true;
   if(/\bflip\b/.test(t))                                      o.conf.conf_flip = true;
+  if(/\bsweep.{0,6}liq\b|\bswept.{0,6}liq\b|\bliquidity.{0,6}swept\b/.test(t)) o.conf.conf_sweep_liq = true;
+  if(/\bpro.?trend\b|\bcounter.?trend\b/.test(t))             o.conf.conf_pro_trend = true;
   if(/\b(discount|premium|well priced)\b/.test(t))            o.conf.conf_pd = true;
   if(/\b(unmitigated|fresh|virgin)\b/.test(t))                o.conf.conf_unmitigated = true;
   if(/\bchain\b/.test(t))                                     o.conf.conf_chain = true;
-  if(/\b(stacked|htf poi)\b/.test(t))                         o.conf.conf_htf_stack = true;
-  if(/\bpush\b/.test(t))                                      o.conf.conf_push = true;
+  if(/\binducement\b/.test(t))                                o.conf_inducement = true;
   return o;
 }
 
@@ -917,11 +947,11 @@ async function createFromDictation(){
 function exportCSV(){
   if(!rows.length) return toast('Nothing to export yet', true);
   const keys = COLS.filter(c => c.t !== 'calc' && c.t !== 'conf').map(c => c.k);
-  const head = [...keys, ...CONFLUENCES.map(c => c.key)];
+  const head = [...keys, ...CONFLUENCES.map(c => c.key), 'conf_inducement'];
   const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
   const lines = [head.join(',')];
   rows.forEach(r => {
-    lines.push([...keys.map(k => r[k]), ...CONFLUENCES.map(x => r[x.key])].map(q).join(','));
+    lines.push([...keys.map(k => r[k]), ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement].map(q).join(','));
   });
   const blob = new Blob([lines.join('\n')], { type:'text/csv' });
   const a = document.createElement('a');
@@ -981,6 +1011,16 @@ function renderAnalysis(){
       '<td class="n">' + r.n + '</td><td class="n">' + r.pOn + '%</td><td class="n">' + r.pOff + '%</td>' +
       '<td class="n ' + (r.lift >= 0 ? 'pos' : 'neg') + '">' + (r.lift >= 0 ? '+' : '') + r.lift + ' pp</td>' +
       '<td class="n">' + (r.med === null ? '—' : r.med.toFixed(1) + 'R') + '</td></tr>').join('') + '</tbody>';
+
+  /* Inducement callout — separate from the positive confluence table */
+  const indOn = pois.filter(r => r.conf_inducement), indOff = pois.filter(r => !r.conf_inducement);
+  const indOnM = mfeVals(indOn), indOffM = mfeVals(indOff);
+  const indPOn = pct(indOnM.filter(v => v >= 2).length, indOnM.length), indPOff = pct(indOffM.filter(v => v >= 2).length, indOffM.length);
+  const indLift = Math.round((indPOn - indPOff) * 10) / 10;
+  $('a-inducement').innerHTML = indOn.length ? '<div class="note-box" style="border-left-color:var(--red)">' +
+    '<span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--red)">Inducement present</span><br>' +
+    '<span style="font-size:0.82rem">≥2R when present: <b>' + indPOn + '%</b> (' + indOn.length + ' POIs) · when absent: <b>' + indPOff + '%</b> (' + indOff.length + ' POIs) · lift: <span class="' + (indLift >= 0 ? 'pos' : 'neg') + '">' + (indLift >= 0 ? '+' : '') + indLift + ' pp</span></span>' +
+    (indOn.length < 30 ? '<span class="chip warn" style="margin-left:0.5rem">low n</span>' : '') + '</div>' : '';
 
   let mh = '<thead><tr><th>Entry model</th><th>Stop</th><th class="n">n</th><th class="n">Avg MFE</th><th class="n">≥3R</th><th class="n">≥5R</th><th class="n">Exp. @5R</th></tr></thead><tbody>';
   let any = false;
@@ -1143,7 +1183,9 @@ function wireSummaryCard(){
     h += '<span class="tsc-outcome ' + ocClass + '">' + esc(v(oc)) + '</span>';
     h += '<div class="tsc-dots">';
     CONFLUENCES.forEach(x => { h += '<span class="tsc-dot' + (row[x.key] ? ' on' : '') + '" title="' + esc(x.name) + '"></span>'; });
-    h += '<span class="tsc-dots-n">' + cn + '/' + CONFLUENCES.length + '</span></div>';
+    h += '<span class="tsc-dots-n">' + cn + '/' + CONFLUENCES.length + '</span>';
+    if(row.conf_inducement) h += '<span style="color:var(--red);font-family:var(--font-mono);font-size:0.6rem;font-weight:700;margin-left:0.4rem" title="Inducement present (negative)">! IND</span>';
+    h += '</div>';
     if(row.pr_reviewer && row.pr_reviewer !== '—'){
       h += '<div class="tsc-pr">' + (row.pr_complete ? '<span class="done">&#10003; Reviewed</span>' : 'Review requested: ' + esc(row.pr_reviewer)) + '</div>';
     }
@@ -1375,7 +1417,8 @@ function init(){
     $('storeStatus').title = 'Add SUPABASE_URL and SUPABASE_ANON_KEY in the config block to share across devices and traders.';
   }
 
-  $('defConf').innerHTML = CONFLUENCES.map(c => '<div class="def"><div class="def-t">' + esc(c.name) + '</div><div class="def-b">' + esc(c.desc) + '</div></div>').join('');
+  $('defConf').innerHTML = CONFLUENCES.map(c => '<div class="def"><div class="def-t">' + esc(c.name) + '</div><div class="def-b">' + esc(c.desc) + '</div></div>').join('') +
+    '<div class="def" style="border-top:1px solid var(--red);padding-top:0.65rem;margin-top:0.5rem"><div class="def-t" style="color:var(--red)">' + esc(CONF_INDUCEMENT.name) + ' (negative)</div><div class="def-b">' + esc(CONF_INDUCEMENT.desc) + '</div></div>';
 
   $('parseBtn').addEventListener('click', createFromDictation);
   $('clearDictation').addEventListener('click', () => { $('dictation').value = ''; });

@@ -26,13 +26,19 @@ create table if not exists public.poi_backtest (
   poi_ref             text,          -- e.g. ES-0923-1. Two trades on one POI share it,
                                      -- so POI-level stats can collapse them.
 
-  -- the eight confluences (break of structure stays a qualifying rule)
-  conf_pro_internal   boolean not null default false,
-  conf_liquidity      boolean not null default false,
+  -- the seven positive confluences
+  conf_break_structure boolean not null default false,
   conf_flip           boolean not null default false,
+  conf_sweep_liq      boolean not null default false,
+  conf_pro_trend      boolean not null default false,
   conf_pd             boolean not null default false,
   conf_unmitigated    boolean not null default false,
   conf_chain          boolean not null default false,
+  -- negative confluence (not counted in the N/7 tally)
+  conf_inducement     boolean not null default false,
+  -- deprecated — no longer written by the app; kept for historical rows
+  conf_pro_internal   boolean not null default false,
+  conf_liquidity      boolean not null default false,
   conf_htf_stack      boolean not null default false,
   conf_push           boolean not null default false,
 
@@ -113,6 +119,10 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists tv_m1        text,
 --   add column if not exists date         date,
 --   add column if not exists poi_tf       text,
+--   add column if not exists conf_break_structure boolean not null default false,
+--   add column if not exists conf_sweep_liq boolean not null default false,
+--   add column if not exists conf_pro_trend boolean not null default false,
+--   add column if not exists conf_inducement boolean not null default false,
 --   add column if not exists htf_phase    text,
 --   add column if not exists pr_reviewer  text,
 --   add column if not exists pr_notes     text,
