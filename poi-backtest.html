@@ -319,7 +319,7 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
           <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>NQ</option><option>YM</option><option>GC</option><option>XAUUSD</option><option>US100</option><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option></select></div>
           <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
           <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
-          <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>Flip Zone - Swept</option><option>Flip Zone - Unswept</option></select></div>
+          <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>EM1/2 Aggressive</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>Flip Zone - Swept</option><option>Flip Zone - Unswept</option></select></div>
           <div class="fcount">Sample: <b id="a-count">0</b> rows</div>
         </div>
 
@@ -453,7 +453,7 @@ const TFS      = ['—','1m','3m','5m','15m'];
 const POITFS   = ['—','H1','M15'];
 const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
 const POITYPES = ['—','Flip Zone','Supply Zone','Demand Zone'];
-const MODELS   = ['—','No Entry Model','EM3 Aggressive','EM3 Conservative','Flip Zone - Swept','Flip Zone - Unswept'];
+const MODELS   = ['—','No Entry Model','EM1/2 Aggressive','EM3 Aggressive','EM3 Conservative','Flip Zone - Swept','Flip Zone - Unswept'];
 const FZSTATES = ['—','Already swept','Needed to be swept'];
 const FAKESHIFT = ['—','Fractal','Strong'];
 const YESNO    = ['—','Yes','No'];
@@ -523,7 +523,7 @@ const COL_DEFS = {
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
   conf:'7 positive confluences and 1 negative (Inducement). Click the count to tick confluences; the ! button toggles inducement. Definitions on the Definitions tab.',
-  entry_model:'No Entry Model — POI mitigated, no trade taken. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. Flip Zone - Swept — zone was already swept before entry. Flip Zone - Unswept — zone had not yet been swept at entry.',
+  entry_model:'No Entry Model — POI mitigated, no trade taken. EM1/2 Aggressive — aggressive entry on the EM1 or EM2 setup. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. Flip Zone - Swept — zone was already swept before entry. Flip Zone - Unswept — zone had not yet been swept at entry.',
   fake_shift:'For EM3 entries: which structure the fake market shift broke — fractal or strong.',
   fz_state:'For the flip zone: was it already swept, or did it still need to be swept?',
   push_liq:'Did pre-BOS push liquidity exist to fuel the move into or through the POI?',
@@ -718,7 +718,7 @@ function cellHTML(col, r, c, locked){
   switch(col.t){
     case 'select': {
       const dis = locked || (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
-                  (col.k === 'fake_shift' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
+                  (col.k === 'fake_shift' && r.entry_model !== 'EM1/2 Aggressive' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
       const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
       const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
       let sty = '';
@@ -780,7 +780,7 @@ function wireGrid(){
         if(k === 'entry_model'){
           const m = row.entry_model;
           if(m !== 'EM3 Conservative' && row.fz_state !== '—') row.fz_state = '—';
-          if(m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
+          if(m !== 'EM1/2 Aggressive' && m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
           queueSave(id, row); renderGrid(); return;
         }
         if(el.type === 'url'){
@@ -904,7 +904,9 @@ function parseDictation(text){
   if(/\bflip zone.{0,10}unswept\b|\bfz unswept\b|\bflip zone not swept\b/.test(t)) o.entry_model = 'Flip Zone - Unswept';
   else if(/\b(flip zone.{0,10}swept|fz sweep|flip zone sweep)\b/.test(t))           o.entry_model = 'Flip Zone - Swept';
   if(/\b(conservative|em ?3 ?c)\b/.test(t))           o.entry_model = 'EM3 Conservative';
-  if(/\b(aggressive|aggr|em ?3 ?a)\b/.test(t))        o.entry_model = 'EM3 Aggressive';
+  if(/\bem ?[12]\/?2? ?(?:a|aggr)\b|\bem ?1 ?2\b/.test(t)) o.entry_model = 'EM1/2 Aggressive';
+  if(/\b(em ?3 ?a|em ?3 ?aggr)\b/.test(t))            o.entry_model = 'EM3 Aggressive';
+  if(/\baggressive\b|\baggr\b/.test(t) && !o.entry_model) o.entry_model = 'EM3 Aggressive';
   const fs = t.match(/(?:fake shift|fms|shift)\D{0,14}?\b(fractal|strong)\b/) || t.match(/\b(fractal|strong)\b\D{0,14}?(?:fake shift|fms|shift)/);
   if(fs) o.fake_shift = fs[1] === 'fractal' ? 'Fractal' : 'Strong';
   if(/\balready swept\b/.test(t))                     o.fz_state = 'Already swept';
@@ -1231,7 +1233,7 @@ function wireSummaryCard(){
     /* ENTRY MODEL — always shown */
     h += '<div class="tsc-sec">Entry model</div>';
     h += '<div class="tsc-row"><span class="tsc-badge">' + esc(v(em)) + '</span></div>';
-    if(em === 'EM3 Aggressive' || em === 'EM3 Conservative'){
+    if(em === 'EM1/2 Aggressive' || em === 'EM3 Aggressive' || em === 'EM3 Conservative'){
       h += '<div class="tsc-row"><span class="tsc-chip">Fake shift: ' + esc(v(row.fake_shift)) + '</span>';
       if(em === 'EM3 Conservative') h += '<span class="tsc-chip">FZ: ' + esc(v(row.fz_state)) + '</span>';
       h += '</div>';
