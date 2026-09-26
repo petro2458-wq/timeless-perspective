@@ -462,7 +462,7 @@ const FAKESHIFT = ['—','Fractal','Strong'];
 const YESNO    = ['—','Yes','No'];
 const OUTCOMES = ['—','Win','Loss','Breakeven'];
 const AFTERBE  = ['—','Worked','Failed'];
-const PR_OPTIONS = ['—'];
+const PR_OPTIONS = ['—','DC','TG'];
 const STEPS    = [1,2,3,5,10];
 
 /* Column model — drives header, cells, CSV */
@@ -726,7 +726,8 @@ function cellHTML(col, r, c, locked){
   const lk = locked ? ' disabled' : '';
   switch(col.t){
     case 'select': {
-      const dis = locked || (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
+      const prOwn = col.k === 'pr_reviewer' && (!r.trader || r.trader === trader);
+      const dis = (locked && !prOwn) || (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
                   (col.k === 'fake_shift' && r.entry_model !== 'EM1/2 Aggressive' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
       const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
       const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
@@ -1165,8 +1166,6 @@ async function loadRows(){
   const ts = $('a-trader'), tcur = ts.value;
   ts.innerHTML = '<option value="all">All traders</option>' + traders.map(t => '<option>' + esc(t) + '</option>').join('');
   if([...ts.options].some(o => o.value === tcur)) ts.value = tcur;
-  PR_OPTIONS.length = 1;
-  traders.forEach(t => PR_OPTIONS.push(t));
   renderGrid(); renderAnalysis(); renderPeerReview();
 }
 
