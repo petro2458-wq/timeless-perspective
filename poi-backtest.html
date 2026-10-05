@@ -818,7 +818,7 @@ function renderGrid(){
     h += '<th class="gh" colspan="' + span + '">' + esc(COLS[gi].g) + '</th>';
     gi += span;
   }
-  h += '<th style="width:56px"></th></tr><tr class="crow"><th style="width:34px"></th><th style="width:52px"></th>';
+  h += '<th style="width:56px"></th></tr><tr class="crow"><th style="width:34px"></th><th style="width:52px">Edit</th>';
   COLS.forEach(c => { h += '<th style="min-width:' + c.w + 'px">' + esc(c.h) + '</th>'; });
   h += '<th style="width:56px"></th></tr></thead><tbody>';
   if(!rows.length){
