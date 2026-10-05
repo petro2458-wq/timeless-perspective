@@ -19,7 +19,7 @@
     --red:#f87171;--red-bg:rgba(248,113,113,0.12);--red-border:rgba(248,113,113,0.4);
     --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.12);--amber-border:rgba(251,191,36,0.4);
     --hi:rgba(255,255,255,0.06);--hi-line:rgba(255,255,255,0.25);
-    --prob-high:#15803d;--prob-med:#0e8f87;--prob-low:#64748b;
+    --prob-high:#16a34a;--prob-med:#2563eb;--prob-low:#64748b;
     --font-display:'Playfair Display',Georgia,serif;
     --font-body:'DM Sans',-apple-system,sans-serif;
     --font-mono:'JetBrains Mono','Courier New',monospace;
@@ -800,7 +800,7 @@ function cellHTML(col, r, c, locked){
       const p = bucketProb(r.trade_bucket);
       if(!p) return '<div class="calc" style="text-align:center">—</div>';
       const cls = p === 'High' ? 'high' : p === 'Medium' ? 'med' : 'low';
-      return '<span class="prob-pill ' + cls + '">' + p + '</span>';
+      return '<div style="text-align:center;padding:0.35rem 0.3rem"><span class="prob-pill ' + cls + '">' + p + '</span></div>';
     }
     case 'check':
       return '<input class="ci-check" type="checkbox" data-k="' + col.k + '"' + (v ? ' checked' : '') + '>';
