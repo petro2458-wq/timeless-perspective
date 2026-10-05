@@ -407,7 +407,7 @@ ES daily bias long, swing long, internal long, P1 well priced, demand zone, push
               <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
               <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">Direction of the Daily-timeframe swing structure. <em>Long</em>: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. <em>Short</em>: the mirror. <em>Consolidating</em>: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase.</div></div>
 <div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Bias. Long or Short.</div></div>
-<div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Bias. Long or Short. Still sets the R sign until trade direction is derived in a later change.</div></div>
+<div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Bias. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.</div></div>
 <div id="defPhases"></div>
             </div>
           </div>
@@ -517,17 +517,37 @@ function rowProb(row){
   if(d === row.h4_bias) return 'High';
   return 'Medium';
 }
+function tradeDir(row){
+  const bk = resolveKey(row.trade_bucket);
+  if(bk === 'p1_well_priced' || bk === 'p1b_blue_sky' || bk === 'p4_well_priced'){
+    return row.h4_bias === 'Long' ? 'Long' : row.h4_bias === 'Short' ? 'Short' : null;
+  }
+  if(bk === 'p3_post_mss'){
+    return row.m15_bias === 'Long' ? 'Long' : row.m15_bias === 'Short' ? 'Short' : null;
+  }
+  if(bk === 'p1_poorly_priced'){
+    return row.h4_bias === 'Long' ? 'Short' : row.h4_bias === 'Short' ? 'Long' : null;
+  }
+  /* Do Not Trade phases, no bucket, or missing bias → fall back to m15_bias */
+  return row.m15_bias === 'Long' ? 'Long' : row.m15_bias === 'Short' ? 'Short' : null;
+}
+
 const PHASE_DEFS = [
   { key:'p1_well_priced', group:'Trade List', probLabel:'High or Medium',
-    desc:'Continuation. The 15m (MTF) bias and the H4 (Swing) bias are aligned, the pullback has completed, and price is at a well-priced location. Daily Bias does not have to agree, it only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating.' },
+    desc:'Continuation after a completed pullback. Price pulled back 50%+ and reacted off a swing POI, which suggests the pullback is over. MTF and Swing Bias are aligned with the trade. Daily Bias does not have to agree; it only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating. Usually reached when the 15m prints its own MSS from a well-priced P4 zone.',
+    dir:'With Swing and MTF.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p1_poorly_priced', group:'Trade List', probLabel:'Medium',
-    desc:'The Phase 3 to Phase 1 MTF shift where MTF and Swing Bias are aligned but the pullback was unlikely to be deep enough and more pullback may still be in play. The trade is counter-trend: against both the MTF and the Swing bias. Daily Bias is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.' },
-  { key:'p1b_blue_sky', group:'Trade List', probLabel:'Medium', draft:true,
-    desc:'Swing structure has just created a BOS or an MSS, with MTF and Swing aligned: the fresh stage right after the shift, before continuation is confirmed. Blue Sky means there is no opposing POI nearby limiting the move.' },
+    desc:'The Phase 3 to Phase 1 MTF shift. MTF and Swing Bias are aligned, but the pullback was unlikely to be deep enough, so more pullback may still be in play. The trade runs against both the MTF and the Swing bias. Daily Bias is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive (a sweep is favoured, but all three qualify).',
+    dir:'Against both Swing and MTF.', targets:'Primary 15m strong supply/demand: take profits at the opposing zone, and do not assume an opposite MSS · intermediate 5m weak high/low.' },
+  { key:'p1b_blue_sky', group:'Trade List', probLabel:'Medium',
+    desc:'Swing structure has just created a BOS or an MSS, with MTF and Swing aligned: the fresh stage right after the shift, before continuation is confirmed. Blue Sky means price is at or near all-time highs (or lows), or has a lot of room ahead, with no obvious POIs against it.',
+    dir:'With Swing and MTF.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p3_post_mss', group:'Trade List', probLabel:'High',
-    desc:'An MTF MSS has shifted price and price has not yet finished the pullback (roughly 50 to 70% of the swing range). This is the beginning of the swing pullback. The percentage is deliberately approximate, and an early MTF shift can be false because a more significant swing retrace may still be needed.' },
+    desc:'An MTF MSS has shifted price, and price is just beginning a pullback of the swing range. The 50 to 70% pullback percentage is deliberately approximate.',
+    dir:'With the new MTF shift, against Swing.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p4_well_priced', group:'Trade List', probLabel:'High',
-    desc:'The pullback has reached a reasonable threshold (50%+) into a key POI. MTF Bias is already in the trade direction because the pullback is finished or nearing completion. The entry trigger is a 3m or 5m MSS (a lower-timeframe shift), and it is still P4 while that is all that has printed. When the 15m itself prints an MSS from this well-priced zone, it reclassifies as P1. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.' },
+    desc:'The pullback has reached a reasonable threshold (50%+) into a key POI. The MTF Bias has not shifted yet, so it is still in the pullback, while the lower timeframe is shifting. Trigger: a 3m or 5m MSS; it stays P4 while that is all that has printed. When the 15m prints its own MSS from this zone, the MTF Bias shifts and it reclassifies as P1. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.',
+    dir:'With Swing, against the still-pulling-back MTF.', targets:'Primary 15m strong high/low (a 15m MSS, which is the P1 transition) · intermediate 5m weak high/low.' },
   { key:'p1b_poi_nearby', group:'Do Not Trade', probLabel:'Low', draft:true,
     desc:'The same fresh BOS/MSS stage as P1b, but an opposing POI sits close to price and limits the move. Logged so the data can confirm it should be avoided.' },
   { key:'p2', group:'Do Not Trade', probLabel:'Low',
@@ -537,7 +557,7 @@ const PHASE_DEFS = [
   { key:'consolidation', group:'Do Not Trade', probLabel:'Low', draft:true,
     desc:'Price is ranging with no directional MTF structure to trade. Not the same as Daily Bias = Consolidating, which only affects the probability of a P1 · Well-Priced row.' }
 ];
-const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Bias is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced.';
+const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Bias is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced.\n\nTargets are the built-in primary and intermediate exits for each phase. The target fields arrive with the Trade section.';
 const COL_LINKS = { trade_bucket:'phases' };
 function renderPhaseDefsHTML(){
   let h = '';
@@ -550,9 +570,11 @@ function renderPhaseDefsHTML(){
     if(probCls) h += '<span class="prob-pill ' + probCls + '" style="font-size:0.55rem;padding:0.12rem 0.4rem">' + esc(pd.probLabel) + '</span>';
     else h += '<span class="prob-pill high" style="font-size:0.55rem;padding:0.12rem 0.4rem">' + esc(pd.probLabel) + '</span>';
     if(pd.draft) h += '<span class="pd-draft">Draft: confirm</span>';
-    h += '</div><div class="pd-desc">' + esc(pd.desc) + '</div></div>';
+    h += '</div><div class="pd-desc">' + esc(pd.desc) + '</div>';
+    if(pd.dir) h += '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;line-height:1.45"><b style="color:var(--text-secondary)">Trade direction:</b> ' + esc(pd.dir) + '<br><b style="color:var(--text-secondary)">Targets:</b> ' + esc(pd.targets) + '</div>';
+    h += '</div>';
   });
-  h += '<div class="pd-foot">' + esc(PHASE_DEFS_FOOTER) + '</div>';
+  h += '<div class="pd-foot">' + esc(PHASE_DEFS_FOOTER).replace(/\n/g, '<br>') + '</div>';
   return h;
 }
 let pdEl = null;
@@ -626,7 +648,7 @@ const COL_DEFS = {
   instrument:'Instrument traded.',
   daily_bias:'Direction of the Daily-timeframe swing structure. Long: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. Short: the mirror. Consolidating: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase. Used only to calculate Probability for P1 Well-Priced. It is not part of the Market Phase label.',
   h4_bias:'Direction of the H4 swing structure, same read as Daily Bias. Long or Short.',
-  m15_bias:'Direction of the 15m swing structure, same read as Daily Bias. Long or Short. Still sets the R sign until trade direction is derived in a later change.',
+  m15_bias:'Direction of the 15m swing structure, same read as Daily Bias. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.',
   trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Probability is calculated from this plus the three biases. Click Definitions → for what each phase means.',
   _prob:'Calculated, never entered. P1 Well-Priced: High when Daily Bias matches Swing and MTF Bias, Medium when Daily conflicts or is Consolidating, and Check bias when Swing and MTF disagree. P1 Poorly Priced, P1b Blue Sky: Medium. P3 after MTF MSS, P4 Well-Priced: High. All Do Not Trade states: Low.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
@@ -677,9 +699,10 @@ function toast(msg, err){
   clearTimeout(t._t); t._t = setTimeout(() => { t.className = 'toast' + (err ? ' err' : ''); }, 3000);
 }
 
-/* ─── R maths (bias-aware) ─── */
+/* ─── R maths (direction-aware) ─── */
 function calcs(r){
-  const long = (r.m15_bias || 'Long') === 'Long';
+  const dir = tradeDir(r);
+  const long = (dir || 'Long') === 'Long';
   const pe = num(r.poi_entry), pi = num(r.poi_inval), mfe = num(r.mfe_price);
   const en = num(r.entry_price), s1 = num(r.stop1), s2 = num(r.stop2);
   const out = { poiR:null, mfePoiR:null, r1:null, r2:null };
@@ -1451,6 +1474,8 @@ function wireSummaryCard(){
     if(bp){ const bpc = bp === 'High' ? 'high' : bp === 'Medium' ? 'med' : bp === 'Check' ? 'check' : 'low';
     h += ' <span class="prob-pill ' + bpc + '" style="font-size:0.5rem;padding:0.1rem 0.35rem">' + (bp === 'Check' ? 'Check bias' : bp) + '</span>'; }
     h += '</div>';
+    const td = tradeDir(row);
+    if(td) h += '<div class="tsc-row"><span class="tsc-chip' + biasClass(td) + '">Direction: ' + td + ' (from phase)</span></div>';
     h += '<div class="tsc-price"><span>' + esc(v(row.poi_entry)) + ' &rarr; ' + esc(v(row.poi_inval)) + '</span><b>' + (c.poiR !== null ? c.poiR.toFixed(2) + ' R' : '—') + '</b></div>';
     /* MFE / MAE live on the POI — they describe the zone reaction, not the trade */
     h += '<div class="tsc-rbox">';
