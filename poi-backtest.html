@@ -386,11 +386,11 @@ ES daily bias long, swing long, internal long, P1 well priced, demand zone, push
               <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
               <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
               <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
-              <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">The higher-timeframe directional lean for the session — long or short.</div></div>
+              <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">The long-term trend direction, if there is one — long or short.</div></div>
 <div class="def"><div class="def-t">Swing Bias</div><div class="def-b">The H4 directional lean — long or short.</div></div>
-<div class="def"><div class="def-t">Internal Bias</div><div class="def-b">The 15M directional lean and <em>the sign used for every R calculation on the row</em>.</div></div>
-<div class="def"><div class="def-t">Trade List</div><div class="def-b">The trade setup bucket — describes the phase, pricing, and bias alignment. Ten options across two groups: <em>Trade List</em> (P1 aligned, P1 daily conflicts, P1 poorly priced, P1b blue sky, P3 post-MSS, P4 well-priced) and <em>Do Not Trade</em> (P1b POI nearby, P2, P4 not well-priced, consolidation). The trader picks the bucket.</div></div>
-<div class="def"><div class="def-t">Probability</div><div class="def-b">Calculated from the Trade List selection: <em>High</em>, <em>Medium</em>, or <em>Low</em>. Not entered manually.</div></div>
+<div class="def"><div class="def-t">MTF Bias</div><div class="def-b">The 15M directional lean and <em>the sign used for every R calculation on the row</em>.</div></div>
+<div class="def"><div class="def-t">Market Phase</div><div class="def-b">The market phase bucket — describes the phase, pricing, and bias alignment. Ten options across two groups: <em>Trade List</em> (P1 aligned, P1 daily conflicts, P1 poorly priced, P1b blue sky, P3 post-MSS, P4 well-priced) and <em>Do Not Trade</em> (P1b POI nearby, P2, P4 not well-priced, consolidation). The trader picks the phase.</div></div>
+<div class="def"><div class="def-t">Probability</div><div class="def-b">Calculated from the Market Phase selection: <em>High</em>, <em>Medium</em>, or <em>Low</em>. Not entered manually.</div></div>
             </div>
           </div>
           <div class="stack">
@@ -497,8 +497,8 @@ const COLS = [
   { k:'instrument',    h:'Instrument',     t:'select', o:INSTS, w:114, g:'Context' },
   { k:'daily_bias',    h:'Daily Bias',     t:'select', o:['—','Long','Short'], w:110, g:'Context' },
   { k:'h4_bias',       h:'Swing Bias',     t:'select', o:['Long','Short'], w:110, g:'Context' },
-  { k:'m15_bias',      h:'Internal Bias',  t:'select', o:['Long','Short'], w:120, g:'Context' },
-  { k:'trade_bucket',  h:'Trade List',     t:'bucket', w:270, g:'Context' },
+  { k:'m15_bias',      h:'MTF Bias',       t:'select', o:['Long','Short'], w:110, g:'Context' },
+  { k:'trade_bucket',  h:'Market Phase',   t:'bucket', w:270, g:'Context' },
   { k:'_prob',         h:'Probability',    t:'prob',   w:90,  g:'Context' },
   /* ── THE POI ── */
   { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
@@ -541,11 +541,11 @@ const COL_DEFS = {
   entry_tf:'The timeframe the entry trigger was read on.',
   entry_time:'Time the entry filled — New York time (Eastern).',
   instrument:'Instrument traded.',
-  daily_bias:'Daily bias — the higher-timeframe directional lean for the session. Long or short.',
+  daily_bias:'Daily bias — the long-term trend direction, if there is one. Long or short.',
   h4_bias:'Swing bias — the H4 directional lean. Long or short.',
-  m15_bias:'Internal bias — the 15M directional lean and the sign used for every R calculation on the row.',
-  trade_bucket:'The trade setup bucket. Drives the calculated Probability. Pick the bucket that matches the current market context: phase, pricing, and bias alignment.',
-  _prob:'Calculated from the Trade List selection: High, Medium, or Low. Not entered manually.',
+  m15_bias:'MTF bias — the 15M directional lean and the sign used for every R calculation on the row.',
+  trade_bucket:'The market phase bucket. Drives the calculated Probability. Pick the phase that matches the current market context: pricing and bias alignment.',
+  _prob:'Calculated from the Market Phase selection: High, Medium, or Low. Not entered manually.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
@@ -1338,11 +1338,11 @@ function wireSummaryCard(){
     h += '<div class="tsc-row">';
     h += '<span class="tsc-chip' + biasClass(row.daily_bias) + '">Daily ' + esc(v(row.daily_bias)) + '</span>';
     h += '<span class="tsc-chip' + biasClass(row.h4_bias) + '">Swing ' + esc(v(row.h4_bias)) + '</span>';
-    h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">Internal ' + esc(v(row.m15_bias)) + '</span>';
+    h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">MTF ' + esc(v(row.m15_bias)) + '</span>';
     h += '<span class="tsc-chip">' + esc(v(row.push_liq)) + ' push</span>';
     h += '</div>';
     const bp = bucketProb(row.trade_bucket);
-    h += '<div class="tsc-row"><span class="tsc-lbl">Trade List:</span> <span class="tsc-val">' + esc(bucketLabel(row.trade_bucket)) + '</span>';
+    h += '<div class="tsc-row"><span class="tsc-lbl">Market Phase:</span> <span class="tsc-val">' + esc(bucketLabel(row.trade_bucket)) + '</span>';
     if(bp) h += ' <span class="prob-pill ' + (bp === 'High' ? 'high' : bp === 'Medium' ? 'med' : 'low') + '" style="font-size:0.5rem;padding:0.1rem 0.35rem">' + bp + '</span>';
     h += '</div>';
     h += '<div class="tsc-price"><span>' + esc(v(row.poi_entry)) + ' &rarr; ' + esc(v(row.poi_inval)) + '</span><b>' + (c.poiR !== null ? c.poiR.toFixed(2) + ' R' : '—') + '</b></div>';
