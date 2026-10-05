@@ -487,7 +487,7 @@ const TFS      = ['—','1m','3m','5m','15m'];
 const POITFS   = ['—','H1','M15'];
 const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
 const POITYPES = ['—','Flip Zone','Supply Zone','Demand Zone'];
-const MODELS   = ['—','No Entry Model','Flip Zone','Flip Zone Sweep','EM1/2 Aggressive','EM3 Aggressive','EM3 Conservative · Flip Zone','EM3 Conservative · Flip Zone Sweep'];
+const MODELS   = ['No Entry Model','Flip Zone','Flip Zone Sweep','EM1/2 Aggressive','EM3 Aggressive','EM3 Conservative · Flip Zone','EM3 Conservative · Flip Zone Sweep'];
 const YESNO    = ['—','Yes','No'];
 const OUTCOMES = ['—','Win','Loss','Breakeven'];
 const AFTERBE  = ['—','Worked','Failed'];
@@ -789,7 +789,7 @@ function blankRow(){
   const r = { trader: trader, pr_reviewer:'—', pr_request_note:'', pr_notes:'', pr_complete:false, pr_read_at:null, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
     entry_tf:'—', entry_time:null, instrument:'ES', daily_trend:'—', todays_bias:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
-    entry_model:'—', push_liq:'—',
+    entry_model:'No Entry Model', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop_price:null,
     primary_target:null, primary_hit:'—', intermediate_target:null, intermediate_hit:'—',
     be_trigger:null, mfe_price:null, mae_price:null,
