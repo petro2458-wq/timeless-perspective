@@ -306,7 +306,7 @@
       <div class="card-label">Dictate a backtest</div>
       <textarea class="dictate" id="dictation" placeholder="Tap your keyboard's microphone and read it out. For example:
 
-ES daily bias long, swing long, internal long, P1 well priced, demand zone, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop one 5823.5, stop two 5818.5, target 5860. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
+ES daily trend bullish, swing long, internal long, P1 well priced, demand zone, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop one 5823.5, stop two 5818.5, target 5860. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
       <div class="btn-row" style="margin-top:0.6rem">
         <button class="btn primary" id="parseBtn">Create row from dictation</button>
         <button class="btn" id="clearDictation">Clear</button>
@@ -405,9 +405,10 @@ ES daily bias long, swing long, internal long, P1 well priced, demand zone, push
               <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
               <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
               <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
-              <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">Direction of the Daily-timeframe swing structure. <em>Long</em>: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. <em>Short</em>: the mirror. <em>Consolidating</em>: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase.</div></div>
-<div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Bias. Long or Short.</div></div>
-<div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Bias. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.</div></div>
+              <div class="def"><div class="def-t">Daily Trend</div><div class="def-b"><em>Daily chart input.</em> The Daily structure: Bullish, Bearish or Consolidating.</div></div>
+<div class="def"><div class="def-t">Today's Bias</div><div class="def-b"><em>Daily chart input.</em> Your discretionary view for today's session: Bullish, Bearish or Unclear. Recorded as a stat confluence for later study. It does not change the probability, phase or direction.</div></div>
+<div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Trend. Long or Short.</div></div>
+<div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Trend. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.</div></div>
 <div id="defPhases"></div>
             </div>
           </div>
@@ -513,9 +514,18 @@ function rowProb(row){
   if(b.prob !== 'calc') return b.prob;
   /* P1 Well-Priced: depends on biases */
   if(row.h4_bias !== row.m15_bias) return 'Check';
-  const d = row.daily_bias;
-  if(!d || d === '—') return null;
-  if(d === row.h4_bias) return 'High';
+  /* Read daily_trend; fall back to legacy daily_bias for old rows */
+  let dt = row.daily_trend;
+  if(!dt || dt === '—'){
+    const legacy = row.daily_bias;
+    if(legacy === 'Long') dt = 'Bullish';
+    else if(legacy === 'Short') dt = 'Bearish';
+    else if(legacy === 'Consolidating') dt = 'Consolidating';
+  }
+  if(!dt || dt === '—') return null;
+  /* Map: Bullish matches Long swing, Bearish matches Short swing */
+  const dtDir = dt === 'Bullish' ? 'Long' : dt === 'Bearish' ? 'Short' : null;
+  if(dtDir === row.h4_bias) return 'High';
   return 'Medium';
 }
 function tradeDir(row){
@@ -535,16 +545,16 @@ function tradeDir(row){
 
 const PHASE_DEFS = [
   { key:'p1_well_priced', group:'Trade List', probLabel:'High or Medium',
-    desc:'Continuation after a completed pullback. Price pulled back 50%+ and reacted off a swing POI, which suggests the pullback is over. MTF and Swing Bias are aligned with the trade. Daily Bias does not have to agree; it only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating. Usually reached when the 15m prints its own MSS from a well-priced P4 zone.',
+    desc:'Continuation after a completed pullback. Price pulled back 50%+ and reacted off a swing POI, which suggests the pullback is over. MTF and Swing Bias are aligned with the trade. Daily Trend does not have to agree; it only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating. Usually reached when the 15m prints its own MSS from a well-priced P4 zone.',
     dir:'With Swing and MTF.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p1_poorly_priced', group:'Trade List', probLabel:'Medium',
-    desc:'The Phase 3 to Phase 1 MTF shift. MTF and Swing Bias are aligned, but the pullback was unlikely to be deep enough, so more pullback may still be in play. The trade runs against both the MTF and the Swing bias. Daily Bias is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive (a sweep is favoured, but all three qualify).',
+    desc:'The Phase 3 to Phase 1 MTF shift. MTF and Swing Bias are aligned, but the pullback was unlikely to be deep enough, so more pullback may still be in play. The trade runs against both the MTF and the Swing bias. Daily Trend is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive (a sweep is favoured, but all three qualify).',
     dir:'Against both Swing and MTF.', targets:'Primary 15m strong supply/demand: take profits at the opposing zone, and do not assume an opposite MSS · intermediate 5m weak high/low.' },
   { key:'p1b_blue_sky', group:'Trade List', probLabel:'Medium',
     desc:'Swing structure has just created a BOS or an MSS, with MTF and Swing aligned: the fresh stage right after the shift, before continuation is confirmed. Blue Sky means price is at or near all-time highs (or lows), or has a lot of room ahead, with no obvious POIs against it.',
     dir:'With Swing and MTF.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p3_daily_supports', group:'Trade List', probLabel:'High',
-    desc:'An MTF MSS has shifted price, and price is just beginning a pullback of the swing range to a key POI (preferably on the swing structure) that rests around 50% or more. Importantly, the swing structure has rejected at a key external POI, whereby the Phase 3 pullback can be further supported. The Daily is supporting the Phase 3 pullback (a discretionary review).',
+    desc:'An MTF MSS has shifted price, and price is just beginning a pullback of the swing range to a key POI (preferably on the swing structure) that rests around 50% or more. Importantly, the swing structure has rejected at a key external POI, whereby the Phase 3 pullback can be further supported. The Daily is supporting the Phase 3 pullback (a discretionary review). Today\'s Bias is a hint for this call, not a rule.',
     dir:'With the new MTF shift, against Swing.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p4_well_priced', group:'Trade List', probLabel:'High',
     desc:'The pullback has reached a reasonable threshold (50%+) into a key POI. The MTF Bias has not shifted yet, so it is still in the pullback, while the lower timeframe is shifting. Trigger: a 3m or 5m MSS; it stays P4 while that is all that has printed. When the 15m prints its own MSS from this zone, the MTF Bias shifts and it reclassifies as P1. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.',
@@ -554,14 +564,14 @@ const PHASE_DEFS = [
   { key:'p2', group:'Do Not Trade', probLabel:'Low',
     desc:'Beyond P1b: a POI has stalled price and a pullback could be about to begin. Until an MTF MSS prints, it is P2, not P3.' },
   { key:'p3_daily_not_supports', group:'Do Not Trade', probLabel:'Low',
-    desc:'Same setup as P3 · Daily Supports Pullback, but the Daily is not supporting the Phase 3 pullback (a discretionary review). Beware strong daily trends against.',
+    desc:'Same setup as P3 · Daily Supports Pullback, but the Daily is not supporting the Phase 3 pullback (a discretionary review). Beware strong daily trends against. Today\'s Bias is a hint for this call, not a rule.',
     dir:'With the new MTF shift, against Swing.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p4_not_well_priced', group:'Do Not Trade', probLabel:'Low',
     desc:'A Phase 3 MSS, and possibly a BOS, has been confirmed on the MTF, and the pullback is still in phase. A poorly priced Phase 4 zone has been mitigated, but a deeper pullback is likely, since you can anticipate a deeper retrace as a percentage of the swing range. Also take note of the POI, and be particular about Phase 4 POIs that have swept liquidity, are beyond the 50% retrace / equilibrium, and/or have flipped supply/demand on the swing structure.' },
   { key:'consolidation', group:'Do Not Trade', probLabel:'Low',
     desc:'Price on the medium and higher timeframes is consolidating. Price is difficult to map structurally, and you are unable to characterize it in either of the tradeable phases.' }
 ];
-const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Bias is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced.\n\nTargets are the built-in primary and intermediate exits for each phase. The target fields arrive with the Trade section.';
+const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Trend is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced. Today\'s Bias does not affect probability.\n\nTargets are the built-in primary and intermediate exits for each phase. The target fields arrive with the Trade section.';
 const COL_LINKS = { trade_bucket:'phases' };
 function renderPhaseDefsHTML(){
   let h = '';
@@ -603,7 +613,8 @@ const COLS = [
   { k:'needs_review',  h:'Review',         t:'check',  w:56,  g:'Context' },
   { k:'date',          h:'Date',           t:'date',   w:150, g:'Context' },
   { k:'instrument',    h:'Instrument',     t:'select', o:INSTS, w:114, g:'Context' },
-  { k:'daily_bias',    h:'Daily Bias',     t:'select', o:['—','Long','Short','Consolidating'], w:140, g:'Context' },
+  { k:'daily_trend',   h:'Daily Trend',    t:'select', o:['—','Bullish','Bearish','Consolidating'], w:140, g:'Context' },
+  { k:'todays_bias',   h:"Today's Bias",   t:'select', o:['—','Bullish','Bearish','Unclear'], w:130, g:'Context' },
   { k:'h4_bias',       h:'Swing Bias',     t:'select', o:['Long','Short'], w:110, g:'Context' },
   { k:'m15_bias',      h:'MTF Bias',       t:'select', o:['Long','Short'], w:110, g:'Context' },
   { k:'trade_bucket',  h:'Market Phase',   t:'bucket', w:270, g:'Context' },
@@ -649,11 +660,12 @@ const COL_DEFS = {
   entry_tf:'The timeframe the entry trigger was read on.',
   entry_time:'Time the entry filled — New York time (Eastern).',
   instrument:'Instrument traded.',
-  daily_bias:'Direction of the Daily-timeframe swing structure. Long: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. Short: the mirror. Consolidating: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase. Used only to calculate Probability for P1 Well-Priced. It is not part of the Market Phase label.',
-  h4_bias:'Direction of the H4 swing structure, same read as Daily Bias. Long or Short.',
-  m15_bias:'Direction of the 15m swing structure, same read as Daily Bias. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.',
-  trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Probability is calculated from this plus the three biases. Click Definitions → for what each phase means.',
-  _prob:'Calculated, never entered. P1 Well-Priced: High when Daily Bias matches Swing and MTF Bias, Medium when Daily conflicts or is Consolidating, and Check bias when Swing and MTF disagree. P1 Poorly Priced, P1b Blue Sky: Medium. P3 after MTF MSS, P4 Well-Priced: High. All Do Not Trade states: Low.',
+  daily_trend:'Daily chart input. The Daily structure: Bullish, Bearish or Consolidating.',
+  todays_bias:"Daily chart input. Your discretionary view for today's session: Bullish, Bearish or Unclear. Recorded as a stat confluence for later study. It does not change the probability, phase or direction.",
+  h4_bias:'Direction of the H4 swing structure, same read as Daily Trend. Long or Short.',
+  m15_bias:'Direction of the 15m swing structure, same read as Daily Trend. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.',
+  trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Trend is not part of it. Probability is calculated from this plus the biases. Click Definitions → for what each phase means.',
+  _prob:'Calculated, never entered. P1 Well-Priced: High when Daily Trend matches Swing and MTF direction, Medium when Daily Trend conflicts or is Consolidating, and Check bias when Swing and MTF disagree. Other phases: fixed. Today\'s Bias does not affect probability.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
@@ -763,7 +775,7 @@ const store = {
 function blankRow(){
   const r = { trader: trader, pr_reviewer:'—', pr_request_note:'', pr_notes:'', pr_complete:false, pr_read_at:null, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
-    entry_tf:'—', entry_time:null, instrument:'ES', daily_bias:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
+    entry_tf:'—', entry_time:null, instrument:'ES', daily_trend:'—', todays_bias:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
     target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
@@ -790,7 +802,7 @@ function makeRef(row){
 
 /* Second attempt on the same POI: copy the context and POI half, leave the
    trade and outcome blank, share the reference. */
-const POI_HALF = ['date','entry_tf','instrument','daily_bias','h4_bias','m15_bias','trade_bucket',
+const POI_HALF = ['date','entry_tf','instrument','daily_trend','todays_bias','h4_bias','m15_bias','trade_bucket',
                   'poi_ref','poi_tf','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
 async function cloneRow(id){
   const src = rows.find(r => String(r.id) === String(id));
@@ -863,9 +875,12 @@ function cellHTML(col, r, c, locked){
       const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
       const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
       let sty = '';
-      if((col.k === 'daily_bias' || col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Long') sty = ' style="color:var(--green)"';
-      else if((col.k === 'daily_bias' || col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Short') sty = ' style="color:var(--red)"';
-      else if(col.k === 'daily_bias' && v === 'Consolidating') sty = ' style="color:var(--amber)"';
+      if((col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Long') sty = ' style="color:var(--green)"';
+      else if((col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Short') sty = ' style="color:var(--red)"';
+      else if((col.k === 'daily_trend' || col.k === 'todays_bias') && v === 'Bullish') sty = ' style="color:var(--green)"';
+      else if((col.k === 'daily_trend' || col.k === 'todays_bias') && v === 'Bearish') sty = ' style="color:var(--red)"';
+      else if(col.k === 'daily_trend' && v === 'Consolidating') sty = ' style="color:var(--amber)"';
+      else if(col.k === 'todays_bias' && v === 'Unclear') sty = ' style="color:var(--text-muted)"';
       else if(col.k === 'outcome' && v === 'Win') sty = ' style="color:var(--green);font-weight:600"';
       else if(col.k === 'outcome' && v === 'Loss') sty = ' style="color:var(--red);font-weight:600"';
       else if(col.k === 'outcome' && v === 'Breakeven') sty = ' style="color:var(--amber);font-weight:600"';
@@ -901,7 +916,18 @@ function cellHTML(col, r, c, locked){
         groups[g].forEach(b => { html += '<option value="' + esc(b.key) + '"' + (bv === b.key ? ' selected' : '') + '>' + esc(b.label) + '</option>'; });
         html += '</optgroup>';
       });
-      return html + '</select>';
+      let hint = '';
+      const rbk = resolveKey(bv);
+      if(rbk === 'p3_daily_supports' || rbk === 'p3_daily_not_supports'){
+        const tb = r.todays_bias || (r.daily_bias === 'Long' ? 'Bullish' : r.daily_bias === 'Short' ? 'Bearish' : '');
+        const mtfDir = r.m15_bias;
+        if(tb === 'Bullish' || tb === 'Bearish'){
+          const tbDir = tb === 'Bullish' ? 'Long' : 'Short';
+          if(tbDir === mtfDir) hint = '<div style="font-size:0.65rem;color:var(--green);margin-top:0.15rem;white-space:normal">Today\'s Bias favors the pullback</div>';
+          else hint = '<div style="font-size:0.65rem;color:var(--amber);margin-top:0.15rem;white-space:normal">Today\'s Bias leans against the pullback</div>';
+        }
+      }
+      return html + '</select>' + hint;
     }
     case 'prob': {
       const p = rowProb(r);
@@ -936,8 +962,14 @@ function wireGrid(){
         if(!row) return;
         row[el.dataset.k] = (el.type === 'checkbox') ? el.checked : (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
         const k = el.dataset.k;
-        if(k === 'daily_bias' || k === 'h4_bias' || k === 'm15_bias'){
-          el.style.color = el.value === 'Long' ? 'var(--green)' : el.value === 'Short' ? 'var(--red)' : el.value === 'Consolidating' ? 'var(--amber)' : '';
+        if(k === 'h4_bias' || k === 'm15_bias'){
+          el.style.color = el.value === 'Long' ? 'var(--green)' : el.value === 'Short' ? 'var(--red)' : '';
+        }
+        if(k === 'daily_trend'){
+          el.style.color = el.value === 'Bullish' ? 'var(--green)' : el.value === 'Bearish' ? 'var(--red)' : el.value === 'Consolidating' ? 'var(--amber)' : '';
+        }
+        if(k === 'todays_bias'){
+          el.style.color = el.value === 'Bullish' ? 'var(--green)' : el.value === 'Bearish' ? 'var(--red)' : el.value === 'Unclear' ? 'var(--text-muted)' : '';
         }
         if(k === 'outcome'){
           el.style.color = el.value === 'Win' ? 'var(--green)' : el.value === 'Loss' ? 'var(--red)' : el.value === 'Breakeven' ? 'var(--amber)' : '';
@@ -949,7 +981,7 @@ function wireGrid(){
           if(m !== 'EM1/2 Aggressive' && m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
           queueSave(id, row); renderGrid(); return;
         }
-        if(k === 'trade_bucket' || k === 'daily_bias' || k === 'h4_bias' || k === 'm15_bias'){
+        if(k === 'trade_bucket' || k === 'daily_trend' || k === 'h4_bias' || k === 'm15_bias'){
           /* update the probability pill without a full re-render */
           const probIdx = COLS.findIndex(c => c.k === '_prob');
           if(probIdx >= 0){
@@ -1065,8 +1097,11 @@ function parseDictation(text){
   if(inst){ const m = { es:'ES', nq:'NQ', ym:'YM', gc:'GC', xauusd:'XAUUSD', gold:'GC', us100:'US100', nasdaq:'US100', eurusd:'EURUSD', gbpusd:'GBPUSD', usdjpy:'USDJPY' }; o.instrument = m[inst[1]]; }
   const biasAt = re => { const m = t.match(re); return m ? (m[1] === 'long' ? 'Long' : 'Short') : null; };
   o.h4_bias  = biasAt(/\b(?:h4|swing)\D{0,16}?\b(long|short)\b/);
-  o.daily_bias = biasAt(/\bdaily\D{0,16}?\b(long|short)\b/);
-  if(!o.daily_bias && /\bdaily\D{0,16}?\bconsolidating\b/.test(t)) o.daily_bias = 'Consolidating';
+  const dtm = t.match(/\bdaily trend\D{0,16}?\b(bullish|bearish)\b/);
+  if(dtm) o.daily_trend = dtm[1] === 'bullish' ? 'Bullish' : 'Bearish';
+  if(!o.daily_trend && /\bdaily trend\D{0,16}?\bconsolidating\b/.test(t)) o.daily_trend = 'Consolidating';
+  const tbm = t.match(/\btoday.?s bias\D{0,16}?\b(bullish|bearish|unclear)\b/);
+  if(tbm) o.todays_bias = tbm[1] === 'bullish' ? 'Bullish' : tbm[1] === 'bearish' ? 'Bearish' : 'Unclear';
   o.m15_bias = biasAt(/\b(?:15 ?m|15 ?min|fifteen|internal)\D{0,16}?\b(long|short)\b/);
   if(!o.m15_bias){
     if(/\b(short|sell|bearish)\b/.test(t)) o.m15_bias = 'Short';
@@ -1152,11 +1187,11 @@ async function createFromDictation(){
 function exportCSV(){
   if(!rows.length) return toast('Nothing to export yet', true);
   const keys = COLS.filter(c => c.t !== 'calc' && c.t !== 'conf').map(c => c.k);
-  const head = [...keys, 'probability', ...CONFLUENCES.map(c => c.key), 'conf_inducement', 'h1_bias', 'htf_phase', 'h4_phase'];
+  const head = [...keys, 'probability', ...CONFLUENCES.map(c => c.key), 'conf_inducement', 'daily_bias', 'h1_bias', 'htf_phase', 'h4_phase'];
   const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
   const lines = [head.join(',')];
   rows.forEach(r => {
-    lines.push([...keys.map(k => k === '_prob' ? (rowProb(r) || '') : r[k]), rowProb(r) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.h1_bias || '', r.htf_phase || '', r.h4_phase || ''].map(q).join(','));
+    lines.push([...keys.map(k => k === '_prob' ? (rowProb(r) || '') : r[k]), rowProb(r) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.daily_bias || '', r.h1_bias || '', r.htf_phase || '', r.h4_phase || ''].map(q).join(','));
   });
   const blob = new Blob([lines.join('\n')], { type:'text/csv' });
   const a = document.createElement('a');
@@ -1469,7 +1504,13 @@ function wireSummaryCard(){
     h += '<div class="tsc-sec">The POI</div>';
     h += '<div class="tsc-row"><span class="tsc-val">' + esc(v(row.poi_type)) + '</span><span class="tsc-lbl">&middot;</span><span class="tsc-val">' + esc(v(row.poi_tf)) + '</span></div>';
     h += '<div class="tsc-row">';
-    h += '<span class="tsc-chip' + biasClass(row.daily_bias) + '">Daily ' + esc(v(row.daily_bias)) + '</span>';
+    const dtVal = row.daily_trend || (row.daily_bias === 'Long' ? 'Bullish' : row.daily_bias === 'Short' ? 'Bearish' : row.daily_bias === 'Consolidating' ? 'Consolidating' : null);
+    const dtClass = dtVal === 'Bullish' ? ' long' : dtVal === 'Bearish' ? ' short' : dtVal === 'Consolidating' ? ' consol' : '';
+    h += '<span class="tsc-chip' + dtClass + '">Daily ' + esc(v(dtVal)) + '</span>';
+    if(row.todays_bias && row.todays_bias !== '—'){
+      const tbClass = row.todays_bias === 'Bullish' ? ' long' : row.todays_bias === 'Bearish' ? ' short' : '';
+      h += '<span class="tsc-chip' + tbClass + '">Today ' + esc(row.todays_bias) + '</span>';
+    }
     h += '<span class="tsc-chip' + biasClass(row.h4_bias) + '">Swing ' + esc(v(row.h4_bias)) + '</span>';
     h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">MTF ' + esc(v(row.m15_bias)) + '</span>';
     h += '<span class="tsc-chip">' + esc(v(row.push_liq)) + ' push</span>';
