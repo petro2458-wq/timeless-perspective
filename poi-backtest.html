@@ -306,7 +306,7 @@
       <div class="card-label">Dictate a backtest</div>
       <textarea class="dictate" id="dictation" placeholder="Tap your keyboard's microphone and read it out. For example:
 
-ES daily trend bullish, swing long, internal long, P1 well priced, demand zone, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop 5823.5, primary target 5860, intermediate target 5842. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
+ES daily bullish, swing long, MTF long, P1 well priced, demand zone, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop 5823.5, target 5860, intermediate 5842. MFE 5851, MAE 5824. Unmitigated, flipped, in discount. Outcome win."></textarea>
       <div class="btn-row" style="margin-top:0.6rem">
         <button class="btn primary" id="parseBtn">Create row from dictation</button>
         <button class="btn" id="clearDictation">Clear</button>
@@ -1099,48 +1099,67 @@ function openConfPop(btn, id){
 function parseDictation(text){
   const t = ' ' + text.toLowerCase().replace(/[,;]/g,' ') + ' ';
   const o = {};
+
+  /* ── INSTRUMENT ── */
   const inst = t.match(/\b(es|nq|ym|gc|xauusd|gold|us100|nasdaq|eurusd|gbpusd|usdjpy)\b/);
   if(inst){ const m = { es:'ES', nq:'NQ', ym:'YM', gc:'GC', xauusd:'XAUUSD', gold:'GC', us100:'US100', nasdaq:'US100', eurusd:'EURUSD', gbpusd:'GBPUSD', usdjpy:'USDJPY' }; o.instrument = m[inst[1]]; }
+
+  /* ── BIASES — each requires its prefix, no greedy fallback ── */
   const biasAt = re => { const m = t.match(re); return m ? (m[1] === 'long' ? 'Long' : 'Short') : null; };
   o.h4_bias  = biasAt(/\b(?:h4|swing)\D{0,16}?\b(long|short)\b/);
-  const dtm = t.match(/\bdaily trend\D{0,16}?\b(bullish|bearish)\b/);
+  o.m15_bias = biasAt(/\b(?:15 ?m|15 ?min|fifteen|internal|mtf)\D{0,16}?\b(long|short)\b/);
+
+  /* Daily Trend: "daily trend bullish/bearish/consolidating" or "daily bullish" */
+  const dtm = t.match(/\b(?:daily(?: trend)?)\D{0,16}?\b(bullish|bearish)\b/);
   if(dtm) o.daily_trend = dtm[1] === 'bullish' ? 'Bullish' : 'Bearish';
-  if(!o.daily_trend && /\bdaily trend\D{0,16}?\bconsolidating\b/.test(t)) o.daily_trend = 'Consolidating';
+  if(!o.daily_trend && /\b(?:daily(?: trend)?)\D{0,16}?\bconsolidating\b/.test(t)) o.daily_trend = 'Consolidating';
+
+  /* Today's Bias: "today's bias bullish/bearish/unclear" */
   const tbm = t.match(/\btoday.?s bias\D{0,16}?\b(bullish|bearish|unclear)\b/);
   if(tbm) o.todays_bias = tbm[1] === 'bullish' ? 'Bullish' : tbm[1] === 'bearish' ? 'Bearish' : 'Unclear';
-  o.m15_bias = biasAt(/\b(?:15 ?m|15 ?min|fifteen|internal)\D{0,16}?\b(long|short)\b/);
-  if(!o.m15_bias){
-    if(/\b(short|sell|bearish)\b/.test(t)) o.m15_bias = 'Short';
-    if(/\b(long|buy|bullish)\b/.test(t))   o.m15_bias = 'Long';
-  }
-  if(/\bflip zone\b/.test(t))    o.poi_type = 'Flip Zone';
-  if(/\bsupply\b/.test(t))       o.poi_type = 'Supply Zone';
-  if(/\bdemand\b/.test(t))       o.poi_type = 'Demand Zone';
+
+  /* ── POI TYPE — only from explicit zone words ── */
+  if(/\bsupply zone\b|\bsupply\b/.test(t))       o.poi_type = 'Supply Zone';
+  else if(/\bdemand zone\b|\bdemand\b/.test(t))   o.poi_type = 'Demand Zone';
+  else if(/\bflip zone\b/.test(t))                o.poi_type = 'Flip Zone';
+
+  /* ── ENTRY TF ── */
   const tf = t.match(/\b(1|3|5|15) ?(?:m|min|minute)\b/); if(tf) o.entry_tf = tf[1] + 'm';
-  if(/\bflip zone sweep\b|\bfz sweep\b/.test(t))     o.entry_model = 'Flip Zone Sweep';
-  else if(/\bflip zone\b/.test(t))                    o.entry_model = 'Flip Zone';
-  if(/\b(conservative|em ?3 ?c)\b/.test(t)){
-    o.entry_model = /\bsweep|swept\b/.test(t) ? 'EM3 Conservative · Flip Zone Sweep' : 'EM3 Conservative · Flip Zone';
-  }
-  if(/\bem ?[12]\/?2? ?(?:a|aggr)\b|\bem ?1 ?2\b/.test(t)) o.entry_model = 'EM1/2 Aggressive';
-  if(/\b(em ?3 ?a|em ?3 ?aggr)\b/.test(t))            o.entry_model = 'EM3 Aggressive';
-  if(/\baggressive\b|\baggr\b/.test(t) && !o.entry_model) o.entry_model = 'EM3 Aggressive';
-  if(/\bpush (?:liquidity |inducement )?(?:is )?yes\b|\bpush (?:liquidity|inducement)\b(?![^.]*\bno\b)|\bin zone push\b/.test(t)) o.push_liq = 'Yes';
-  if(/\bno push\b|\bpush (?:liquidity |inducement )?(?:is )?no\b/.test(t))            o.push_liq = 'No';
+
+  /* ── ENTRY MODEL — specific phrases first, no greedy fallback ── */
+  if(/\bno (?:entry|trade)\b/.test(t))                                             o.entry_model = 'No Entry Model';
+  else if(/\b(conservative|em ?3 ?c)\b/.test(t))                                   o.entry_model = /\bsweep|swept\b/.test(t) ? 'EM3 Conservative · Flip Zone Sweep' : 'EM3 Conservative · Flip Zone';
+  else if(/\bem ?[12]\/?2? ?(?:a|aggr)\b|\bem ?1 ?2\b|\bem1\/2\b/.test(t))         o.entry_model = 'EM1/2 Aggressive';
+  else if(/\b(em ?3 ?a|em ?3 ?aggr|em ?3 aggressive)\b/.test(t))                   o.entry_model = 'EM3 Aggressive';
+  else if(/\b(?:fz|flip zone) sweep\b/.test(t))                                    o.entry_model = 'Flip Zone Sweep';
+  else if(/\bentry.{0,8}flip zone\b|\bflip zone.{0,8}entry\b|\bmodel.{0,8}flip zone\b/.test(t)) o.entry_model = 'Flip Zone';
+
+  /* ── PUSH LIQ ── */
+  if(/\bpush (?:liquidity |inducement )?(?:is )?yes\b|\bpush (?:liquidity|inducement)\b(?![^.]*\bno\b)|\bin.?zone push\b/.test(t)) o.push_liq = 'Yes';
+  if(/\bno push\b|\bpush (?:liquidity |inducement )?(?:is )?no\b/.test(t)) o.push_liq = 'No';
+
+  /* ── PRICES ── */
   const g = re => { const m = t.match(re); return m ? parseFloat(m[1]) : null; };
   o.poi_entry    = g(/poi entr\w*\D{0,12}?(\d+(?:\.\d+)?)/);
   o.poi_inval    = g(/poi invalid\w*\D{0,12}?(\d+(?:\.\d+)?)/);
-  /* strip the POI phrases first so "entry" below can't match "POI entry" */
+  /* strip POI phrases so "entry" below doesn't match "POI entry" */
   const tE = t.replace(/poi entr\w*\D{0,12}?\d+(?:\.\d+)?/g, ' ').replace(/poi invalid\w*\D{0,12}?\d+(?:\.\d+)?/g, ' ');
   const mE = tE.match(/\bentry(?: price| at)?\D{0,10}?(\d+(?:\.\d+)?)/);
   o.entry_price  = mE ? parseFloat(mE[1]) : null;
   o.stop_price   = g(/stop\D{0,12}?(\d+(?:\.\d+)?)/);
-  o.primary_target = g(/(?:primary )?target\D{0,12}?(\d+(?:\.\d+)?)/);
+  /* intermediate first so "intermediate target" doesn't get eaten by "target" */
   o.intermediate_target = g(/intermediate(?: target)?\D{0,12}?(\d+(?:\.\d+)?)/);
+  const tP = t.replace(/intermediate(?: target)?\D{0,12}?\d+(?:\.\d+)?/g, ' ');
+  const pTm = tP.match(/(?:primary )?target\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.primary_target = pTm ? parseFloat(pTm[1]) : null;
   o.be_trigger   = g(/(?:b\/?e|breakeven|break even)(?: trigger)?\D{0,12}?(\d+(?:\.\d+)?)/);
   o.mfe_price    = g(/(?:mfe|max favou?rable|ran to|best)\D{0,14}?(\d+(?:\.\d+)?)/);
   o.mae_price    = g(/(?:mae|max adverse|drew down to|worst)\D{0,14}?(\d+(?:\.\d+)?)/);
+
+  /* ── TIME ── */
   const time = t.match(/\b(\d{1,2}:\d{2})\b/); if(time) o.entry_time = time[1].padStart(5,'0');
+
+  /* ── MARKET PHASE ── */
   if(/\bblue sky\b/.test(t))                              o.trade_bucket = 'p1b_blue_sky';
   else if(/\bpoi nearby\b/.test(t))                       o.trade_bucket = 'p1b_poi_nearby';
   else if(/\bp3\b/.test(t)){
@@ -1152,18 +1171,24 @@ function parseDictation(text){
   else if(/\bconsolidation\b/.test(t))                    o.trade_bucket = 'consolidation';
   else if(/\bpoorly priced\b|\bcounter.?trend\b/.test(t)) o.trade_bucket = 'p1_poorly_priced';
   else if(/\bp1\b/.test(t))                               o.trade_bucket = 'p1_well_priced';
+
+  /* ── OUTCOME ── */
   if(/\bwin\b|\bwinner\b|\bwon\b/.test(t))            o.outcome = 'Win';
   if(/\bloss\b|\blost\b|\bstopped out\b/.test(t))     o.outcome = 'Loss';
   if(/\bbreakeven\b|\bbreak even\b|\bb\/?e\b/.test(t))o.outcome = 'Breakeven';
+
+  /* ── CONFLUENCES — explicit names only, not structural words ── */
   o.conf = {};
-  if(/\bbreak.{0,6}structure\b|\bbos\b/.test(t))              o.conf.conf_break_structure = true;
-  if(/\bflip\b/.test(t))                                      o.conf.conf_flip = true;
-  if(/\bsweep.{0,6}liq\b|\bswept.{0,6}liq\b|\bliquidity.{0,6}swept\b/.test(t)) o.conf.conf_sweep_liq = true;
-  if(/\bpro.?trend\b/.test(t))                                o.conf.conf_pro_trend = true;
-  if(/\b(discount|premium|well priced)\b/.test(t))            o.conf.conf_pd = true;
-  if(/\b(unmitigated|fresh|virgin)\b/.test(t))                o.conf.conf_unmitigated = true;
-  if(/\bchain\b/.test(t))                                     o.conf.conf_chain = true;
-  if(/\bmtf inducement\b/.test(t))                             o.conf.conf_mtf_inducement = true;
+  if(/\bbreak.{0,6}structure\b|\bbos\b/.test(t))                                  o.conf.conf_break_structure = true;
+  if(/\bflipped?\b/.test(t) && !/\bflip zone\b/.test(t))                          o.conf.conf_flip = true;
+  if(/\bconf.{0,4}flip\b|\bflip conf\b/.test(t))                                  o.conf.conf_flip = true;
+  if(/\bsweep.{0,6}liq\b|\bswept.{0,6}liq\b|\bliquidity.{0,6}swept\b/.test(t))   o.conf.conf_sweep_liq = true;
+  if(/\bpro.?trend\b/.test(t))                                                    o.conf.conf_pro_trend = true;
+  if(/\bdiscount\b|\bpremium\b|\bconf.{0,4}well.?priced\b/.test(t))               o.conf.conf_pd = true;
+  if(/\b(unmitigated|fresh|virgin)\b/.test(t))                                     o.conf.conf_unmitigated = true;
+  if(/\bchain\b/.test(t))                                                          o.conf.conf_chain = true;
+  if(/\bmtf inducement\b/.test(t))                                                 o.conf.conf_mtf_inducement = true;
+
   return o;
 }
 
