@@ -244,6 +244,23 @@
   .tsc-link:hover{border-color:var(--accent);}
   .tsc-notes{font-family:var(--font-body);font-size:0.75rem;font-style:italic;color:var(--text-muted);line-height:1.45;white-space:pre-wrap;overflow:hidden;text-overflow:ellipsis;max-height:3.2em;}
 
+  /* ═══ PHASE DEFS MODAL ═══ */
+  .pd-backdrop{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;}
+  .pd-panel{background:var(--bg-primary);border:1px solid var(--border-strong);border-radius:8px;width:92vw;max-width:580px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.7);}
+  .pd-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-primary);z-index:1;}
+  .pd-title{font-family:var(--font-display);font-size:1.1rem;font-weight:600;color:var(--text-primary);}
+  .pd-close{background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:0.2rem 0.4rem;} .pd-close:hover{color:var(--text-primary);}
+  .pd-body{padding:1rem 1.25rem 1.5rem;}
+  .pd-group{font-family:var(--font-body);font-size:0.7rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin:1.25rem 0 0.5rem;} .pd-group:first-child{margin-top:0;}
+  .pd-entry{padding:0.65rem 0;border-bottom:1px solid var(--border);}
+  .pd-entry:last-child{border-bottom:none;}
+  .pd-name{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;}
+  .pd-name-t{font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--text-primary);}
+  .pd-draft{font-family:var(--font-body);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--amber);border:1px solid var(--amber-border);background:var(--amber-bg);border-radius:4px;padding:0.1rem 0.35rem;}
+  .pd-desc{font-size:0.82rem;color:var(--text-secondary);line-height:1.55;}
+  .pd-foot{font-size:0.75rem;color:var(--text-muted);line-height:1.5;margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);}
+  .tip-link{font-family:var(--font-body);font-size:0.6rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent);text-decoration:none;cursor:pointer;white-space:nowrap;} .tip-link:hover{text-decoration:underline;}
+
   @media(max-width:900px){
     .app{flex-direction:column;height:auto;margin-top:49px;}
     .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);padding:1rem;overflow-y:visible;}
@@ -391,8 +408,7 @@ ES daily bias long, swing long, internal long, P1 well priced, demand zone, push
               <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">Direction of the Daily-timeframe swing structure. <em>Long</em>: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. <em>Short</em>: the mirror. <em>Consolidating</em>: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase.</div></div>
 <div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Bias. Long or Short.</div></div>
 <div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Bias. Long or Short. Still sets the R sign until trade direction is derived in a later change.</div></div>
-<div class="def"><div class="def-t">Market Phase</div><div class="def-b">The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Nine options across two groups: <em>Trade List</em> (P1 well-priced, P1 poorly priced / counter-trend, P1b blue sky, P3 post-MSS, P4 well-priced) and <em>Do Not Trade</em> (P1b POI nearby, P2, P4 not well-priced, consolidation).</div></div>
-<div class="def"><div class="def-t">Probability</div><div class="def-b">Calculated, never entered. <em>P1 Well-Priced</em>: High when Daily Bias matches Swing and MTF Bias, Medium when Daily conflicts or is Consolidating, and "Check bias" when Swing and MTF disagree. <em>P1 Poorly Priced, P1b Blue Sky</em>: Medium. <em>P3 after MTF MSS, P4 Well-Priced</em>: High. <em>All Do Not Trade states</em>: Low.</div></div>
+<div id="defPhases"></div>
             </div>
           </div>
           <div class="stack">
@@ -501,6 +517,57 @@ function rowProb(row){
   if(d === row.h4_bias) return 'High';
   return 'Medium';
 }
+const PHASE_DEFS = [
+  { key:'p1_well_priced', group:'Trade List', probLabel:'High or Medium',
+    desc:'Continuation. The 15m (MTF) bias and the H4 (Swing) bias are aligned, the pullback has completed, and price is at a well-priced location. Daily Bias does not have to agree, it only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating.' },
+  { key:'p1_poorly_priced', group:'Trade List', probLabel:'Medium',
+    desc:'The Phase 3 to Phase 1 MTF shift where MTF and Swing Bias are aligned but the pullback was unlikely to be deep enough and more pullback may still be in play. The trade is counter-trend: against both the MTF and the Swing bias. Daily Bias is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.' },
+  { key:'p1b_blue_sky', group:'Trade List', probLabel:'Medium', draft:true,
+    desc:'Swing structure has just created a BOS or an MSS, with MTF and Swing aligned: the fresh stage right after the shift, before continuation is confirmed. Blue Sky means there is no opposing POI nearby limiting the move.' },
+  { key:'p3_post_mss', group:'Trade List', probLabel:'High',
+    desc:'An MTF MSS has shifted price and price has not yet finished the pullback (roughly 50 to 70% of the swing range). This is the beginning of the swing pullback. The percentage is deliberately approximate, and an early MTF shift can be false because a more significant swing retrace may still be needed.' },
+  { key:'p4_well_priced', group:'Trade List', probLabel:'High',
+    desc:'The pullback has reached a reasonable threshold (50%+) into a key POI. MTF Bias is already in the trade direction because the pullback is finished or nearing completion. The entry trigger is a 3m or 5m MSS (a lower-timeframe shift), and it is still P4 while that is all that has printed. When the 15m itself prints an MSS from this well-priced zone, it reclassifies as P1. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.' },
+  { key:'p1b_poi_nearby', group:'Do Not Trade', probLabel:'Low', draft:true,
+    desc:'The same fresh BOS/MSS stage as P1b, but an opposing POI sits close to price and limits the move. Logged so the data can confirm it should be avoided.' },
+  { key:'p2', group:'Do Not Trade', probLabel:'Low',
+    desc:'Beyond P1b: a POI has stalled price and a pullback could be about to begin. Until an MTF MSS prints, it is P2, not P3.' },
+  { key:'p4_not_well_priced', group:'Do Not Trade', probLabel:'Low', draft:true,
+    desc:'The pullback toward a key POI has not reached the 50%+ threshold, so the zone is not well-priced.' },
+  { key:'consolidation', group:'Do Not Trade', probLabel:'Low', draft:true,
+    desc:'Price is ranging with no directional MTF structure to trade. Not the same as Daily Bias = Consolidating, which only affects the probability of a P1 · Well-Priced row.' }
+];
+const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Bias is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced.';
+const COL_LINKS = { trade_bucket:'phases' };
+function renderPhaseDefsHTML(){
+  let h = '';
+  let curGroup = '';
+  PHASE_DEFS.forEach(pd => {
+    const b = BUCKETS.find(x => x.key === pd.key);
+    if(pd.group !== curGroup){ curGroup = pd.group; h += '<div class="pd-group">' + esc(curGroup) + '</div>'; }
+    const probCls = pd.probLabel === 'High' ? 'high' : pd.probLabel === 'Medium' ? 'med' : pd.probLabel === 'Low' ? 'low' : '';
+    h += '<div class="pd-entry"><div class="pd-name"><span class="pd-name-t">' + esc(b ? b.label : pd.key) + '</span>';
+    if(probCls) h += '<span class="prob-pill ' + probCls + '" style="font-size:0.55rem;padding:0.12rem 0.4rem">' + esc(pd.probLabel) + '</span>';
+    else h += '<span class="prob-pill high" style="font-size:0.55rem;padding:0.12rem 0.4rem">' + esc(pd.probLabel) + '</span>';
+    if(pd.draft) h += '<span class="pd-draft">Draft: confirm</span>';
+    h += '</div><div class="pd-desc">' + esc(pd.desc) + '</div></div>';
+  });
+  h += '<div class="pd-foot">' + esc(PHASE_DEFS_FOOTER) + '</div>';
+  return h;
+}
+let pdEl = null;
+function closePhaseDefs(){ if(pdEl){ pdEl.remove(); pdEl = null; } }
+function openPhaseDefs(){
+  closePhaseDefs();
+  pdEl = document.createElement('div');
+  pdEl.className = 'pd-backdrop';
+  pdEl.innerHTML = '<div class="pd-panel"><div class="pd-header"><span class="pd-title">Market Phase definitions</span><button class="pd-close">&times;</button></div><div class="pd-body">' + renderPhaseDefsHTML() + '</div></div>';
+  document.body.appendChild(pdEl);
+  pdEl.querySelector('.pd-close').addEventListener('click', closePhaseDefs);
+  pdEl.addEventListener('click', ev => { if(ev.target === pdEl) closePhaseDefs(); });
+  const escH = ev => { if(ev.key === 'Escape'){ closePhaseDefs(); document.removeEventListener('keydown', escH); } };
+  document.addEventListener('keydown', escH);
+}
 const STEPS    = [1,2,3,5,10];
 
 /* Column model — drives header, cells, CSV */
@@ -560,7 +627,7 @@ const COL_DEFS = {
   daily_bias:'Direction of the Daily-timeframe swing structure. Long: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. Short: the mirror. Consolidating: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase. Used only to calculate Probability for P1 Well-Priced. It is not part of the Market Phase label.',
   h4_bias:'Direction of the H4 swing structure, same read as Daily Bias. Long or Short.',
   m15_bias:'Direction of the 15m swing structure, same read as Daily Bias. Long or Short. Still sets the R sign until trade direction is derived in a later change.',
-  trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Probability is calculated from this plus the three biases.',
+  trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Probability is calculated from this plus the three biases. Click Definitions → for what each phase means.',
   _prob:'Calculated, never entered. P1 Well-Priced: High when Daily Bias matches Swing and MTF Bias, Medium when Daily conflicts or is Consolidating, and Check bias when Swing and MTF disagree. P1 Poorly Priced, P1b Blue Sky: Medium. P3 after MTF MSS, P4 Well-Priced: High. All Do Not Trade states: Low.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
@@ -1302,20 +1369,39 @@ async function loadRows(){
 function wireTips(){
   const tip = $('tip'), tbl = $('grid');
   let hideT = null;
+  function schedHide(){ hideT = setTimeout(() => tip.classList.remove('show'), 120); }
+  function cancelHide(){ clearTimeout(hideT); }
+
   tbl.addEventListener('mouseover', ev => {
     const cell = ev.target.closest('th');
     if(!cell || !tbl.contains(cell)) return;
     const idx = cell.cellIndex - 2;
     const col = COLS[idx];
     if(!col || !COL_DEFS[col.k]){ tip.classList.remove('show'); return; }
-    clearTimeout(hideT);
-    tip.innerHTML = '<div class="tip-t">' + esc(col.h) + '</div><div class="tip-b">' + esc(COL_DEFS[col.k]) + '</div>';
+    cancelHide();
+    const link = COL_LINKS[col.k];
+    let header = '';
+    if(link){
+      header = '<div style="display:flex;justify-content:space-between;align-items:center"><div class="tip-t">' + esc(col.h) + '</div><span class="tip-link" data-deflink="' + esc(link) + '">Definitions &rarr;</span></div>';
+    } else {
+      header = '<div class="tip-t">' + esc(col.h) + '</div>';
+    }
+    tip.innerHTML = header + '<div class="tip-b">' + esc(COL_DEFS[col.k]) + '</div>';
+    tip.style.pointerEvents = link ? 'auto' : 'none';
     tip.classList.add('show');
     const r = cell.getBoundingClientRect();
     tip.style.top = Math.max(8, r.top - tip.offsetHeight - 8) + 'px';
     tip.style.left = Math.max(8, Math.min(r.left, window.innerWidth - tip.offsetWidth - 12)) + 'px';
   });
-  tbl.addEventListener('mouseleave', () => { hideT = setTimeout(() => tip.classList.remove('show'), 80); });
+  tbl.addEventListener('mouseleave', schedHide);
+  tip.addEventListener('mouseenter', () => { if(tip.style.pointerEvents === 'auto') cancelHide(); });
+  tip.addEventListener('mouseleave', schedHide);
+  tip.addEventListener('click', ev => {
+    const lnk = ev.target.closest('[data-deflink]');
+    if(!lnk) return;
+    tip.classList.remove('show');
+    if(lnk.dataset.deflink === 'phases') openPhaseDefs();
+  });
 }
 
 /* ─── Trade summary card (hover on poi_ref) ─── */
@@ -1582,6 +1668,7 @@ function init(){
 
   $('defConf').innerHTML = CONFLUENCES.map(c => '<div class="def"><div class="def-t">' + esc(c.name) + '</div><div class="def-b">' + esc(c.desc) + '</div></div>').join('') +
     '<div class="def" style="border-top:1px solid var(--red);padding-top:0.65rem;margin-top:0.5rem"><div class="def-t" style="color:var(--red)">' + esc(CONF_INDUCEMENT.name) + ' (negative)</div><div class="def-b">' + esc(CONF_INDUCEMENT.desc) + '</div></div>';
+  $('defPhases').innerHTML = renderPhaseDefsHTML();
 
   $('parseBtn').addEventListener('click', createFromDictation);
   $('clearDictation').addEventListener('click', () => { $('dictation').value = ''; });
