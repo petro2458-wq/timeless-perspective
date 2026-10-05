@@ -347,7 +347,7 @@ ES daily trend bullish, swing long, internal long, P1 well priced, demand zone, 
           <div class="fld"><span>Instrument</span><select id="a-inst"><option value="all">All instruments</option><option>ES</option><option>NQ</option><option>YM</option><option>GC</option><option>XAUUSD</option><option>US100</option><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option></select></div>
           <div class="fld"><span>Year</span><select id="a-year"><option value="all">All years</option></select></div>
           <div class="fld"><span>POI</span><select id="a-poi"><option value="all">All POI types</option><option>Flip Zone</option><option>Supply Zone</option><option>Demand Zone</option></select></div>
-          <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>EM1/2 Aggressive</option><option>EM3 Aggressive</option><option>EM3 Conservative</option><option>Flip Zone - Swept</option><option>Flip Zone - Unswept</option></select></div>
+          <div class="fld"><span>Entry model</span><select id="a-model"><option value="all">All models</option><option>No Entry Model</option><option>Flip Zone</option><option>Flip Zone Sweep</option><option>EM1/2 Aggressive</option><option>EM3 Aggressive</option><option value="EM3 Conservative (all)">EM3 Conservative (all types)</option><option>EM3 Conservative · Flip Zone</option><option>EM3 Conservative · Flip Zone Sweep</option></select></div>
           <div class="fcount">Sample: <b id="a-count">0</b> rows</div>
         </div>
 
@@ -424,28 +424,25 @@ ES daily trend bullish, swing long, internal long, P1 well priced, demand zone, 
               <div class="card-label">Entry level</div>
               <div class="def"><div class="def-t">Entry timeframe</div><div class="def-b">The timeframe the entry trigger was read on — 1m, 3m, 5m or 15m.</div></div>
               <div class="def"><div class="def-t">Entry price</div><div class="def-b">Where the entry filled. Entry R is measured from here, not from the POI edge.</div></div>
-              <div class="def"><div class="def-t">Stop 1 · aggressive</div><div class="def-b">EM3 Aggressive: below the liquidation candle. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
-              <div class="def"><div class="def-t">Stop 2 · conservative</div><div class="def-b">EM3 Aggressive: below the zone. <span class="pending">EM3 Conservative and FZ Sweep: pending agreement.</span></div></div>
-              <div class="def"><div class="def-t">Technical target</div><div class="def-b">The structural profit target for that entry, logged as a price.</div></div>
+              <div class="def"><div class="def-t">Stop</div><div class="def-b">One stop per trade. Flip Zone: below the flip zone. Flip Zone Sweep: below the sweep low. EM3 Aggressive: trader discretion. The liquidation candle is the stop, especially when the zone is too wide, but the POI invalidation is used instead when it is risk-reward friendly and close enough.</div></div>
               <div class="def"><div class="def-t">B/E trigger price</div><div class="def-b">The price at which the stop was moved to breakeven.</div></div>
               <div class="def"><div class="def-t">MFE / MAE</div><div class="def-b">Best and worst excursion after entry, logged as prices. The grid converts them to R against both stops.</div></div>
               <div class="def"><div class="def-t">Outcome</div><div class="def-b">Win, Loss or Breakeven.</div></div>
-              <div class="def"><div class="def-t">After B/E</div><div class="def-b">Only for breakeven rows: <em>Worked</em> means it went on to reach target, <em>Failed</em> means it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.</div></div>
+              <div class="def"><div class="def-t">B/E Trades (W/L)</div><div class="def-b">Breakeven rows only. Win: it went on to reach target. Loss: it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.</div></div>
             </div>
             <div class="card">
               <div class="card-label">Entry models</div>
+              <div class="def"><div class="def-t">Flip Zone</div><div class="def-b">Entry trigger is an MSS confirmed, then price retraces back to the flip zone. No sweep is needed.</div></div>
+              <div class="def"><div class="def-t">Flip Zone Sweep</div><div class="def-b">Same as Flip Zone but a sweep is required. The sweep can occur before or after the MSS.</div></div>
               <div class="def"><div class="def-t">EM1/2 Aggressive</div><div class="def-b">Enter once push liquidity is taken into a high-probability POI — a supply/demand zone or flip zone that broke structure — where most or all visible liquidity targets have been swept. No fMS required; the push liquidity clearance <em>is</em> the trigger.</div></div>
               <div class="def"><div class="def-t">EM3 Aggressive</div><div class="def-b">Entry on the fMS-low sweep, taken immediately.</div></div>
-              <div class="def"><div class="def-t">Fake shift</div><div class="def-b">For EM3 entries: which structure the fake market shift broke — <em>fractal</em> or <em>strong</em>.</div></div>
-              <div class="def"><div class="def-t">EM3 Conservative</div><div class="def-b">The flip zone sweep following a working EM3 Aggressive — Entry 2, with Entry 1's stop moving to breakeven. The <em>Flip zone</em> column records whether that zone was already swept or still needed to be swept.</div></div>
-              <div class="def"><div class="def-t">FZ Sweep</div><div class="def-b">Flip zone swept with a clear sweep on 1m, taken alone. Terminal — no EM3 Aggressive or Conservative follows it.</div></div>
+              <div class="def"><div class="def-t">EM3 Conservative</div><div class="def-b">A second entry on the same POI, taken after an EM3 Aggressive. The EM3 Aggressive may still be open, or may have already taken profits. It comes in two types: <em>Flip Zone</em> and <em>Flip Zone Sweep</em>, defined above.</div></div>
               <div class="def"><div class="def-t">In Zone Push Liq.</div><div class="def-b">Yes if liquidity or inducement was pushed (taken) inside the zone before the move. No if it was not.</div></div>
               <div class="def"><div class="def-t">Entry-level failure</div><div class="def-b">A 3m close beyond the POI — different from the POI level, where a touch is enough.</div></div>
               <div class="def"><div class="def-t">Attempt cap</div><div class="def-b">Maximum 2 attempts or 2 losses per POI.</div></div>
             </div>
             <div class="card">
               <div class="card-label">Open decisions</div>
-              <div class="def"><div class="def-t">01 · FZ sweep stops</div><div class="def-b"><span class="pending">Unresolved.</span> An aggressive and a conservative stop for the flip zone sweep. One definition covers EM3 Conservative and FZ Sweep.</div></div>
               <div class="def"><div class="def-t">02 · 3m or 15m liquidation candle</div><div class="def-b"><span class="pending">Unresolved.</span> Whether EM3 Aggressive should sometimes wait for the 15m candle rather than the 3m that liquidates.</div></div>
               <div class="def"><div class="def-t">03 · Setups before push liquidity is taken</div><div class="def-b"><span class="pending">Unresolved.</span> When push liquidity is unswept and an FZ sweep or EM3 Aggressive presents anyway — skip it, or log it untraded?</div></div>
             </div>
@@ -490,9 +487,7 @@ const TFS      = ['—','1m','3m','5m','15m'];
 const POITFS   = ['—','H1','M15'];
 const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
 const POITYPES = ['—','Flip Zone','Supply Zone','Demand Zone'];
-const MODELS   = ['—','No Entry Model','EM1/2 Aggressive','EM3 Aggressive','EM3 Conservative','Flip Zone - Swept','Flip Zone - Unswept'];
-const FZSTATES = ['—','Already swept','Needed to be swept'];
-const FAKESHIFT = ['—','Fractal','Strong'];
+const MODELS   = ['—','No Entry Model','Flip Zone','Flip Zone Sweep','EM1/2 Aggressive','EM3 Aggressive','EM3 Conservative · Flip Zone','EM3 Conservative · Flip Zone Sweep'];
 const YESNO    = ['—','Yes','No'];
 const OUTCOMES = ['—','Win','Loss','Breakeven'];
 const AFTERBE  = ['—','Worked','Failed'];
@@ -510,6 +505,10 @@ const BUCKETS = [
   { key:'consolidation',     label:'Consolidation',                                    prob:'Low',    group:'Do Not Trade' }
 ];
 const BUCKET_ALIASES = { p1_aligned:'p1_well_priced', p1_daily_not_aligned:'p1_well_priced', p1_daily_conflict:'p1_well_priced', p3_post_mss:'p3_daily_supports' };
+const MODEL_ALIASES = { 'Flip Zone - Swept':'Flip Zone Sweep', 'Flip Zone - Unswept':'Flip Zone' };
+function resolveModel(m){ return MODEL_ALIASES[m] || m; }
+function isEM3Cons(m){ const rm = resolveModel(m); return rm === 'EM3 Conservative' || rm === 'EM3 Conservative · Flip Zone' || rm === 'EM3 Conservative · Flip Zone Sweep'; }
+function displayModel(m){ const rm = resolveModel(m); if(rm === 'EM3 Conservative') return 'EM3 Conservative (type not logged)'; return rm; }
 function resolveKey(key){ return BUCKET_ALIASES[key] || key; }
 function bucketProb(key){ const b = BUCKETS.find(x => x.key === resolveKey(key)); return b ? b.prob : null; }
 function bucketLabel(key){ const b = BUCKETS.find(x => x.key === resolveKey(key)); return b ? b.label : '—'; }
@@ -635,21 +634,23 @@ const COLS = [
   { k:'poi_inval',     h:'POI inval.',  t:'num',    w:110, g:'The POI' },
   { k:'push_liq',      h:'In Zone Push Liq.',t:'select', o:YESNO, w:140, g:'The POI' },
   /* ── THE TRADE ── */
-  { k:'entry_tf',      h:'Entry TF',    t:'select', o:TFS, w:94, g:'The trade' },
-  { k:'entry_time',    h:'Entry time',  t:'time',   w:114, g:'The trade' },
-  { k:'entry_model',   h:'Entry model', t:'select', o:MODELS, w:196, g:'The trade' },
-  { k:'fake_shift',    h:'Fake shift',  t:'select', o:FAKESHIFT, w:124, g:'The trade' },
-  { k:'fz_state',      h:'Flip zone',   t:'select', o:FZSTATES, w:180, g:'The trade' },
-  { k:'entry_price',   h:'Entry',       t:'num',    w:110, g:'The trade' },
-  { k:'stop1',         h:'Stop 1',      t:'num',    w:110, g:'The trade' },
-  { k:'stop2',         h:'Stop 2',      t:'num',    w:110, g:'The trade' },
-  { k:'target_price',  h:'Target',      t:'num',    w:110, g:'The trade' },
-  { k:'be_trigger',    h:'B/E trigger', t:'num',    w:110, g:'The trade' },
+  { k:'entry_tf',      h:'Entry TF',          t:'select', o:TFS, w:94, g:'The trade' },
+  { k:'entry_time',    h:'Entry time',         t:'time',   w:114, g:'The trade' },
+  { k:'entry_model',   h:'Entry model',        t:'select', o:MODELS, w:180, g:'The trade' },
+  { k:'entry_price',   h:'Entry',              t:'num',    w:110, g:'The trade' },
+  { k:'stop_price',    h:'Stop',               t:'num',    w:110, g:'The trade' },
+  { k:'primary_target',h:'Primary target',     t:'num',    w:130, g:'The trade' },
+  { k:'primary_hit',   h:'Primary hit',        t:'select', o:['—','Yes','No'], w:100, g:'The trade' },
+  { k:'_primaryR',     h:'Prim. R',            t:'calc',   w:92,  g:'The trade' },
+  { k:'intermediate_target',h:'Interm. target', t:'num',   w:130, g:'The trade' },
+  { k:'intermediate_hit',h:'Interm. hit',      t:'select', o:['—','Yes','No'], w:100, g:'The trade' },
+  { k:'_intermR',      h:'Interm. R',          t:'calc',   w:92,  g:'The trade' },
+  { k:'be_trigger',    h:'B/E trigger',        t:'num',    w:110, g:'The trade' },
   /* ── OUTCOME ── */
-  { k:'mfe_price',     h:'MFE',         t:'num',    w:110, g:'Outcome' },
-  { k:'mae_price',     h:'MAE',         t:'num',    w:110, g:'Outcome' },
-  { k:'outcome',       h:'Outcome',     t:'select', o:OUTCOMES, w:124, g:'Outcome' },
-  { k:'after_be',      h:'After B/E',   t:'select', o:AFTERBE, w:114, g:'Outcome' },
+  { k:'outcome',       h:'',                   t:'select', o:OUTCOMES, w:124, g:'Outcome' },
+  { k:'mfe_price',     h:'MFE',               t:'num',    w:110, g:'Outcome' },
+  { k:'mae_price',     h:'MAE',               t:'num',    w:110, g:'Outcome' },
+  { k:'after_be',      h:'B/E Trades (W/L)',   t:'select', o:['—','Win','Loss'], w:130, g:'Outcome' },
   /* ── REFERENCE ── */
   { k:'tv_h4',         h:'TV H4',       t:'link',   w:86,  g:'Charts & notes' },
   { k:'tv_h1',         h:'TV H1',       t:'link',   w:86,  g:'Charts & notes' },
@@ -677,25 +678,25 @@ const COL_DEFS = {
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
   conf:'Click the count to tick the confluences that apply to this POI. Definitions are on the Definitions tab.',
-  entry_model:'No Entry Model — POI mitigated, no trade taken. EM1/2 Aggressive — aggressive entry on the EM1 or EM2 setup. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — the flip zone sweep after a working EM3 Aggressive. Flip Zone - Swept — zone was already swept before entry. Flip Zone - Unswept — zone had not yet been swept at entry.',
-  fake_shift:'For EM3 entries: which structure the fake market shift broke — fractal or strong.',
-  fz_state:'For the flip zone: was it already swept, or did it still need to be swept?',
+  entry_model:'No Entry Model — POI mitigated, no trade taken. Flip Zone — MSS confirmed, price retraces to the flip zone, no sweep needed. Flip Zone Sweep — same but a sweep is required. EM1/2 Aggressive — aggressive entry on the EM1 or EM2 setup. EM3 Aggressive — the fMS-low sweep, taken immediately. EM3 Conservative — a second entry on the same POI after an EM3 Aggressive, in two types: Flip Zone and Flip Zone Sweep.',
   push_liq:'In Zone Push Liq.: Yes if liquidity or inducement was pushed (taken) inside the zone before the move. No if it was not.',
   poi_entry:'The entry side of the zone — where price first engages it.',
   poi_inval:'The far side of the zone. Price touching it ends the POI measurement.',
   _poiR:'POI 1R — the zone height, POI entry to POI invalidation. The yardstick that puts every instrument on one scale.',
-  entry_price:'Where the entry actually filled. Entry R is measured from here, not from the POI edge.',
-  stop1:'Stop 1, aggressive. EM3 Aggressive: below the liquidation candle. The other two models are pending agreement.',
-  stop2:'Stop 2, conservative. EM3 Aggressive: below the zone. The other two models are pending agreement.',
-  target_price:'The structural profit target for this entry, as a price.',
+  entry_price:'Where the entry actually filled. Entry R is measured from here.',
+  stop_price:'The stop for this trade. One entry, one stop.',
+  primary_target:'The primary target price for this trade. The target type is set by the Market Phase.',
+  primary_hit:'Did price reach the primary target? Yes or No.',
+  _primaryR:'R to primary target: (target − entry) / |entry − stop|, direction-aware.',
+  intermediate_target:'The intermediate target price for this trade. The target type is set by the Market Phase.',
+  intermediate_hit:'Did price reach the intermediate target? Yes or No.',
+  _intermR:'R to intermediate target, same formula as primary.',
   be_trigger:'The price at which the stop was moved to breakeven.',
   mfe_price:'Maximum favorable excursion after entry, as a price.',
   mae_price:'Maximum adverse excursion after entry, as a price.',
   _mfePoiR:'MFE expressed in POI-R. 2R or better counts as a meaningful reaction.',
-  _r1:'MFE expressed in R against Stop 1.',
-  _r2:'MFE expressed in R against Stop 2. Same move, different stop — this is the comparison that picks the stop.',
   outcome:'Win, Loss or Breakeven.',
-  after_be:'Breakeven rows only. Worked — it went on to reach target. Failed — it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.',
+  after_be:'Breakeven rows only. Win: it went on to reach target. Loss: it would have stopped out anyway. This is how the data judges whether moving to breakeven pays.',
   tv_h4:'TradingView chart link, H4.', tv_h1:'TradingView chart link, H1.',
   tv_m15:'TradingView chart link, 15m.', tv_m3:'TradingView chart link, 3m.',
   tv_m1:'TradingView chart link, 1m.',
@@ -725,16 +726,21 @@ function toast(msg, err){
 function calcs(r){
   const dir = tradeDir(r);
   const long = (dir || 'Long') === 'Long';
-  const pe = num(r.poi_entry), pi = num(r.poi_inval), mfe = num(r.mfe_price);
-  const en = num(r.entry_price), s1 = num(r.stop1), s2 = num(r.stop2);
-  const out = { poiR:null, mfePoiR:null, r1:null, r2:null };
+  const pe = num(r.poi_entry), pi = num(r.poi_inval), mfe = num(r.mfe_price), mae = num(r.mae_price);
+  const en = num(r.entry_price), sp = num(r.stop_price);
+  const pt = num(r.primary_target), it = num(r.intermediate_target);
+  const out = { poiR:null, mfePoiR:null, maePoiR:null, primaryR:null, intermR:null, mfeR:null, maeR:null };
   if(pe !== null && pi !== null && Math.abs(pe - pi) > 0){
     out.poiR = Math.abs(pe - pi);
     if(mfe !== null) out.mfePoiR = (long ? mfe - pe : pe - mfe) / out.poiR;
+    if(mae !== null) out.maePoiR = (long ? pe - mae : mae - pe) / out.poiR;
   }
-  if(en !== null && mfe !== null){
-    if(s1 !== null && Math.abs(en - s1) > 0) out.r1 = (long ? mfe - en : en - mfe) / Math.abs(en - s1);
-    if(s2 !== null && Math.abs(en - s2) > 0) out.r2 = (long ? mfe - en : en - mfe) / Math.abs(en - s2);
+  const risk = (en !== null && sp !== null && Math.abs(en - sp) > 0) ? Math.abs(en - sp) : null;
+  if(risk){
+    if(pt !== null) out.primaryR = (long ? pt - en : en - pt) / risk;
+    if(it !== null) out.intermR = (long ? it - en : en - it) / risk;
+    if(mfe !== null) out.mfeR = (long ? mfe - en : en - mfe) / risk;
+    if(mae !== null) out.maeR = (long ? en - mae : mae - en) / risk;
   }
   return out;
 }
@@ -783,9 +789,10 @@ function blankRow(){
   const r = { trader: trader, pr_reviewer:'—', pr_request_note:'', pr_notes:'', pr_complete:false, pr_read_at:null, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
     entry_tf:'—', entry_time:null, instrument:'ES', daily_trend:'—', todays_bias:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
-    entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
-    poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
-    target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
+    entry_model:'—', push_liq:'—',
+    poi_entry:null, poi_inval:null, entry_price:null, stop_price:null,
+    primary_target:null, primary_hit:'—', intermediate_target:null, intermediate_hit:'—',
+    be_trigger:null, mfe_price:null, mae_price:null,
     outcome:'—', after_be:'—', tv_h4:'', tv_h1:'', tv_m15:'', tv_m3:'', tv_m1:'', notes:'', raw_dictation:'' };
   CONFLUENCES.forEach(c => r[c.key] = false);
   r.conf_mtf_inducement = false;
@@ -877,10 +884,13 @@ function cellHTML(col, r, c, locked){
   switch(col.t){
     case 'select': {
       const prOwn = col.k === 'pr_reviewer' && (!r.trader || r.trader === trader);
-      const dis = (locked && !prOwn) || (col.k === 'fz_state' && r.entry_model !== 'EM3 Conservative') ||
-                  (col.k === 'fake_shift' && r.entry_model !== 'EM1/2 Aggressive' && r.entry_model !== 'EM3 Aggressive' && r.entry_model !== 'EM3 Conservative');
-      const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
+      const dis = (locked && !prOwn);
+      const tip = '';
       const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
+      let resolvedV = String(v);
+      if(col.k === 'entry_model') resolvedV = resolveModel(resolvedV);
+      if(col.k === 'after_be' && v === 'Worked') resolvedV = 'Win';
+      if(col.k === 'after_be' && v === 'Failed') resolvedV = 'Loss';
       let sty = '';
       if((col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Long') sty = ' style="color:var(--green)"';
       else if((col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Short') sty = ' style="color:var(--red)"';
@@ -893,8 +903,12 @@ function cellHTML(col, r, c, locked){
       else if(col.k === 'outcome' && v === 'Breakeven') sty = ' style="color:var(--amber);font-weight:600"';
       let prBadge = '';
       if(col.k === 'pr_reviewer' && r.pr_complete && r.pr_notes) prBadge = '<span style="display:inline-block;font-family:var(--font-body);font-size:0.6rem;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);border-radius:4px;padding:0.15rem 0.4rem;margin-left:0.25rem;vertical-align:middle" title="' + esc(r.pr_notes) + '">&#10003; NOTE</span>';
-      return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + sty + '>' +
-        opts.map(o => '<option' + (String(v) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>' + prBadge;
+      let legacyOpt = '';
+      if(col.k === 'entry_model' && resolvedV && !opts.includes(resolvedV) && resolvedV !== '—'){
+        legacyOpt = '<option selected disabled>' + esc(displayModel(resolvedV)) + '</option>';
+      }
+      return '<select class="ci" data-k="' + col.k + '"' + (dis ? ' disabled' + tip : '') + sty + '>' + legacyOpt +
+        opts.map(o => '<option' + (resolvedV === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>' + prBadge;
     }
     case 'num':
       return '<input class="ci n" type="number" step="any" data-k="' + col.k + '" value="' + (v == null ? '' : esc(v)) + '"' + lk + '>';
@@ -953,11 +967,11 @@ function cellHTML(col, r, c, locked){
     case 'ro':
       return '<div class="calc" style="text-align:left">' + esc(v || '—') + '</div>';
     case 'calc': {
-      const map = { _poiR:'poiR', _mfePoiR:'mfePoiR', _r1:'r1', _r2:'r2' };
+      const map = { _poiR:'poiR', _mfePoiR:'mfePoiR', _primaryR:'primaryR', _intermR:'intermR' };
       const val = c[map[col.k]];
-      if(val === null) return '<div class="calc">—</div>';
+      if(val === null || val === undefined) return '<div class="calc">—</div>';
       if(col.k === '_poiR') return '<div class="calc acc">' + val.toFixed(2) + '</div>';
-      return '<div class="calc ' + (val >= 2 ? 'pos' : val < 0 ? 'neg' : '') + '">' + val.toFixed(2) + 'R</div>';
+      return '<div class="calc ' + (val >= 0 ? 'pos' : 'neg') + '">' + val.toFixed(2) + 'R</div>';
     }
   }
   return '';
@@ -985,12 +999,6 @@ function wireGrid(){
         if(k === 'outcome'){
           el.style.color = el.value === 'Win' ? 'var(--green)' : el.value === 'Loss' ? 'var(--red)' : el.value === 'Breakeven' ? 'var(--amber)' : '';
           el.style.fontWeight = ['Win','Loss','Breakeven'].includes(el.value) ? '600' : '';
-        }
-        if(k === 'entry_model'){
-          const m = row.entry_model;
-          if(m !== 'EM3 Conservative' && row.fz_state !== '—') row.fz_state = '—';
-          if(m !== 'EM1/2 Aggressive' && m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
-          queueSave(id, row); renderGrid(); return;
         }
         if(k === 'trade_bucket' || k === 'daily_trend' || k === 'h4_bias' || k === 'm15_bias'){
           /* update the probability pill without a full re-render */
@@ -1036,7 +1044,7 @@ function wireGrid(){
 
 function refreshCalcCells(tr, row){
   const c = calcs(row);
-  const map = ['_poiR','_mfePoiR','_r1','_r2','_prob'];
+  const map = ['_poiR','_mfePoiR','_primaryR','_intermR','_prob'];
   const idxs = COLS.map((col, i) => map.includes(col.k) ? i : -1).filter(i => i >= 0);
   idxs.forEach(i => {
     const td = tr.children[i + 2];
@@ -1115,16 +1123,14 @@ function parseDictation(text){
   if(/\bsupply\b/.test(t))       o.poi_type = 'Supply Zone';
   if(/\bdemand\b/.test(t))       o.poi_type = 'Demand Zone';
   const tf = t.match(/\b(1|3|5|15) ?(?:m|min|minute)\b/); if(tf) o.entry_tf = tf[1] + 'm';
-  if(/\bflip zone.{0,10}unswept\b|\bfz unswept\b|\bflip zone not swept\b/.test(t)) o.entry_model = 'Flip Zone - Unswept';
-  else if(/\b(flip zone.{0,10}swept|fz sweep|flip zone sweep)\b/.test(t))           o.entry_model = 'Flip Zone - Swept';
-  if(/\b(conservative|em ?3 ?c)\b/.test(t))           o.entry_model = 'EM3 Conservative';
+  if(/\bflip zone sweep\b|\bfz sweep\b/.test(t))     o.entry_model = 'Flip Zone Sweep';
+  else if(/\bflip zone\b/.test(t))                    o.entry_model = 'Flip Zone';
+  if(/\b(conservative|em ?3 ?c)\b/.test(t)){
+    o.entry_model = /\bsweep|swept\b/.test(t) ? 'EM3 Conservative · Flip Zone Sweep' : 'EM3 Conservative · Flip Zone';
+  }
   if(/\bem ?[12]\/?2? ?(?:a|aggr)\b|\bem ?1 ?2\b/.test(t)) o.entry_model = 'EM1/2 Aggressive';
   if(/\b(em ?3 ?a|em ?3 ?aggr)\b/.test(t))            o.entry_model = 'EM3 Aggressive';
   if(/\baggressive\b|\baggr\b/.test(t) && !o.entry_model) o.entry_model = 'EM3 Aggressive';
-  const fs = t.match(/(?:fake shift|fms|shift)\D{0,14}?\b(fractal|strong)\b/) || t.match(/\b(fractal|strong)\b\D{0,14}?(?:fake shift|fms|shift)/);
-  if(fs) o.fake_shift = fs[1] === 'fractal' ? 'Fractal' : 'Strong';
-  if(/\balready swept\b/.test(t))                     o.fz_state = 'Already swept';
-  if(/\bneeded to be swept|not yet swept\b/.test(t))  o.fz_state = 'Needed to be swept';
   if(/\bpush (?:liquidity |inducement )?(?:is )?yes\b|\bpush (?:liquidity|inducement)\b(?![^.]*\bno\b)|\bin zone push\b/.test(t)) o.push_liq = 'Yes';
   if(/\bno push\b|\bpush (?:liquidity |inducement )?(?:is )?no\b/.test(t))            o.push_liq = 'No';
   const g = re => { const m = t.match(re); return m ? parseFloat(m[1]) : null; };
@@ -1134,9 +1140,9 @@ function parseDictation(text){
   const tE = t.replace(/poi entr\w*\D{0,12}?\d+(?:\.\d+)?/g, ' ').replace(/poi invalid\w*\D{0,12}?\d+(?:\.\d+)?/g, ' ');
   const mE = tE.match(/\bentry(?: price| at)?\D{0,10}?(\d+(?:\.\d+)?)/);
   o.entry_price  = mE ? parseFloat(mE[1]) : null;
-  o.stop1        = g(/stop (?:1|one|aggressive)\D{0,12}?(\d+(?:\.\d+)?)/);
-  o.stop2        = g(/stop (?:2|two|conservative)\D{0,12}?(\d+(?:\.\d+)?)/);
-  o.target_price = g(/(?:technical )?target\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.stop_price   = g(/stop\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.primary_target = g(/(?:primary )?target\D{0,12}?(\d+(?:\.\d+)?)/);
+  o.intermediate_target = g(/intermediate(?: target)?\D{0,12}?(\d+(?:\.\d+)?)/);
   o.be_trigger   = g(/(?:b\/?e|breakeven|break even)(?: trigger)?\D{0,12}?(\d+(?:\.\d+)?)/);
   o.mfe_price    = g(/(?:mfe|max favou?rable|ran to|best)\D{0,14}?(\d+(?:\.\d+)?)/);
   o.mae_price    = g(/(?:mae|max adverse|drew down to|worst)\D{0,14}?(\d+(?:\.\d+)?)/);
@@ -1191,11 +1197,11 @@ async function createFromDictation(){
 function exportCSV(){
   if(!rows.length) return toast('Nothing to export yet', true);
   const keys = COLS.filter(c => c.t !== 'calc' && c.t !== 'conf').map(c => c.k);
-  const head = [...keys, 'probability', ...CONFLUENCES.map(c => c.key), 'conf_inducement', 'daily_bias', 'h1_bias', 'htf_phase', 'h4_phase'];
+  const head = [...keys, 'probability', ...CONFLUENCES.map(c => c.key), 'conf_inducement', 'daily_bias', 'h1_bias', 'htf_phase', 'h4_phase', 'stop1', 'stop2', 'target_price', 'fake_shift', 'fz_state'];
   const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
   const lines = [head.join(',')];
   rows.forEach(r => {
-    lines.push([...keys.map(k => k === '_prob' ? (rowProb(r) || '') : r[k]), rowProb(r) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.daily_bias || '', r.h1_bias || '', r.htf_phase || '', r.h4_phase || ''].map(q).join(','));
+    lines.push([...keys.map(k => k === '_prob' ? (rowProb(r) || '') : r[k]), rowProb(r) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.daily_bias || '', r.h1_bias || '', r.htf_phase || '', r.h4_phase || '', r.stop1 || '', r.stop2 || '', r.target_price || '', r.fake_shift || '', r.fz_state || ''].map(q).join(','));
   });
   const blob = new Blob([lines.join('\n')], { type:'text/csv' });
   const a = document.createElement('a');
@@ -1213,7 +1219,7 @@ function filtered(){
     (inst === 'all' || r.instrument === inst) &&
     (yr === 'all' || (r.date || '').slice(0,4) === yr) &&
     (poi === 'all' || r.poi_type === poi) &&
-    (mod === 'all' || r.entry_model === mod));
+    (mod === 'all' || (mod === 'EM3 Conservative (all)' ? isEM3Cons(r.entry_model) : resolveModel(r.entry_model) === mod)));
 }
 /* POI-level reads collapse rows that share a POI ref — a zone that produced two
    trades is still one zone, and must not carry twice the weight. */
@@ -1262,10 +1268,10 @@ function renderAnalysis(){
   let mh = '<thead><tr><th>Entry model</th><th>Stop</th><th class="n">n</th><th class="n">Avg MFE</th><th class="n">≥3R</th><th class="n">≥5R</th><th class="n">Exp. @5R</th></tr></thead><tbody>';
   let any = false;
   MODELS.filter(m => m !== '—').forEach(m => {
-    const set = rs.filter(r => r.entry_model === m);
+    const set = rs.filter(r => { const rm = resolveModel(r.entry_model); return rm === m || (isEM3Cons(m) && isEM3Cons(r.entry_model) && rm === 'EM3 Conservative'); });
     if(!set.length) return;
     any = true;
-    [['Stop 1 · aggressive','r1'],['Stop 2 · conservative','r2']].forEach(([lbl, key], idx) => {
+    [['Single stop','mfeR']].forEach(([lbl, key], idx) => {
       const vals = set.map(r => calcs(r)[key]).filter(v => v !== null);
       const avg = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
       const h5 = vals.length ? vals.filter(v => v >= 5).length / vals.length : null;
@@ -1530,11 +1536,6 @@ function wireSummaryCard(){
     /* ENTRY MODEL — always shown */
     h += '<div class="tsc-sec">Entry model</div>';
     h += '<div class="tsc-row"><span class="tsc-badge">' + esc(v(em)) + '</span></div>';
-    if(em === 'EM1/2 Aggressive' || em === 'EM3 Aggressive' || em === 'EM3 Conservative'){
-      h += '<div class="tsc-row"><span class="tsc-chip">Fake shift: ' + esc(v(row.fake_shift)) + '</span>';
-      if(em === 'EM3 Conservative') h += '<span class="tsc-chip">FZ: ' + esc(v(row.fz_state)) + '</span>';
-      h += '</div>';
-    }
     if(!noEntry){
       h += '<div class="tsc-row"><span class="tsc-lbl">Entered ' + esc(v(row.entry_tf)) + ' &middot; ' + esc(v(row.entry_time)) + '</span></div>';
     }
@@ -1544,14 +1545,16 @@ function wireSummaryCard(){
       h += '<div class="tsc-sec">The trade</div>';
       h += '<div class="tsc-grid">';
       h += '<div><div class="tsc-lbl">Entry</div><div class="tsc-val">' + esc(v(row.entry_price)) + '</div></div>';
-      h += '<div><div class="tsc-lbl">Target</div><div class="tsc-val">' + esc(v(row.target_price)) + '</div></div>';
-      h += '<div><div class="tsc-lbl">Stop 1</div><div class="tsc-val">' + esc(v(row.stop1)) + '</div></div>';
-      h += '<div><div class="tsc-lbl">Stop 2</div><div class="tsc-val">' + esc(v(row.stop2)) + '</div></div>';
+      h += '<div><div class="tsc-lbl">Stop</div><div class="tsc-val">' + esc(v(row.stop_price)) + '</div></div>';
+      h += '<div><div class="tsc-lbl">Primary target</div><div class="tsc-val">' + esc(v(row.primary_target)) + (row.primary_hit === 'Yes' ? ' <span class="pos">✓</span>' : row.primary_hit === 'No' ? ' <span class="neg">✗</span>' : '') + '</div></div>';
+      h += '<div><div class="tsc-lbl">Interm. target</div><div class="tsc-val">' + esc(v(row.intermediate_target)) + (row.intermediate_hit === 'Yes' ? ' <span class="pos">✓</span>' : row.intermediate_hit === 'No' ? ' <span class="neg">✗</span>' : '') + '</div></div>';
       h += '<div><div class="tsc-lbl">B/E trigger</div><div class="tsc-val">' + esc(v(row.be_trigger)) + '</div></div>';
       h += '</div>';
       h += '<div class="tsc-rbox">';
-      h += '<div class="tsc-r"><span class="tsc-lbl">R1</span><span class="tsc-val' + rCol(c.r1) + '">' + rFmt(c.r1) + '</span></div>';
-      h += '<div class="tsc-r"><span class="tsc-lbl">R2</span><span class="tsc-val' + rCol(c.r2) + '">' + rFmt(c.r2) + '</span></div>';
+      h += '<div class="tsc-r"><span class="tsc-lbl">Prim R</span><span class="tsc-val' + rCol(c.primaryR) + '">' + rFmt(c.primaryR) + '</span></div>';
+      h += '<div class="tsc-r"><span class="tsc-lbl">Interm R</span><span class="tsc-val' + rCol(c.intermR) + '">' + rFmt(c.intermR) + '</span></div>';
+      if(c.mfeR !== null) h += '<div class="tsc-r"><span class="tsc-lbl">MFE R</span><span class="tsc-val' + rCol(c.mfeR) + '">' + rFmt(c.mfeR) + '</span></div>';
+      if(c.maeR !== null) h += '<div class="tsc-r"><span class="tsc-lbl">MAE R</span><span class="tsc-val neg">' + (c.maeR !== null ? '-' + c.maeR.toFixed(2) + 'R' : '—') + '</span></div>';
       h += '</div>';
     }
     h += '</div>';

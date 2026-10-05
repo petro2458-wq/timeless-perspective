@@ -49,9 +49,9 @@ create table if not exists public.poi_backtest (
 
   -- entry model
   poi_tf              text,          -- 1m / 3m / 5m / 15m (the timeframe the POI was identified on)
-  entry_model         text,          -- No Entry Model / EM3 Aggressive / EM3 Conservative / Flip Zone - Swept / Flip Zone - Unswept
-  fake_shift          text,          -- Fractal / Strong — which structure the fMS broke (EM3)
-  fz_state            text,          -- Already swept / Needed to be swept
+  entry_model         text,          -- No Entry Model / Flip Zone / Flip Zone Sweep / EM1/2 Aggressive / EM3 Aggressive / EM3 Conservative
+  fake_shift          text,          -- deprecated
+  fz_state            text,          -- deprecated
   push_liq            text,          -- Yes / No
 
   -- prices.  POI 1R = abs(poi_entry - poi_inval)
@@ -59,10 +59,15 @@ create table if not exists public.poi_backtest (
   poi_entry           numeric,
   poi_inval           numeric,
   entry_price         numeric,
-  stop1               numeric,
-  stop2               numeric,
-  target_price        numeric,
+  stop1               numeric,       -- deprecated
+  stop2               numeric,       -- deprecated
+  target_price        numeric,       -- deprecated
   be_trigger          numeric,
+  stop_price          numeric,
+  primary_target      numeric,
+  primary_hit         text,          -- Yes / No
+  intermediate_target numeric,
+  intermediate_hit    text,          -- Yes / No
   mfe_price           numeric,
   mae_price           numeric,
 
@@ -145,6 +150,11 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists todays_bias   text,
 --   add column if not exists trade_bucket  text,
 --   add column if not exists conf_mtf_inducement boolean,
+--   add column if not exists stop_price    numeric,
+--   add column if not exists primary_target numeric,
+--   add column if not exists primary_hit   text,
+--   add column if not exists intermediate_target numeric,
+--   add column if not exists intermediate_hit text,
 
 
 -- ════════════════════════════════════════════════════════════════════
