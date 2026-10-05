@@ -111,6 +111,7 @@
   .prob-pill.high{background:var(--prob-high);}
   .prob-pill.med{background:var(--prob-med);}
   .prob-pill.low{background:var(--prob-low);}
+  .prob-pill.check{background:transparent;color:var(--amber);border:1px solid var(--amber-border);}
   .ci.n{text-align:right;}
   .calc{padding:0.55rem 0.6rem;font-family:var(--font-body);font-size:0.88rem;text-align:right;color:var(--text-secondary);}
   .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
@@ -390,8 +391,8 @@ ES daily bias long, swing long, internal long, P1 well priced, demand zone, push
               <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">Direction of the Daily-timeframe swing structure. <em>Long</em>: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. <em>Short</em>: the mirror. <em>Consolidating</em>: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase.</div></div>
 <div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Bias. Long or Short.</div></div>
 <div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Bias. Long or Short. Still sets the R sign until trade direction is derived in a later change.</div></div>
-<div class="def"><div class="def-t">Market Phase</div><div class="def-b">The market phase bucket — describes the phase, pricing, and bias alignment. Ten options across two groups: <em>Trade List</em> (P1 aligned, P1 daily not aligned, P1 poorly priced, P1b blue sky, P3 post-MSS, P4 well-priced) and <em>Do Not Trade</em> (P1b POI nearby, P2, P4 not well-priced, consolidation). The trader picks the phase.</div></div>
-<div class="def"><div class="def-t">Probability</div><div class="def-b">Calculated from the Market Phase selection: <em>High</em>, <em>Medium</em>, or <em>Low</em>. Not entered manually.</div></div>
+<div class="def"><div class="def-t">Market Phase</div><div class="def-b">The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Nine options across two groups: <em>Trade List</em> (P1 well-priced, P1 poorly priced / counter-trend, P1b blue sky, P3 post-MSS, P4 well-priced) and <em>Do Not Trade</em> (P1b POI nearby, P2, P4 not well-priced, consolidation).</div></div>
+<div class="def"><div class="def-t">Probability</div><div class="def-b">Calculated, never entered. <em>P1 Well-Priced</em>: High when Daily Bias matches Swing and MTF Bias, Medium when Daily conflicts or is Consolidating, and "Check bias" when Swing and MTF disagree. <em>P1 Poorly Priced, P1b Blue Sky</em>: Medium. <em>P3 after MTF MSS, P4 Well-Priced</em>: High. <em>All Do Not Trade states</em>: Low.</div></div>
             </div>
           </div>
           <div class="stack">
@@ -473,8 +474,7 @@ const OUTCOMES = ['—','Win','Loss','Breakeven'];
 const AFTERBE  = ['—','Worked','Failed'];
 const PR_OPTIONS = ['—','DC','TG'];
 const BUCKETS = [
-  { key:'p1_aligned',        label:'P1 · Well-Priced · Daily + Swing + 15M aligned', prob:'High',   group:'Trade List' },
-  { key:'p1_daily_not_aligned', label:'P1 · Well-Priced · Daily not aligned',          prob:'Medium', group:'Trade List' },
+  { key:'p1_well_priced',    label:'P1 · Well-Priced',                                prob:'calc',   group:'Trade List' },
   { key:'p1_poorly_priced',  label:'P1 · Poorly Priced · Counter-Trend',              prob:'Medium', group:'Trade List' },
   { key:'p1b_blue_sky',      label:'P1b · Blue Sky',                                  prob:'Medium', group:'Trade List' },
   { key:'p3_post_mss',       label:'P3 · Immediately after MTF MSS',                  prob:'High',   group:'Trade List' },
@@ -484,9 +484,23 @@ const BUCKETS = [
   { key:'p4_not_well_priced',label:'P4 · Not Well-Priced',                            prob:'Low',    group:'Do Not Trade' },
   { key:'consolidation',     label:'Consolidation',                                    prob:'Low',    group:'Do Not Trade' }
 ];
-const BUCKET_ALIASES = { p1_daily_conflict:'p1_daily_not_aligned' };
-function bucketProb(key){ const k = BUCKET_ALIASES[key] || key; const b = BUCKETS.find(x => x.key === k); return b ? b.prob : null; }
-function bucketLabel(key){ const k = BUCKET_ALIASES[key] || key; const b = BUCKETS.find(x => x.key === k); return b ? b.label : '—'; }
+const BUCKET_ALIASES = { p1_aligned:'p1_well_priced', p1_daily_not_aligned:'p1_well_priced', p1_daily_conflict:'p1_well_priced' };
+function resolveKey(key){ return BUCKET_ALIASES[key] || key; }
+function bucketProb(key){ const b = BUCKETS.find(x => x.key === resolveKey(key)); return b ? b.prob : null; }
+function bucketLabel(key){ const b = BUCKETS.find(x => x.key === resolveKey(key)); return b ? b.label : '—'; }
+function rowProb(row){
+  const bk = resolveKey(row.trade_bucket);
+  if(!bk || bk === '—') return null;
+  const b = BUCKETS.find(x => x.key === bk);
+  if(!b) return null;
+  if(b.prob !== 'calc') return b.prob;
+  /* P1 Well-Priced: depends on biases */
+  if(row.h4_bias !== row.m15_bias) return 'Check';
+  const d = row.daily_bias;
+  if(!d || d === '—') return null;
+  if(d === row.h4_bias) return 'High';
+  return 'Medium';
+}
 const STEPS    = [1,2,3,5,10];
 
 /* Column model — drives header, cells, CSV */
@@ -543,11 +557,11 @@ const COL_DEFS = {
   entry_tf:'The timeframe the entry trigger was read on.',
   entry_time:'Time the entry filled — New York time (Eastern).',
   instrument:'Instrument traded.',
-  daily_bias:'Direction of the Daily-timeframe swing structure. Long: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. Short: the mirror. Consolidating: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase.',
+  daily_bias:'Direction of the Daily-timeframe swing structure. Long: the last confirmed Daily structure break was bullish and price is respecting the Daily weak low. Short: the mirror. Consolidating: price is ranging inside Daily structure with no confirmed break controlling direction. Consolidating counts as not aligned. This is NOT the same as the Consolidation Do Not Trade bucket, which describes the MTF phase. Used only to calculate Probability for P1 Well-Priced. It is not part of the Market Phase label.',
   h4_bias:'Direction of the H4 swing structure, same read as Daily Bias. Long or Short.',
   m15_bias:'Direction of the 15m swing structure, same read as Daily Bias. Long or Short. Still sets the R sign until trade direction is derived in a later change.',
-  trade_bucket:'The market phase bucket. Drives the calculated Probability. Pick the phase that matches the current market context: pricing and bias alignment.',
-  _prob:'Calculated from the Market Phase selection: High, Medium, or Low. Not entered manually.',
+  trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Bias is not part of it. Probability is calculated from this plus the three biases.',
+  _prob:'Calculated, never entered. P1 Well-Priced: High when Daily Bias matches Swing and MTF Bias, Medium when Daily conflicts or is Consolidating, and Check bias when Swing and MTF disagree. P1 Poorly Priced, P1b Blue Sky: Medium. P3 after MTF MSS, P4 Well-Priced: High. All Do Not Trade states: Low.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
@@ -785,7 +799,7 @@ function cellHTML(col, r, c, locked){
       return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
     }
     case 'bucket': {
-      const bv = v || '—';
+      const bv = resolveKey(v) || '—';
       let html = '<select class="ci" data-k="' + col.k + '"' + lk + '><option value="—"' + (bv === '—' ? ' selected' : '') + ' hidden>Select phase…</option>';
       const groups = {};
       BUCKETS.forEach(b => { (groups[b.group] = groups[b.group] || []).push(b); });
@@ -797,10 +811,12 @@ function cellHTML(col, r, c, locked){
       return html + '</select>';
     }
     case 'prob': {
-      const p = bucketProb(r.trade_bucket);
+      const p = rowProb(r);
       if(!p) return '<div class="calc" style="text-align:center">—</div>';
-      const cls = p === 'High' ? 'high' : p === 'Medium' ? 'med' : 'low';
-      return '<div style="text-align:center;padding:0.35rem 0.3rem"><span class="prob-pill ' + cls + '">' + p + '</span></div>';
+      const cls = p === 'High' ? 'high' : p === 'Medium' ? 'med' : p === 'Check' ? 'check' : 'low';
+      const label = p === 'Check' ? 'Check bias' : p;
+      const tip = p === 'Check' ? ' title="P1 requires Swing and MTF Bias to be aligned."' : '';
+      return '<div style="text-align:center;padding:0.35rem 0.3rem"><span class="prob-pill ' + cls + '"' + tip + '>' + label + '</span></div>';
     }
     case 'check':
       return '<input class="ci-check" type="checkbox" data-k="' + col.k + '"' + (v ? ' checked' : '') + '>';
@@ -840,7 +856,7 @@ function wireGrid(){
           if(m !== 'EM1/2 Aggressive' && m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
           queueSave(id, row); renderGrid(); return;
         }
-        if(k === 'trade_bucket'){
+        if(k === 'trade_bucket' || k === 'daily_bias' || k === 'h4_bias' || k === 'm15_bias'){
           /* update the probability pill without a full re-render */
           const probIdx = COLS.findIndex(c => c.k === '_prob');
           if(probIdx >= 0){
@@ -1000,9 +1016,8 @@ function parseDictation(text){
   else if(/\bp4 well.?priced\b|\bp4\b/.test(t))           o.trade_bucket = 'p4_well_priced';
   else if(/\bp2\b/.test(t))                               o.trade_bucket = 'p2';
   else if(/\bconsolidation\b/.test(t))                    o.trade_bucket = 'consolidation';
-  else if(/\bdaily not aligned\b|\bdaily conflict\b/.test(t)) o.trade_bucket = 'p1_daily_not_aligned';
   else if(/\bpoorly priced\b|\bcounter.?trend\b/.test(t)) o.trade_bucket = 'p1_poorly_priced';
-  else if(/\bp1\b/.test(t))                               o.trade_bucket = 'p1_aligned';
+  else if(/\bp1\b/.test(t))                               o.trade_bucket = 'p1_well_priced';
   if(/\bwin\b|\bwinner\b|\bwon\b/.test(t))            o.outcome = 'Win';
   if(/\bloss\b|\blost\b|\bstopped out\b/.test(t))     o.outcome = 'Loss';
   if(/\bbreakeven\b|\bbreak even\b|\bb\/?e\b/.test(t))o.outcome = 'Breakeven';
@@ -1046,7 +1061,7 @@ function exportCSV(){
   const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
   const lines = [head.join(',')];
   rows.forEach(r => {
-    lines.push([...keys.map(k => k === '_prob' ? (bucketProb(r.trade_bucket) || '') : r[k]), bucketProb(r.trade_bucket) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.h1_bias || '', r.htf_phase || '', r.h4_phase || ''].map(q).join(','));
+    lines.push([...keys.map(k => k === '_prob' ? (rowProb(r) || '') : r[k]), rowProb(r) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.h1_bias || '', r.htf_phase || '', r.h4_phase || ''].map(q).join(','));
   });
   const blob = new Blob([lines.join('\n')], { type:'text/csv' });
   const a = document.createElement('a');
@@ -1345,9 +1360,10 @@ function wireSummaryCard(){
     h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">MTF ' + esc(v(row.m15_bias)) + '</span>';
     h += '<span class="tsc-chip">' + esc(v(row.push_liq)) + ' push</span>';
     h += '</div>';
-    const bp = bucketProb(row.trade_bucket);
+    const bp = rowProb(row);
     h += '<div class="tsc-row"><span class="tsc-lbl">Market Phase:</span> <span class="tsc-val">' + esc(bucketLabel(row.trade_bucket)) + '</span>';
-    if(bp) h += ' <span class="prob-pill ' + (bp === 'High' ? 'high' : bp === 'Medium' ? 'med' : 'low') + '" style="font-size:0.5rem;padding:0.1rem 0.35rem">' + bp + '</span>';
+    if(bp){ const bpc = bp === 'High' ? 'high' : bp === 'Medium' ? 'med' : bp === 'Check' ? 'check' : 'low';
+    h += ' <span class="prob-pill ' + bpc + '" style="font-size:0.5rem;padding:0.1rem 0.35rem">' + (bp === 'Check' ? 'Check bias' : bp) + '</span>'; }
     h += '</div>';
     h += '<div class="tsc-price"><span>' + esc(v(row.poi_entry)) + ' &rarr; ' + esc(v(row.poi_inval)) + '</span><b>' + (c.poiR !== null ? c.poiR.toFixed(2) + ' R' : '—') + '</b></div>';
     /* MFE / MAE live on the POI — they describe the zone reaction, not the trade */
