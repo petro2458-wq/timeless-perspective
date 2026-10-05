@@ -40,6 +40,7 @@ create table if not exists public.poi_backtest (
   conf_chain          boolean not null default false,
   -- negative confluence (not counted in the N/7 tally)
   conf_inducement     boolean not null default false,
+  conf_mtf_inducement boolean,       -- MTF inducement visible (nullable for legacy)
   -- deprecated — no longer written by the app; kept for historical rows
   conf_pro_internal   boolean not null default false,
   conf_liquidity      boolean not null default false,
@@ -143,6 +144,7 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists daily_trend   text,
 --   add column if not exists todays_bias   text,
 --   add column if not exists trade_bucket  text,
+--   add column if not exists conf_mtf_inducement boolean,
 
 
 -- ════════════════════════════════════════════════════════════════════
