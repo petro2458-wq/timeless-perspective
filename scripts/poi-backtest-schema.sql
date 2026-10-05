@@ -65,9 +65,9 @@ create table if not exists public.poi_backtest (
   be_trigger          numeric,
   stop_price          numeric,
   primary_target      numeric,
-  primary_hit         text,          -- Yes / No
+  primary_hit         text,          -- deprecated: calculated from MFE
   intermediate_target numeric,
-  intermediate_hit    text,          -- Yes / No
+  intermediate_hit    text,          -- deprecated: calculated from MFE
   mfe_price           numeric,
   mae_price           numeric,
 
