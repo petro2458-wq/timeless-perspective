@@ -493,14 +493,15 @@ const BUCKETS = [
   { key:'p1_well_priced',    label:'P1 · Well-Priced',                                prob:'calc',   group:'Trade List' },
   { key:'p1_poorly_priced',  label:'P1 · Poorly Priced · Counter-Trend',              prob:'Medium', group:'Trade List' },
   { key:'p1b_blue_sky',      label:'P1b · Blue Sky',                                  prob:'Medium', group:'Trade List' },
-  { key:'p3_post_mss',       label:'P3 · Immediately after MTF MSS',                  prob:'High',   group:'Trade List' },
+  { key:'p3_daily_supports',  label:'P3 · Daily Supports Pullback',                     prob:'High',   group:'Trade List' },
   { key:'p4_well_priced',    label:'P4 · Well-Priced',                                prob:'High',   group:'Trade List' },
   { key:'p1b_poi_nearby',    label:'P1b · POI Nearby',                                prob:'Low',    group:'Do Not Trade' },
   { key:'p2',                label:'P2',                                               prob:'Low',    group:'Do Not Trade' },
+  { key:'p3_daily_not_supports',label:'P3 · Daily Doesn\'t Support Pullback',          prob:'Low',    group:'Do Not Trade' },
   { key:'p4_not_well_priced',label:'P4 · Not Well-Priced',                            prob:'Low',    group:'Do Not Trade' },
   { key:'consolidation',     label:'Consolidation',                                    prob:'Low',    group:'Do Not Trade' }
 ];
-const BUCKET_ALIASES = { p1_aligned:'p1_well_priced', p1_daily_not_aligned:'p1_well_priced', p1_daily_conflict:'p1_well_priced' };
+const BUCKET_ALIASES = { p1_aligned:'p1_well_priced', p1_daily_not_aligned:'p1_well_priced', p1_daily_conflict:'p1_well_priced', p3_post_mss:'p3_daily_supports' };
 function resolveKey(key){ return BUCKET_ALIASES[key] || key; }
 function bucketProb(key){ const b = BUCKETS.find(x => x.key === resolveKey(key)); return b ? b.prob : null; }
 function bucketLabel(key){ const b = BUCKETS.find(x => x.key === resolveKey(key)); return b ? b.label : '—'; }
@@ -522,7 +523,7 @@ function tradeDir(row){
   if(bk === 'p1_well_priced' || bk === 'p1b_blue_sky' || bk === 'p4_well_priced'){
     return row.h4_bias === 'Long' ? 'Long' : row.h4_bias === 'Short' ? 'Short' : null;
   }
-  if(bk === 'p3_post_mss'){
+  if(bk === 'p3_daily_supports' || bk === 'p3_daily_not_supports'){
     return row.m15_bias === 'Long' ? 'Long' : row.m15_bias === 'Short' ? 'Short' : null;
   }
   if(bk === 'p1_poorly_priced'){
@@ -542,20 +543,23 @@ const PHASE_DEFS = [
   { key:'p1b_blue_sky', group:'Trade List', probLabel:'Medium',
     desc:'Swing structure has just created a BOS or an MSS, with MTF and Swing aligned: the fresh stage right after the shift, before continuation is confirmed. Blue Sky means price is at or near all-time highs (or lows), or has a lot of room ahead, with no obvious POIs against it.',
     dir:'With Swing and MTF.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
-  { key:'p3_post_mss', group:'Trade List', probLabel:'High',
-    desc:'An MTF MSS has shifted price, and price is just beginning a pullback of the swing range. The 50 to 70% pullback percentage is deliberately approximate.',
+  { key:'p3_daily_supports', group:'Trade List', probLabel:'High',
+    desc:'An MTF MSS has shifted price, and price is just beginning a pullback of the swing range to a key POI (preferably on the swing structure) that rests around 50% or more. Importantly, the swing structure has rejected at a key external POI, whereby the Phase 3 pullback can be further supported. The Daily is supporting the Phase 3 pullback (a discretionary review).',
     dir:'With the new MTF shift, against Swing.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p4_well_priced', group:'Trade List', probLabel:'High',
     desc:'The pullback has reached a reasonable threshold (50%+) into a key POI. The MTF Bias has not shifted yet, so it is still in the pullback, while the lower timeframe is shifting. Trigger: a 3m or 5m MSS; it stays P4 while that is all that has printed. When the 15m prints its own MSS from this zone, the MTF Bias shifts and it reclassifies as P1. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive.',
     dir:'With Swing, against the still-pulling-back MTF.', targets:'Primary 15m strong high/low (a 15m MSS, which is the P1 transition) · intermediate 5m weak high/low.' },
-  { key:'p1b_poi_nearby', group:'Do Not Trade', probLabel:'Low', draft:true,
-    desc:'The same fresh BOS/MSS stage as P1b, but an opposing POI sits close to price and limits the move. Logged so the data can confirm it should be avoided.' },
+  { key:'p1b_poi_nearby', group:'Do Not Trade', probLabel:'Low',
+    desc:'The same fresh Swing Structure BOS/MSS stage as P1b · Blue Sky, but an opposing POI sits close to price and limits the continuation move, increasing the chances of a pullback. Avoid the continuation trade and start hunting the pullback once Phase 3 is confirmed.' },
   { key:'p2', group:'Do Not Trade', probLabel:'Low',
     desc:'Beyond P1b: a POI has stalled price and a pullback could be about to begin. Until an MTF MSS prints, it is P2, not P3.' },
-  { key:'p4_not_well_priced', group:'Do Not Trade', probLabel:'Low', draft:true,
-    desc:'The pullback toward a key POI has not reached the 50%+ threshold, so the zone is not well-priced.' },
-  { key:'consolidation', group:'Do Not Trade', probLabel:'Low', draft:true,
-    desc:'Price is ranging with no directional MTF structure to trade. Not the same as Daily Bias = Consolidating, which only affects the probability of a P1 · Well-Priced row.' }
+  { key:'p3_daily_not_supports', group:'Do Not Trade', probLabel:'Low',
+    desc:'Same setup as P3 · Daily Supports Pullback, but the Daily is not supporting the Phase 3 pullback (a discretionary review). Beware strong daily trends against.',
+    dir:'With the new MTF shift, against Swing.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
+  { key:'p4_not_well_priced', group:'Do Not Trade', probLabel:'Low',
+    desc:'A Phase 3 MSS, and possibly a BOS, has been confirmed on the MTF, and the pullback is still in phase. A poorly priced Phase 4 zone has been mitigated, but a deeper pullback is likely, since you can anticipate a deeper retrace as a percentage of the swing range. Also take note of the POI, and be particular about Phase 4 POIs that have swept liquidity, are beyond the 50% retrace / equilibrium, and/or have flipped supply/demand on the swing structure.' },
+  { key:'consolidation', group:'Do Not Trade', probLabel:'Low',
+    desc:'Price on the medium and higher timeframes is consolidating. Price is difficult to map structurally, and you are unable to characterize it in either of the tradeable phases.' }
 ];
 const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Bias is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced.\n\nTargets are the built-in primary and intermediate exits for each phase. The target fields arrive with the Trade section.';
 const COL_LINKS = { trade_bucket:'phases' };
@@ -569,7 +573,6 @@ function renderPhaseDefsHTML(){
     h += '<div class="pd-entry"><div class="pd-name"><span class="pd-name-t">' + esc(b ? b.label : pd.key) + '</span>';
     if(probCls) h += '<span class="prob-pill ' + probCls + '" style="font-size:0.55rem;padding:0.12rem 0.4rem">' + esc(pd.probLabel) + '</span>';
     else h += '<span class="prob-pill high" style="font-size:0.55rem;padding:0.12rem 0.4rem">' + esc(pd.probLabel) + '</span>';
-    if(pd.draft) h += '<span class="pd-draft">Draft: confirm</span>';
     h += '</div><div class="pd-desc">' + esc(pd.desc) + '</div>';
     if(pd.dir) h += '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;line-height:1.45"><b style="color:var(--text-secondary)">Trade direction:</b> ' + esc(pd.dir) + '<br><b style="color:var(--text-secondary)">Targets:</b> ' + esc(pd.targets) + '</div>';
     h += '</div>';
@@ -1101,7 +1104,9 @@ function parseDictation(text){
   const time = t.match(/\b(\d{1,2}:\d{2})\b/); if(time) o.entry_time = time[1].padStart(5,'0');
   if(/\bblue sky\b/.test(t))                              o.trade_bucket = 'p1b_blue_sky';
   else if(/\bpoi nearby\b/.test(t))                       o.trade_bucket = 'p1b_poi_nearby';
-  else if(/\bp3\b/.test(t))                               o.trade_bucket = 'p3_post_mss';
+  else if(/\bp3\b/.test(t)){
+    o.trade_bucket = /\bdaily (?:not support|doesn.?t support|against)\b/.test(t) ? 'p3_daily_not_supports' : 'p3_daily_supports';
+  }
   else if(/\bp4 not well.?priced\b|\bp4 poorly\b/.test(t))o.trade_bucket = 'p4_not_well_priced';
   else if(/\bp4 well.?priced\b|\bp4\b/.test(t))           o.trade_bucket = 'p4_well_priced';
   else if(/\bp2\b/.test(t))                               o.trade_bucket = 'p2';
