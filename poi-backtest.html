@@ -405,11 +405,18 @@ ES daily trend bullish, swing long, internal long, P1 well priced, demand zone, 
               <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
               <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
               <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
-              <div class="def"><div class="def-t">Daily Trend</div><div class="def-b"><em>Daily chart input.</em> The Daily structure: Bullish, Bearish or Consolidating.</div></div>
-<div class="def"><div class="def-t">Today's Bias</div><div class="def-b"><em>Daily chart input.</em> Your discretionary view for today's session: Bullish, Bearish or Unclear. Recorded as a stat confluence for later study. It does not change the probability, phase or direction.</div></div>
-<div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Trend. Long or Short.</div></div>
+              <div class="def"><div class="def-t">Swing Bias</div><div class="def-b">Direction of the H4 swing structure, same read as Daily Trend. Long or Short.</div></div>
 <div class="def"><div class="def-t">MTF Bias</div><div class="def-b">Direction of the 15m swing structure, same read as Daily Trend. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.</div></div>
-<div id="defPhases"></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="card">
+              <div class="card-label">Market Phase &amp; Daily reads</div>
+              <div class="def-b" style="margin-bottom:1rem;line-height:1.6">The trader picks the market phase that matches price right now, and the probability (High, Medium or Low) follows from that pick. These reads frame every phase: Daily Trend (Daily structure), Swing (H4 structure) and MTF (15m structure), plus Today's Bias, the trader's own read of the day.</div>
+              <div class="def"><div class="def-t">Daily Trend</div><div class="def-b"><em>Daily chart input.</em> Daily Trend is the Daily structure: Bullish, Bearish or Consolidating. It is a structural read of the larger trend, and the only place it changes probability is P1 · Well-Priced.</div></div>
+              <div class="def"><div class="def-t">Today's Bias</div><div class="def-b"><em>Daily chart input.</em> Today's Bias is the trader's discretionary read of the day: Bullish, Bearish or Unclear. It is the bias for the day, and it influences which trades the trader selects. It does not change the probability, the phase or the trade direction. It is recorded as a stat confluence so it can be studied later. For P3 it is a hint toward the Daily-supports call: matching the MTF favors the pullback, opposing the MTF leans against it.</div></div>
+              <div class="def"><div class="def-t">Probability</div><div class="def-b">Daily Trend changes the probability of one phase only: P1 · Well-Priced is High when Daily Trend matches Swing and MTF, and Medium when Daily Trend conflicts or is Consolidating. For P3, whether the Daily supports the pullback is a discretionary call, so P3 is split into two phases.</div></div>
+              <div id="defPhases"></div>
             </div>
           </div>
           <div class="stack">
@@ -571,7 +578,7 @@ const PHASE_DEFS = [
   { key:'consolidation', group:'Do Not Trade', probLabel:'Low',
     desc:'Price on the medium and higher timeframes is consolidating. Price is difficult to map structurally, and you are unable to characterize it in either of the tradeable phases.' }
 ];
-const PHASE_DEFS_FOOTER = 'Probability is calculated, never entered. Daily Trend is not part of the Market Phase; it is used only to calculate Probability for P1 · Well-Priced. Today\'s Bias does not affect probability.\n\nTargets are the built-in primary and intermediate exits for each phase. The target fields arrive with the Trade section.';
+const PHASE_DEFS_FOOTER = 'Targets are the built-in exits for each phase. Primary is the base profit target. Intermediate is a less aggressive profit target that delivers less R per trade, and it is tracked so we can study it for a deeper understanding of each phase.';
 const COL_LINKS = { trade_bucket:'phases' };
 function renderPhaseDefsHTML(){
   let h = '';
@@ -661,7 +668,7 @@ const COL_DEFS = {
   entry_time:'Time the entry filled — New York time (Eastern).',
   instrument:'Instrument traded.',
   daily_trend:'Daily chart input. The Daily structure: Bullish, Bearish or Consolidating.',
-  todays_bias:"Daily chart input. Your discretionary view for today's session: Bullish, Bearish or Unclear. Recorded as a stat confluence for later study. It does not change the probability, phase or direction.",
+  todays_bias:"Daily chart input. Your discretionary view for today's session: Bullish, Bearish or Unclear. Recorded as a stat confluence for later study. It does not change the probability, phase or direction. It is the bias for the day and influences which trades the trader selects.",
   h4_bias:'Direction of the H4 swing structure, same read as Daily Trend. Long or Short.',
   m15_bias:'Direction of the 15m swing structure, same read as Daily Trend. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.',
   trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Trend is not part of it. Probability is calculated from this plus the biases. Click Definitions → for what each phase means.',
