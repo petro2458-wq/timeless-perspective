@@ -786,7 +786,7 @@ function cellHTML(col, r, c, locked){
     }
     case 'bucket': {
       const bv = v || '—';
-      let html = '<select class="ci" data-k="' + col.k + '"' + lk + '><option' + (bv === '—' ? ' selected' : '') + '>—</option>';
+      let html = '<select class="ci" data-k="' + col.k + '"' + lk + '><option value="—"' + (bv === '—' ? ' selected' : '') + ' hidden>Select phase…</option>';
       const groups = {};
       BUCKETS.forEach(b => { (groups[b.group] = groups[b.group] || []).push(b); });
       Object.keys(groups).forEach(g => {
