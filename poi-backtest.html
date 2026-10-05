@@ -19,6 +19,7 @@
     --red:#f87171;--red-bg:rgba(248,113,113,0.12);--red-border:rgba(248,113,113,0.4);
     --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.12);--amber-border:rgba(251,191,36,0.4);
     --hi:rgba(255,255,255,0.06);--hi-line:rgba(255,255,255,0.25);
+    --prob-high:#15803d;--prob-med:#0e8f87;--prob-low:#64748b;
     --font-display:'Playfair Display',Georgia,serif;
     --font-body:'DM Sans',-apple-system,sans-serif;
     --font-mono:'JetBrains Mono','Courier New',monospace;
@@ -93,6 +94,8 @@
   select.ci option{background:var(--bg-solid);color:var(--text-primary);}
   select.ci:disabled{cursor:not-allowed;}
   .ci:disabled,.ci[readonly]{opacity:1;cursor:not-allowed;color:var(--text-primary);}
+  .ci[type="date"]{color-scheme:dark;-webkit-text-fill-color:var(--text-primary);}
+  .ci[type="date"]:disabled{-webkit-text-fill-color:var(--text-primary);opacity:1;}
   .conf-btn:disabled{cursor:not-allowed;}
   .ind-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--font-body);font-size:0.75rem;font-weight:700;padding:0.3rem 0.45rem;cursor:pointer;border-radius:2px;margin-left:0.3rem;opacity:0.4;transition:all 0.15s;}
   .ind-btn:hover{opacity:0.7;}
@@ -104,6 +107,10 @@
   .tv-open:hover{color:var(--accent);}
   .ci-check{width:16px;height:16px;margin:0 auto;display:block;cursor:pointer;accent-color:var(--amber);}
   .ci-check:disabled{cursor:not-allowed;accent-color:var(--amber);opacity:1;}
+  .prob-pill{display:inline-block;font-family:var(--font-body);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:0.2rem 0.55rem;border-radius:10px;color:#fff;text-align:center;}
+  .prob-pill.high{background:var(--prob-high);}
+  .prob-pill.med{background:var(--prob-med);}
+  .prob-pill.low{background:var(--prob-low);}
   .ci.n{text-align:right;}
   .calc{padding:0.55rem 0.6rem;font-family:var(--font-body);font-size:0.88rem;text-align:right;color:var(--text-secondary);}
   .calc.pos{color:var(--green);} .calc.neg{color:var(--red);} .calc.acc{color:var(--text-primary);}
@@ -280,7 +287,7 @@
       <div class="card-label">Dictate a backtest</div>
       <textarea class="dictate" id="dictation" placeholder="Tap your keyboard's microphone and read it out. For example:
 
-ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop one 5823.5, stop two 5818.5, target 5860. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
+ES daily bias long, swing long, internal long, P1 well priced, demand zone, push liquidity yes. POI entry 5825.25, POI invalidation 5818.50. EM3 aggressive, entry 5827, stop one 5823.5, stop two 5818.5, target 5860. MFE 5851, MAE 5824. Unmitigated, flip, in discount. Outcome win."></textarea>
       <div class="btn-row" style="margin-top:0.6rem">
         <button class="btn primary" id="parseBtn">Create row from dictation</button>
         <button class="btn" id="clearDictation">Clear</button>
@@ -379,9 +386,11 @@ ES long, demand zone, 3m entry at 9:42, H4 phase 3, push liquidity yes. POI entr
               <div class="def"><div class="def-t">POI 1R</div><div class="def-b"><em>POI entry to POI invalidation.</em> The zone's own height — the yardstick that puts ES, Gold and FX on one scale.</div></div>
               <div class="def"><div class="def-t">Failure (POI level)</div><div class="def-b"><em>Invalidation price touched</em>, wick or close. This level measures the zone itself.</div></div>
               <div class="def"><div class="def-t">Meaningful reaction</div><div class="def-b">POI MFE of <em>2R or better</em>.</div></div>
-              <div class="def"><div class="def-t">H4 bias</div><div class="def-b">H4 directional bias at the time — long or short.</div></div>
-              <div class="def"><div class="def-t">H1 bias</div><div class="def-b">H1 directional bias at the time — long or short. Logged alongside H4 so alignment across timeframes becomes a filter rather than an assumption.</div></div>
-              <div class="def"><div class="def-t">15m bias</div><div class="def-b">Long or short — the direction the POI is traded in, and <em>the sign used for every R calculation on the row</em>.</div></div>
+              <div class="def"><div class="def-t">Daily Bias</div><div class="def-b">The higher-timeframe directional lean for the session — long or short.</div></div>
+<div class="def"><div class="def-t">Swing Bias</div><div class="def-b">The H4 directional lean — long or short.</div></div>
+<div class="def"><div class="def-t">Internal Bias</div><div class="def-b">The 15M directional lean and <em>the sign used for every R calculation on the row</em>.</div></div>
+<div class="def"><div class="def-t">Trade List</div><div class="def-b">The trade setup bucket — describes the phase, pricing, and bias alignment. Ten options across two groups: <em>Trade List</em> (P1 aligned, P1 daily conflicts, P1 poorly priced, P1b blue sky, P3 post-MSS, P4 well-priced) and <em>Do Not Trade</em> (P1b POI nearby, P2, P4 not well-priced, consolidation). The trader picks the bucket.</div></div>
+<div class="def"><div class="def-t">Probability</div><div class="def-b">Calculated from the Trade List selection: <em>High</em>, <em>Medium</em>, or <em>Low</em>. Not entered manually.</div></div>
             </div>
           </div>
           <div class="stack">
@@ -451,7 +460,6 @@ const CONFLUENCES = [
 /* Negative confluence — tracked separately, never counted in the N/7 tally */
 const CONF_INDUCEMENT = { key:'conf_inducement', name:'Inducement Present', desc:'Inducement is visible near the zone. A negative signal — presence lowers confidence in the POI.' };
 
-const PHASES   = ['—','P1','P1b','P2','P3','P4'];
 const TFS      = ['—','1m','3m','5m','15m'];
 const POITFS   = ['—','H1','M15'];
 const INSTS    = ['—','ES','NQ','YM','GC','XAUUSD','US100','EURUSD','GBPUSD','USDJPY'];
@@ -463,21 +471,35 @@ const YESNO    = ['—','Yes','No'];
 const OUTCOMES = ['—','Win','Loss','Breakeven'];
 const AFTERBE  = ['—','Worked','Failed'];
 const PR_OPTIONS = ['—','DC','TG'];
+const BUCKETS = [
+  { key:'p1_aligned',        label:'P1 · Well-Priced · Daily + Swing + 15M aligned', prob:'High',   group:'Trade List' },
+  { key:'p1_daily_conflict', label:'P1 · Well-Priced · Daily conflicts',              prob:'Medium', group:'Trade List' },
+  { key:'p1_poorly_priced',  label:'P1 · Poorly Priced · Counter-Trend',              prob:'Medium', group:'Trade List' },
+  { key:'p1b_blue_sky',      label:'P1b · Blue Sky',                                  prob:'Medium', group:'Trade List' },
+  { key:'p3_post_mss',       label:'P3 · Immediately after MTF MSS',                  prob:'High',   group:'Trade List' },
+  { key:'p4_well_priced',    label:'P4 · Well-Priced',                                prob:'High',   group:'Trade List' },
+  { key:'p1b_poi_nearby',    label:'P1b · POI Nearby',                                prob:'Low',    group:'Do Not Trade' },
+  { key:'p2',                label:'P2',                                               prob:'Low',    group:'Do Not Trade' },
+  { key:'p4_not_well_priced',label:'P4 · Not Well-Priced',                            prob:'Low',    group:'Do Not Trade' },
+  { key:'consolidation',     label:'Consolidation',                                    prob:'Low',    group:'Do Not Trade' }
+];
+function bucketProb(key){ const b = BUCKETS.find(x => x.key === key); return b ? b.prob : null; }
+function bucketLabel(key){ const b = BUCKETS.find(x => x.key === key); return b ? b.label : '—'; }
 const STEPS    = [1,2,3,5,10];
 
 /* Column model — drives header, cells, CSV */
 const COLS = [
   /* ── CONTEXT ── */
-  { k:'trader',        h:'Trader',      t:'ro',     w:110, g:'Context' },
-  { k:'pr_reviewer',   h:'Request PR',  t:'select', o:PR_OPTIONS, w:120, g:'Context' },
-  { k:'needs_review',  h:'Review',      t:'check',  w:56,  g:'Context' },
-  { k:'date',          h:'Date',        t:'date',   w:150, g:'Context' },
-  { k:'instrument',    h:'Instrument',  t:'select', o:INSTS, w:114, g:'Context' },
-  { k:'h4_bias',       h:'H4 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
-  { k:'h1_bias',       h:'H1 bias',     t:'select', o:['Long','Short'], w:100, g:'Context' },
-  { k:'m15_bias',      h:'15m bias',    t:'select', o:['Long','Short'], w:102, g:'Context' },
-  { k:'htf_phase',     h:'HTF Phase',   t:'select', o:PHASES, w:120, g:'Context' },
-  { k:'h4_phase',      h:'MTF Phase',   t:'select', o:PHASES, w:120, g:'Context' },
+  { k:'trader',        h:'Trader',         t:'ro',     w:110, g:'Context' },
+  { k:'pr_reviewer',   h:'Request PR',     t:'select', o:PR_OPTIONS, w:120, g:'Context' },
+  { k:'needs_review',  h:'Review',         t:'check',  w:56,  g:'Context' },
+  { k:'date',          h:'Date',           t:'date',   w:150, g:'Context' },
+  { k:'instrument',    h:'Instrument',     t:'select', o:INSTS, w:114, g:'Context' },
+  { k:'daily_bias',    h:'Daily Bias',     t:'select', o:['—','Long','Short'], w:110, g:'Context' },
+  { k:'h4_bias',       h:'Swing Bias',     t:'select', o:['Long','Short'], w:110, g:'Context' },
+  { k:'m15_bias',      h:'Internal Bias',  t:'select', o:['Long','Short'], w:120, g:'Context' },
+  { k:'trade_bucket',  h:'Trade List',     t:'bucket', w:270, g:'Context' },
+  { k:'_prob',         h:'Probability',    t:'prob',   w:90,  g:'Context' },
   /* ── THE POI ── */
   { k:'poi_ref',       h:'POI ref',     t:'ro',     w:124, g:'The POI' },
   { k:'poi_tf',        h:'POI TF',      t:'select', o:POITFS, w:80, g:'The POI' },
@@ -519,11 +541,11 @@ const COL_DEFS = {
   entry_tf:'The timeframe the entry trigger was read on.',
   entry_time:'Time the entry filled — New York time (Eastern).',
   instrument:'Instrument traded.',
-  h4_bias:'H4 directional bias at the time — long or short.',
-  h1_bias:'H1 directional bias at the time — long or short.',
-  m15_bias:'15m bias, long or short. This is the one that sets the sign for every R calculation on the row.',
-  htf_phase:'HTF phase at the time — the highest-timeframe context filter.',
-  h4_phase:'MTF phase at the time — the mid-timeframe context filter.',
+  daily_bias:'Daily bias — the higher-timeframe directional lean for the session. Long or short.',
+  h4_bias:'Swing bias — the H4 directional lean. Long or short.',
+  m15_bias:'Internal bias — the 15M directional lean and the sign used for every R calculation on the row.',
+  trade_bucket:'The trade setup bucket. Drives the calculated Probability. Pick the bucket that matches the current market context: phase, pricing, and bias alignment.',
+  _prob:'Calculated from the Trade List selection: High, Medium, or Low. Not entered manually.',
   poi_ref:'Identifies the POI this trade was taken on. Generated automatically; the +2 button reuses it so a second attempt on the same POI shares one reference and POI-level stats do not count that zone twice.',
   poi_tf:'The timeframe the POI was identified on — H1 or M15.',
   poi_type:'Flip Zone — caused a failed reaction and flipped. Supply Zone — sell-side origin. Demand Zone — buy-side origin.',
@@ -632,7 +654,7 @@ const store = {
 function blankRow(){
   const r = { trader: trader, pr_reviewer:'—', pr_request_note:'', pr_notes:'', pr_complete:false, pr_read_at:null, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
-    entry_tf:'—', entry_time:null, instrument:'ES', h4_bias:'Long', h1_bias:'Long', m15_bias:'Long', htf_phase:'—', h4_phase:'—', poi_tf:'—', poi_type:'—',
+    entry_tf:'—', entry_time:null, instrument:'ES', daily_bias:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
     entry_model:'—', fake_shift:'—', fz_state:'—', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop1:null, stop2:null,
     target_price:null, be_trigger:null, mfe_price:null, mae_price:null,
@@ -659,7 +681,7 @@ function makeRef(row){
 
 /* Second attempt on the same POI: copy the context and POI half, leave the
    trade and outcome blank, share the reference. */
-const POI_HALF = ['date','entry_tf','instrument','h4_bias','h1_bias','m15_bias','htf_phase','h4_phase',
+const POI_HALF = ['date','entry_tf','instrument','daily_bias','h4_bias','m15_bias','trade_bucket',
                   'poi_ref','poi_tf','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
 async function cloneRow(id){
   const src = rows.find(r => String(r.id) === String(id));
@@ -732,8 +754,8 @@ function cellHTML(col, r, c, locked){
       const tip = !locked && dis ? ' title="Only active for ' + (col.k === 'fz_state' ? 'EM3 Conservative' : 'EM3 Aggressive or EM3 Conservative') + '"' : '';
       const opts = col.k === 'pr_reviewer' ? col.o.filter(o => o === '—' || o !== trader) : col.o;
       let sty = '';
-      if((col.k === 'h4_bias' || col.k === 'h1_bias' || col.k === 'm15_bias') && v === 'Long') sty = ' style="color:var(--green)"';
-      else if((col.k === 'h4_bias' || col.k === 'h1_bias' || col.k === 'm15_bias') && v === 'Short') sty = ' style="color:var(--red)"';
+      if((col.k === 'daily_bias' || col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Long') sty = ' style="color:var(--green)"';
+      else if((col.k === 'daily_bias' || col.k === 'h4_bias' || col.k === 'm15_bias') && v === 'Short') sty = ' style="color:var(--red)"';
       else if(col.k === 'outcome' && v === 'Win') sty = ' style="color:var(--green);font-weight:600"';
       else if(col.k === 'outcome' && v === 'Loss') sty = ' style="color:var(--red);font-weight:600"';
       else if(col.k === 'outcome' && v === 'Breakeven') sty = ' style="color:var(--amber);font-weight:600"';
@@ -758,6 +780,24 @@ function cellHTML(col, r, c, locked){
     case 'conf': {
       const n = CONFLUENCES.filter(x => r[x.key]).length;
       return '<button class="conf-btn' + (n ? '' : ' none') + '" data-act="conf"' + lk + '>' + n + ' / ' + CONFLUENCES.length + '</button>';
+    }
+    case 'bucket': {
+      const bv = v || '—';
+      let html = '<select class="ci" data-k="' + col.k + '"' + lk + '><option' + (bv === '—' ? ' selected' : '') + '>—</option>';
+      const groups = {};
+      BUCKETS.forEach(b => { (groups[b.group] = groups[b.group] || []).push(b); });
+      Object.keys(groups).forEach(g => {
+        html += '<optgroup label="' + esc(g) + '">';
+        groups[g].forEach(b => { html += '<option value="' + esc(b.key) + '"' + (bv === b.key ? ' selected' : '') + '>' + esc(b.label) + '</option>'; });
+        html += '</optgroup>';
+      });
+      return html + '</select>';
+    }
+    case 'prob': {
+      const p = bucketProb(r.trade_bucket);
+      if(!p) return '<div class="calc" style="text-align:center">—</div>';
+      const cls = p === 'High' ? 'high' : p === 'Medium' ? 'med' : 'low';
+      return '<span class="prob-pill ' + cls + '">' + p + '</span>';
     }
     case 'check':
       return '<input class="ci-check" type="checkbox" data-k="' + col.k + '"' + (v ? ' checked' : '') + '>';
@@ -784,7 +824,7 @@ function wireGrid(){
         if(!row) return;
         row[el.dataset.k] = (el.type === 'checkbox') ? el.checked : (el.type === 'number') ? num(el.value) : ((el.type === 'time' || el.type === 'date') && !el.value) ? null : el.value;
         const k = el.dataset.k;
-        if(k === 'h4_bias' || k === 'h1_bias' || k === 'm15_bias'){
+        if(k === 'daily_bias' || k === 'h4_bias' || k === 'm15_bias'){
           el.style.color = el.value === 'Long' ? 'var(--green)' : el.value === 'Short' ? 'var(--red)' : '';
         }
         if(k === 'outcome'){
@@ -796,6 +836,14 @@ function wireGrid(){
           if(m !== 'EM3 Conservative' && row.fz_state !== '—') row.fz_state = '—';
           if(m !== 'EM1/2 Aggressive' && m !== 'EM3 Aggressive' && m !== 'EM3 Conservative' && row.fake_shift !== '—') row.fake_shift = '—';
           queueSave(id, row); renderGrid(); return;
+        }
+        if(k === 'trade_bucket'){
+          /* update the probability pill without a full re-render */
+          const probIdx = COLS.findIndex(c => c.k === '_prob');
+          if(probIdx >= 0){
+            const td = tr.children[probIdx + 2];
+            if(td) td.innerHTML = cellHTML(COLS[probIdx], row, calcs(row));
+          }
         }
         if(el.type === 'url'){
           const cell = el.closest('.link-cell');
@@ -833,7 +881,7 @@ function wireGrid(){
 
 function refreshCalcCells(tr, row){
   const c = calcs(row);
-  const map = ['_poiR','_mfePoiR','_r1','_r2'];
+  const map = ['_poiR','_mfePoiR','_r1','_r2','_prob'];
   const idxs = COLS.map((col, i) => map.includes(col.k) ? i : -1).filter(i => i >= 0);
   idxs.forEach(i => {
     const td = tr.children[i + 2];
@@ -904,9 +952,9 @@ function parseDictation(text){
   const inst = t.match(/\b(es|nq|ym|gc|xauusd|gold|us100|nasdaq|eurusd|gbpusd|usdjpy)\b/);
   if(inst){ const m = { es:'ES', nq:'NQ', ym:'YM', gc:'GC', xauusd:'XAUUSD', gold:'GC', us100:'US100', nasdaq:'US100', eurusd:'EURUSD', gbpusd:'GBPUSD', usdjpy:'USDJPY' }; o.instrument = m[inst[1]]; }
   const biasAt = re => { const m = t.match(re); return m ? (m[1] === 'long' ? 'Long' : 'Short') : null; };
-  o.h4_bias  = biasAt(/\bh4\D{0,16}?\b(long|short)\b/);
-  o.h1_bias  = biasAt(/\bh1\D{0,16}?\b(long|short)\b/);
-  o.m15_bias = biasAt(/\b(?:15 ?m|15 ?min|fifteen)\D{0,16}?\b(long|short)\b/);
+  o.h4_bias  = biasAt(/\b(?:h4|swing)\D{0,16}?\b(long|short)\b/);
+  o.daily_bias = biasAt(/\bdaily\D{0,16}?\b(long|short)\b/);
+  o.m15_bias = biasAt(/\b(?:15 ?m|15 ?min|fifteen|internal)\D{0,16}?\b(long|short)\b/);
   if(!o.m15_bias){
     if(/\b(short|sell|bearish)\b/.test(t)) o.m15_bias = 'Short';
     if(/\b(long|buy|bullish)\b/.test(t))   o.m15_bias = 'Long';
@@ -941,8 +989,16 @@ function parseDictation(text){
   o.mfe_price    = g(/(?:mfe|max favou?rable|ran to|best)\D{0,14}?(\d+(?:\.\d+)?)/);
   o.mae_price    = g(/(?:mae|max adverse|drew down to|worst)\D{0,14}?(\d+(?:\.\d+)?)/);
   const time = t.match(/\b(\d{1,2}:\d{2})\b/); if(time) o.entry_time = time[1].padStart(5,'0');
-  const ph = t.match(/(?:h4|htf|mtf)\D{0,14}?(?:phase\s*)?(1b|1|2|3|4)/);
-  if(ph){ o.h4_phase = ph[1] === '1b' ? 'P1b' : 'P' + ph[1]; }
+  if(/\bblue sky\b/.test(t))                              o.trade_bucket = 'p1b_blue_sky';
+  else if(/\bpoi nearby\b/.test(t))                       o.trade_bucket = 'p1b_poi_nearby';
+  else if(/\bp3\b/.test(t))                               o.trade_bucket = 'p3_post_mss';
+  else if(/\bp4 not well.?priced\b|\bp4 poorly\b/.test(t))o.trade_bucket = 'p4_not_well_priced';
+  else if(/\bp4 well.?priced\b|\bp4\b/.test(t))           o.trade_bucket = 'p4_well_priced';
+  else if(/\bp2\b/.test(t))                               o.trade_bucket = 'p2';
+  else if(/\bconsolidation\b/.test(t))                    o.trade_bucket = 'consolidation';
+  else if(/\bdaily conflict\b/.test(t))                   o.trade_bucket = 'p1_daily_conflict';
+  else if(/\bpoorly priced\b|\bcounter.?trend\b/.test(t)) o.trade_bucket = 'p1_poorly_priced';
+  else if(/\bp1\b/.test(t))                               o.trade_bucket = 'p1_aligned';
   if(/\bwin\b|\bwinner\b|\bwon\b/.test(t))            o.outcome = 'Win';
   if(/\bloss\b|\blost\b|\bstopped out\b/.test(t))     o.outcome = 'Loss';
   if(/\bbreakeven\b|\bbreak even\b|\bb\/?e\b/.test(t))o.outcome = 'Breakeven';
@@ -982,11 +1038,11 @@ async function createFromDictation(){
 function exportCSV(){
   if(!rows.length) return toast('Nothing to export yet', true);
   const keys = COLS.filter(c => c.t !== 'calc' && c.t !== 'conf').map(c => c.k);
-  const head = [...keys, ...CONFLUENCES.map(c => c.key), 'conf_inducement'];
+  const head = [...keys, 'probability', ...CONFLUENCES.map(c => c.key), 'conf_inducement', 'h1_bias', 'htf_phase', 'h4_phase'];
   const q = v => { if(v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
   const lines = [head.join(',')];
   rows.forEach(r => {
-    lines.push([...keys.map(k => r[k]), ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement].map(q).join(','));
+    lines.push([...keys.map(k => k === '_prob' ? (bucketProb(r.trade_bucket) || '') : r[k]), bucketProb(r.trade_bucket) || '', ...CONFLUENCES.map(x => r[x.key]), r.conf_inducement, r.h1_bias || '', r.htf_phase || '', r.h4_phase || ''].map(q).join(','));
   });
   const blob = new Blob([lines.join('\n')], { type:'text/csv' });
   const a = document.createElement('a');
@@ -1279,12 +1335,15 @@ function wireSummaryCard(){
     /* THE POI — always shown */
     h += '<div class="tsc-sec">The POI</div>';
     h += '<div class="tsc-row"><span class="tsc-val">' + esc(v(row.poi_type)) + '</span><span class="tsc-lbl">&middot;</span><span class="tsc-val">' + esc(v(row.poi_tf)) + '</span></div>';
-    h += '<div class="tsc-row"><span class="tsc-lbl">HTF</span> <span class="tsc-val">' + esc(v(row.htf_phase)) + '</span><span class="tsc-lbl" style="margin-left:0.35rem">MTF</span> <span class="tsc-val">' + esc(v(row.h4_phase)) + '</span></div>';
     h += '<div class="tsc-row">';
-    h += '<span class="tsc-chip' + biasClass(row.h4_bias) + '">H4 ' + esc(v(row.h4_bias)) + '</span>';
-    h += '<span class="tsc-chip' + biasClass(row.h1_bias) + '">H1 ' + esc(v(row.h1_bias)) + '</span>';
-    h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">15m ' + esc(v(row.m15_bias)) + '</span>';
+    h += '<span class="tsc-chip' + biasClass(row.daily_bias) + '">Daily ' + esc(v(row.daily_bias)) + '</span>';
+    h += '<span class="tsc-chip' + biasClass(row.h4_bias) + '">Swing ' + esc(v(row.h4_bias)) + '</span>';
+    h += '<span class="tsc-chip' + biasClass(row.m15_bias) + '">Internal ' + esc(v(row.m15_bias)) + '</span>';
     h += '<span class="tsc-chip">' + esc(v(row.push_liq)) + ' push</span>';
+    h += '</div>';
+    const bp = bucketProb(row.trade_bucket);
+    h += '<div class="tsc-row"><span class="tsc-lbl">Trade List:</span> <span class="tsc-val">' + esc(bucketLabel(row.trade_bucket)) + '</span>';
+    if(bp) h += ' <span class="prob-pill ' + (bp === 'High' ? 'high' : bp === 'Medium' ? 'med' : 'low') + '" style="font-size:0.5rem;padding:0.1rem 0.35rem">' + bp + '</span>';
     h += '</div>';
     h += '<div class="tsc-price"><span>' + esc(v(row.poi_entry)) + ' &rarr; ' + esc(v(row.poi_inval)) + '</span><b>' + (c.poiR !== null ? c.poiR.toFixed(2) + ' R' : '—') + '</b></div>';
     /* MFE / MAE live on the POI — they describe the zone reaction, not the trade */
