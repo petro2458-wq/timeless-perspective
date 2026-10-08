@@ -551,10 +551,10 @@ function tradeDir(row){
 
 const PHASE_DEFS = [
   { key:'p1_well_priced', group:'Trade List', probLabel:'High or Medium',
-    desc:'Continuation after a completed pullback. Price pulled back 50%+ and reacted off a swing POI, which suggests the pullback is over. MTF and Swing Bias are aligned with the trade. Daily Trend does not have to agree; it only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating. Usually reached when the 15m prints its own MSS from a well-priced P4 zone.',
+    desc:'The P4 reaction was well priced. The 15m has shifted from that well-priced P4 zone back into alignment with the Swing (H4), so the pullback is probably over. Swing and MTF are both aligned with the trade. Daily Trend does not have to agree. It only sets the probability: High when Daily matches Swing and MTF, Medium when Daily conflicts or is Consolidating.',
     dir:'With Swing and MTF.', targets:'Primary 15m weak high/low · intermediate 5m weak high/low.' },
   { key:'p1_poorly_priced', group:'Trade List', probLabel:'Medium',
-    desc:'The Phase 3 to Phase 1 MTF shift. MTF and Swing Bias are aligned, but the pullback was unlikely to be deep enough, so more pullback may still be in play. The trade runs against both the MTF and the Swing bias. Daily Trend is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive (a sweep is favoured, but all three qualify).',
+    desc:'The same shift back into alignment with the Swing, but it came from a P4 zone that was not well priced. The shift is early, so more pullback is probably still in play. This creates the counter-trend opportunity. Daily Trend is irrelevant. Needs a lower-timeframe MSS confirmed, with Entry Model = Flip Zone, Flip Zone Sweep or EM1/2 Aggressive (a sweep is favoured, but all three qualify).',
     dir:'Against both Swing and MTF.', targets:'Primary 15m strong supply/demand: take profits at the opposing zone, and do not assume an opposite MSS · intermediate 5m weak high/low.' },
   { key:'p1b_blue_sky', group:'Trade List', probLabel:'Medium',
     desc:'Swing structure has just created a BOS or an MSS, with MTF and Swing aligned: the fresh stage right after the shift, before continuation is confirmed. Blue Sky means price is at or near all-time highs (or lows), or has a lot of room ahead, with no obvious POIs against it.',
