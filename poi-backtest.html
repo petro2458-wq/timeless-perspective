@@ -621,6 +621,7 @@ const COLS = [
   { k:'instrument',    h:'Instrument',     t:'select', o:INSTS, w:114, g:'Context' },
   { k:'daily_trend',   h:'Daily Trend',    t:'select', o:['—','Bullish','Bearish','Consolidating'], w:140, g:'Context' },
   { k:'todays_bias',   h:"Today's Bias",   t:'select', o:['—','Bullish','Bearish','Unclear'], w:130, g:'Context' },
+  { k:'daily_h4_phase',h:'Daily/H4 Phase', t:'select', o:['—','P1','P1b','P2','P3','P4'], w:120, g:'Context' },
   { k:'h4_bias',       h:'Swing Bias',     t:'select', o:['Long','Short'], w:110, g:'Context' },
   { k:'m15_bias',      h:'MTF Bias',       t:'select', o:['Long','Short'], w:110, g:'Context' },
   { k:'trade_bucket',  h:'Market Phase',   t:'bucket', w:270, g:'Context' },
@@ -666,6 +667,7 @@ const COL_DEFS = {
   instrument:'Instrument traded.',
   daily_trend:'Daily chart input. The Daily structure: Bullish, Bearish or Consolidating.',
   todays_bias:"Daily chart input. Your discretionary view for today's session: Bullish, Bearish or Unclear. Recorded as a stat confluence for later study. It does not change the probability, phase or direction. It is the bias for the day and influences which trades the trader selects.",
+  daily_h4_phase:'The phase on the Daily/H4 timeframe. Context only — does not affect probability, phase or direction.',
   h4_bias:'Direction of the H4 swing structure, same read as Daily Trend. Long or Short.',
   m15_bias:'Direction of the 15m swing structure, same read as Daily Trend. Long or Short. The R sign now comes from the trade direction derived from Market Phase and the biases. See Market Phase definitions.',
   trade_bucket:'The market phase at the time of the POI. Pick the phase only; Daily Trend is not part of it. Probability is calculated from this plus the biases. Click Definitions → for what each phase means.',
@@ -782,7 +784,7 @@ const store = {
 function blankRow(){
   const r = { trader: trader, pr_reviewer:'—', pr_request_note:'', pr_notes:'', pr_complete:false, pr_read_at:null, needs_review:false,
     date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }),
-    entry_tf:'—', entry_time:null, instrument:'ES', daily_trend:'—', todays_bias:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
+    entry_tf:'—', entry_time:null, instrument:'ES', daily_trend:'—', todays_bias:'—', daily_h4_phase:'—', h4_bias:'Long', m15_bias:'Long', trade_bucket:'—', poi_tf:'—', poi_type:'—',
     entry_model:'No Entry Model', push_liq:'—',
     poi_entry:null, poi_inval:null, entry_price:null, stop_price:null,
     primary_target:null, intermediate_target:null,
@@ -810,7 +812,7 @@ function makeRef(row){
 
 /* Second attempt on the same POI: copy the context and POI half, leave the
    trade and outcome blank, share the reference. */
-const POI_HALF = ['date','entry_tf','instrument','daily_trend','todays_bias','h4_bias','m15_bias','trade_bucket',
+const POI_HALF = ['date','entry_tf','instrument','daily_trend','todays_bias','daily_h4_phase','h4_bias','m15_bias','trade_bucket',
                   'poi_ref','poi_tf','poi_type','poi_entry','poi_inval','tv_h4','tv_h1','tv_m15'];
 async function cloneRow(id){
   const src = rows.find(r => String(r.id) === String(id));

@@ -25,6 +25,7 @@ create table if not exists public.poi_backtest (
   daily_bias          text,          -- Long / Short (HTF daily lean)
   daily_trend          text,          -- Bullish / Bearish / Consolidating
   todays_bias          text,          -- Bullish / Bearish / Unclear
+  daily_h4_phase      text,          -- P1 / P1b / P2 / P3 / P4 (context only)
   trade_bucket        text,          -- key from BUCKETS constant
   poi_type            text,          -- Flip Zone / Supply Zone / Demand Zone
   poi_ref             text,          -- e.g. ES-0923-1. Two trades on one POI share it,
@@ -148,6 +149,7 @@ alter table public.poi_backtest enable row level security;
 --   add column if not exists daily_bias    text,
 --   add column if not exists daily_trend   text,
 --   add column if not exists todays_bias   text,
+--   add column if not exists daily_h4_phase text,
 --   add column if not exists trade_bucket  text,
 --   add column if not exists conf_mtf_inducement boolean,
 --   add column if not exists stop_price    numeric,
